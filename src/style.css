@@ -1,0 +1,158 @@
+/* ============================================
+   内容与策展 · 课程总网站 — 全局样式
+   ============================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* 色彩系统 */
+  --blue-light: #1B4ED8;
+  --white: #FFFFFF;
+  --red-stamp: #d63511;
+  --gray-text: #666;
+  
+  /* 棋盘格纹 */
+  --checker-size: 16px;
+  --checker-blue: var(--blue-light);
+  --checker-white: var(--white);
+  
+  /* 字体 */
+  --font-heavy: "AlibabaPuHuiTi-3", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-body: "AlibabaPuHuiTi-3", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  
+  /* 间距 */
+  --space: clamp(1.5rem, 4vw, 3rem);
+  --max-w: 1200px;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--white);
+  color: var(--blue-light);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Typography --- */
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heavy);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+h1 { 
+  font-size: clamp(3rem, 8vw, 5rem); 
+  line-height: 1.1;
+}
+
+h2 { 
+  font-size: clamp(1.5rem, 4vw, 2.5rem); 
+  line-height: 1.2;
+}
+
+h3 { 
+  font-size: clamp(1rem, 2.5vw, 1.5rem); 
+}
+
+p { 
+  margin-bottom: 1rem; 
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* --- Checkerboard Pattern (CSS only) --- */
+
+.checker-pattern {
+  background-image: repeating-linear-gradient(
+    0deg,
+    var(--checker-blue) 0,
+    var(--checker-blue) var(--checker-size),
+    var(--checker-white) var(--checker-size),
+    var(--checker-white) calc(var(--checker-size) * 2)
+  ),
+  repeating-linear-gradient(
+    90deg,
+    var(--checker-blue) 0,
+    var(--checker-blue) var(--checker-size),
+    var(--checker-white) var(--checker-size),
+    var(--checker-white) calc(var(--checker-size) * 2)
+  );
+  background-size: calc(var(--checker-size) * 2) calc(var(--checker-size) * 2);
+  background-position: center center;
+}
+
+.checker-border {
+  position: relative;
+  border: 4px solid transparent;
+  border-image: repeating-linear-gradient(
+    45deg,
+    var(--checker-blue) 0,
+    var(--checker-blue) 8px,
+    var(--checker-white) 8px,
+    var(--checker-white) 16px
+  ) 4;
+}
+
+/* --- Red Stamp --- */
+
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid var(--red-stamp);
+  color: var(--red-stamp);
+  font-family: var(--font-heavy);
+  font-weight: 900;
+  font-size: 1.2rem;
+  transform: rotate(-15deg);
+  flex-shrink: 0;
+}
+
+.stamp-sm {
+  width: 48px;
+  height: 48px;
+  font-size: 0.75rem;
+  border-width: 3px;
+}
+
+/* --- Layout --- */
+
+.container {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 var(--space);
+}
+
+/* --- Fade-in Animation --- */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeInUp 0.5s ease forwards;
+}

@@ -25,7 +25,20 @@
 
     <MarqueeBanner :items="['策展超市 2.0', '2026 内容与策展计划']" />
 
-
+    <!-- Course Calendar -->
+    <section class="calendar-section">
+      <div class="calendar-header">
+        <div class="stamp stamp-sm">日程</div>
+        <h2>课程日历</h2>
+        <p>{{ courseInfo.cycle }} · 开课 {{ courseStartDate }}</p>
+      </div>
+      
+      <Calendar 
+        :events="courseEvents" 
+        :start-date="startDate"
+        @date-select="handleDateSelect"
+      />
+    </section>
 
 
 
@@ -97,10 +110,67 @@
 </template>
 
 <script setup>
-import { courseInfo } from '../data/syllabus.js'
+import { computed } from 'vue'
+import { courseInfo, weeks } from '../data/syllabus.js'
 import Checkerboard from '../components/Checkerboard.vue'
 import ShelfShowcase from '../components/ShelfShowcase.vue'
 import MarqueeBanner from '../components/MarqueeBanner.vue'
+import Calendar from '../components/Calendar.vue'
+
+// 开课日期：2026年9月7日（周一）
+const startDate = new Date(2026, 8, 7)
+const courseStartDate = '2026/9/7'
+
+// 生成课程事件列表
+const courseEvents = computed(() => {
+  const events = []
+  
+  weeks.forEach(week => {
+    // 周一课程
+    events.push({
+      date: `2026-${String(week.dates.mon.split('/')[0]).padStart(2, '0')}-${String(week.dates.mon.split('/')[1]).padStart(2, '0')}`,
+      title: `W${week.week} ${week.sessions[0].title}`,
+      type: 'course',
+      week: week.week,
+      session: week.sessions[0]
+    })
+    
+    // 周三课程
+    events.push({
+      date: `2026-${String(week.dates.wed.split('/')[0]).padStart(2, '0')}-${String(week.dates.wed.split('/')[1]).padStart(2, '0')}`,
+      title: `W${week.week} ${week.sessions[1].title}`,
+      type: 'course',
+      week: week.week,
+      session: week.sessions[1]
+    })
+    
+    // 周四课程
+    events.push({
+      date: `2026-${String(week.dates.thu.split('/')[0]).padStart(2, '0')}-${String(week.dates.thu.split('/')[1]).padStart(2, '0')}`,
+      title: `W${week.week} ${week.sessions[2].title}`,
+      type: 'course',
+      week: week.week,
+      session: week.sessions[2]
+    })
+    
+    // 课后作业（如果有）
+    if (week.homework && week.homework.length > 0) {
+      events.push({
+        date: `2026-${String(week.dates.thu.split('/')[0]).padStart(2, '0')}-${String(week.dates.thu.split('/')[1]).padStart(2, '0')}`,
+        title: `W${week.week} 作业提交`,
+        type: 'deadline',
+        week: week.week,
+        homework: week.homework
+      })
+    }
+  })
+  
+  return events
+})
+
+const handleDateSelect = (date) => {
+  console.log('Selected:', date)
+}
 </script>
 
 <style scoped>
@@ -294,6 +364,44 @@ import MarqueeBanner from '../components/MarqueeBanner.vue'
   opacity: 0.85;
   font-size: 0.9rem;
   margin: 0;
+}
+
+/* Calendar Section */
+.calendar-section {
+  padding: 4rem var(--space);
+  border-top: 3px solid #000;
+  border-bottom: 3px solid #000;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #000;
+}
+
+.calendar-header h2 {
+  margin: 0;
+}
+
+.calendar-header p {
+  font-size: 0.9rem;
+  color: var(--gray-text);
+  margin: 0 0 0 auto;
+}
+
+@media (max-width: 768px) {
+  .calendar-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .calendar-header p {
+    margin: 0;
+  }
 }
 
 @media (max-width: 768px) {

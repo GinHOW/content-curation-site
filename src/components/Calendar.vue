@@ -37,9 +37,15 @@
             v-for="(event, idx) in getEvents(date)" 
             :key="idx" 
             class="event-item"
-            :class="event.type"
+            :class="[event.type, { truncated: isItemTruncated(date, idx) }]"
           >
-            {{ event.title }}
+            <template v-if="isItemTruncated(date, idx)">
+              <span class="event-text-inner" :style="{ '--duration': getMarqueeDuration(date, idx) }">
+                <span class="event-text-copy">{{ event.title }}</span>
+                <span class="event-text-copy" aria-hidden="true">{{ event.title }}</span>
+              </span>
+            </template>
+            <template v-else>{{ event.title }}</template>
           </div>
         </div>
       </div>
@@ -48,7 +54,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 
 const props = defineProps({
   events: {
@@ -65,6 +71,40 @@ const emit = defineEmits(['date-select'])
 
 const currentDate = ref(new Date(props.startDate))
 const selectedDate = ref(null)
+
+// 文本溢出检测
+const scrollOffsets = ref(new Map())
+
+const checkOverflows = () => {
+  nextTick(() => {
+    const items = document.querySelectorAll('.event-item')
+    const newOffsets = new Map()
+    items.forEach(el => {
+      const overflow = el.scrollWidth - el.clientWidth
+      if (overflow > 0) {
+        const key = el.closest('.calendar-cell')?.querySelector('.cell-date')?.textContent + '-' +
+                    Array.from(el.parentElement.children).indexOf(el)
+        newOffsets.set(key, overflow)
+      }
+    })
+    scrollOffsets.value = newOffsets
+  })
+}
+
+const isItemTruncated = (date, idx) => {
+  return scrollOffsets.value.has(`${date}-${idx}`)
+}
+
+const getItemOffset = (date, idx) => {
+  return scrollOffsets.value.get(`${date}-${idx}`) || 0
+}
+
+const getMarqueeDuration = (date, idx) => {
+  const overflow = getItemOffset(date, idx)
+  // 溢出越多，滚动越慢（保证可读性）
+  const seconds = Math.max(3, overflow / 20)
+  return seconds + 's'
+}
 
 // 星期名称
 const weekdays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
@@ -162,6 +202,15 @@ watch(() => props.startDate, (newDate) => {
   currentDate.value = new Date(newDate)
   selectedDate.value = null
 })
+
+// 月份切换时重新检测溢出
+watch(currentMonthLabel, () => {
+  checkOverflows()
+})
+
+onMounted(() => {
+  checkOverflows()
+})
 </script>
 
 <style scoped>
@@ -215,6 +264,7 @@ watch(() => props.startDate, (newDate) => {
 .calendar-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
+  min-width: 0;
   border-bottom: 3px solid #000;
   background: #f5f5f5;
 }
@@ -239,9 +289,7 @@ watch(() => props.startDate, (newDate) => {
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
-  background: #000;
-  padding: 2px;
+  min-width: 0;
 }
 
 .calendar-cell {
@@ -251,7 +299,14 @@ watch(() => props.startDate, (newDate) => {
   position: relative;
   cursor: pointer;
   transition: background 0.2s ease;
-  border: 1px solid transparent;
+  border-right: 2px solid #000;
+  border-bottom: 2px solid #000;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.calendar-cell:nth-child(7n) {
+  border-right: none;
 }
 
 .calendar-cell:hover {
@@ -297,8 +352,37 @@ watch(() => props.startDate, (newDate) => {
   border-left: 3px solid #000;
   line-height: 1.3;
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.event-item:not(.truncated) {
+  text-overflow: ellipsis;
+}
+
+/* 无缝循环滚动 */
+.event-text-inner {
+  display: inline-flex;
+  animation-play-state: paused;
+}
+
+.calendar-cell:hover .event-text-inner {
+  animation: marquee-loop var(--duration, 4s) linear infinite;
+  animation-play-state: running;
+}
+
+.event-text-copy {
+  display: inline-block;
+  padding-right: 3em;
+  flex-shrink: 0;
+}
+
+@keyframes marquee-loop {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .event-item.course {

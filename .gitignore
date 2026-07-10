@@ -1,8 +1,10 @@
 node_modules
 dist
+dist-ssr
+.vite
 .DS_Store
 *.local
-.vite
+
 # Logs
 logs
 *.log
@@ -12,18 +14,18 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Cloudflare / Wrangler
+.wrangler/
+
+# 大资源文件（托管在 Cloudflare R2）
+public/course-gifs/

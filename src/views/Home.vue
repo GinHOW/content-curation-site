@@ -21,7 +21,7 @@
     <MarqueeBanner :items="['策展超市 1.0', '2025 内容与策展教学部分成果']" />
 
     <!-- Interactive Shelf Showcase -->
-    <ShelfShowcase />
+    <ShelfShowcase @open-exhibition="openExhibition" />
 
     <MarqueeBanner :items="['策展超市 2.0', '2026 内容与策展计划']" />
 
@@ -39,83 +39,28 @@
         @date-select="handleDateSelect"
       />
     </section>
-
-
-
-    <!-- Shelf Grid -->
-    <section class="shelf-section">
-      <div class="shelf-header">
-        <div class="stamp stamp-sm">货架</div>
-        <h2>课程板块</h2>
-      </div>
-
-      <div class="shelf-grid">
-        <router-link to="/syllabus" class="product-box fade-in" style="animation-delay: 0.1s;">
-          <span class="product-box-label">NO.01</span>
-          <svg class="product-box-icon" viewBox="0 0 24 24">
-            <path d="M3 3h18v2H3V3zm0 4h18v2H3V7zm0 4h18v2H3v-2zm0 4h18v2H3v-2zm0 4h18v2H3v-2z"/>
-          </svg>
-          <h3>课程大纲</h3>
-          <p>8 周课程安排，每周一、三、四上课。包含 Session 详情与课后作业。</p>
-          <div class="product-box-corner"></div>
-        </router-link>
-
-        <router-link to="/references" class="product-box fade-in" style="animation-delay: 0.2s;">
-          <span class="product-box-label">NO.02</span>
-          <svg class="product-box-icon" viewBox="0 0 24 24">
-            <path d="M12 2L2 7l10 5 10-5-10-5zm0 9l2.5-1.25L12 8.5l-2.5 1.25L12 11zm0 2.5l-5-2.5-5 2.5L12 22l10-8.5-5-2.5-5 2.5z"/>
-          </svg>
-          <h3>参考资料</h3>
-          <p>文本、视频、图像等课程阅读材料索引。含 Bruce Andrews《电子诗学》等核心理论文献。</p>
-          <div class="product-box-corner"></div>
-        </router-link>
-
-        <router-link to="/works" class="product-box fade-in" style="animation-delay: 0.3s;">
-          <span class="product-box-label">NO.03</span>
-          <svg class="product-box-icon" viewBox="0 0 24 24">
-            <path d="M4 6h16v12H4V6zm2 2v8h12V8H6zm3 3h6v2H9v-2z"/>
-          </svg>
-          <h3>学生作品</h3>
-          <p>策展网站项目成果展示。每位/每组学生完成一个以自选对象为主题的策展网站。</p>
-          <div class="product-box-corner"></div>
-        </router-link>
-      </div>
-    </section>
-
-    <!-- Additional Info -->
-    <section class="shelf-section shelf-section--dark">
-      <div class="shelf-header shelf-header--dark">
-        <div class="stamp stamp-sm stamp--dark">说明</div>
-        <h2>课程特色</h2>
-      </div>
-      
-      <div class="feature-grid">
-        <div class="feature-box fade-in" style="animation-delay: 0.4s;">
-          <h3>Vibe Coding</h3>
-          <p>AI 辅助编码工作流。用自然语言描述意图，AI 生成代码，再阅读、理解、修改。</p>
-        </div>
-        
-        <div class="feature-box fade-in" style="animation-delay: 0.5s;">
-          <h3>双轨并行</h3>
-          <p>数字端（网站）+ 空间端（展具设计）同步推进，最终汇合为完整展览方案。</p>
-        </div>
-        
-        <div class="feature-box fade-in" style="animation-delay: 0.6s;">
-          <h3>对象策展</h3>
-          <p>从绳结、假发、棋盘、邮轮等候选对象中选择，围绕具体物件展开完整策展流程。</p>
-        </div>
-      </div>
-    </section>
   </div>
+
+  <!-- Exhibition Detail Overlay -->
+  <ExhibitionDetail
+    :exhibition-id="activeExhibition"
+    @close="closeExhibition"
+  />
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { courseInfo, weeks } from '../data/syllabus.js'
 import Checkerboard from '../components/Checkerboard.vue'
 import ShelfShowcase from '../components/ShelfShowcase.vue'
 import MarqueeBanner from '../components/MarqueeBanner.vue'
 import Calendar from '../components/Calendar.vue'
+import ExhibitionDetail from './ExhibitionDetail.vue'
+
+// 展览遮罩状态
+const activeExhibition = ref(null)
+const openExhibition = (id) => { activeExhibition.value = id }
+const closeExhibition = () => { activeExhibition.value = null }
 
 // 开课日期：2026年9月7日（周一）
 const startDate = new Date(2026, 8, 7)
@@ -238,134 +183,6 @@ const handleDateSelect = (date) => {
 }
 
 
-/* Shelf Section */
-.shelf-section {
-  padding: 4rem var(--space);
-}
-
-.shelf-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #000;
-}
-
-.shelf-header h2 {
-  margin: 0;
-}
-
-/* Brutalist grid: no gap, borders as dividers */
-.shelf-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  border-left: 2px solid #000;
-  border-top: 2px solid #000;
-}
-
-/* Product Box Card — raw industrial edge */
-.product-box {
-  background: var(--white);
-  border-right: 2px solid #000;
-  border-bottom: 2px solid #000;
-  padding: 1.5rem;
-  position: relative;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  display: block;
-  border-radius: 0;
-}
-
-.product-box:hover {
-  background: #f5f5f5;
-}
-
-.product-box-label {
-  position: absolute;
-  top: -1px;
-  right: -1px;
-  background: #000;
-  color: var(--white);
-  padding: 0.3rem 0.8rem;
-  font-family: var(--font-heavy);
-  font-weight: 700;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  border-radius: 0;
-}
-
-.product-box-icon {
-  width: 48px;
-  height: 48px;
-  margin-bottom: 1rem;
-  fill: var(--red-stamp);
-}
-
-.product-box h3 {
-  margin: 0 0 0.5rem;
-  font-size: 1.3rem;
-  line-height: 1.3;
-}
-
-.product-box p {
-  font-size: 0.9rem;
-  color: var(--gray-text);
-  margin: 0;
-  line-height: 1.6;
-}
-
-.product-box-corner {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 40px;
-  height: 40px;
-  background: #000;
-  clip-path: polygon(100% 0, 100% 100%, 0 100%);
-}
-
-/* Dark section variant */
-.shelf-section--dark {
-  background: var(--blue-light);
-  color: var(--white);
-}
-
-.shelf-header--dark {
-  border-bottom-color: var(--white);
-}
-
-.stamp--dark {
-  border-color: var(--white);
-  color: var(--white);
-}
-
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  border-left: 2px solid var(--white);
-  border-top: 2px solid var(--white);
-}
-
-.feature-box {
-  padding: 1.5rem;
-  border-right: 2px solid var(--white);
-  border-bottom: 2px solid var(--white);
-  border-radius: 0;
-}
-
-.feature-box h3 {
-  color: var(--white);
-  margin-bottom: 0.5rem;
-}
-
-.feature-box p {
-  opacity: 0.85;
-  font-size: 0.9rem;
-  margin: 0;
-}
-
 /* Calendar Section */
 .calendar-section {
   padding: 4rem var(--space);
@@ -415,11 +232,6 @@ const handleDateSelect = (date) => {
     margin: 1rem auto 0;
     width: 64px;
     height: 64px;
-  }
-  
-  .shelf-grid,
-  .feature-grid {
-    grid-template-columns: 1fr;
   }
   
   .info-bar-inner {

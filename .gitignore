@@ -29,3 +29,4 @@ lerna-debug.log*
 
 # 大资源文件（托管在 Cloudflare R2）
 public/course-gifs/
+agent.md

@@ -455,4 +455,61 @@ if (typeof window !== 'undefined') {
     font-size: 1.6rem;
   }
 }
+
+/* 超小屏幕：全屏展示 + 紧凑内边距 */
+@media (max-width: 480px) {
+  .exhibition-overlay {
+    padding: 0;
+  }
+
+  .exhibition-detail {
+    max-height: 100dvh;
+    border: none;
+  }
+
+  .panel-header {
+    padding: 1.5rem 1rem 0;
+  }
+
+  .panel-scroll {
+    padding: 1rem 1rem 1.5rem;
+  }
+
+  .panel-footer {
+    padding: 0.75rem 1rem;
+  }
+
+  .info-title {
+    font-size: 1.3rem;
+  }
+
+  .info-title-en {
+    font-size: 0.7rem;
+  }
+
+  .info-desc p {
+    font-size: 0.8rem;
+    line-height: 1.7;
+  }
+
+  .nav-arrow {
+    width: 32px;
+    height: 32px;
+  }
+
+  .nav-arrow--left {
+    left: 0.5rem;
+  }
+
+  .nav-arrow--right {
+    right: 0.5rem;
+  }
+
+  .close-btn {
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 32px;
+    height: 32px;
+  }
+}
 </style>

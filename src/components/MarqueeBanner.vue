@@ -68,4 +68,20 @@ const props = defineProps({
     transform: translateX(-20%);
   }
 }
+
+@media (max-width: 768px) {
+  .marquee-banner {
+    padding: 0.4rem 0;
+  }
+
+  .marquee-item {
+    font-size: 0.75rem;
+    padding: 0 0.6rem;
+  }
+
+  .sep {
+    margin: 0 0.6rem;
+    font-size: 1rem;
+  }
+}
 </style>

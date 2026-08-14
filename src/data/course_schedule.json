@@ -1,0 +1,500 @@
+{
+  "course": {
+    "name_zh": "内容与策展",
+    "name_en": "CONTENT & CURATING",
+    "term": "2026 秋季学期",
+    "audience": "视觉传播专业三年级",
+    "prerequisite": "视觉传播二年级基础课程",
+    "duration_weeks": 8,
+    "session_count": 16,
+    "class_time": "第 1–5 周周一、周四下午；第 6–8 周周一、周三、周四下午",
+    "overall_period": {
+      "start": "2026-09-07",
+      "end": "2026-11-19"
+    },
+    "phases": [
+      {
+        "name": "第一阶段",
+        "weeks": "第 1–5 周",
+        "start": "2026-09-07",
+        "end": "2026-10-08"
+      },
+      {
+        "name": "第二阶段",
+        "weeks": "第 6–8 周",
+        "start": "2026-11-02",
+        "end": "2026-11-19"
+      }
+    ],
+    "final_output": "1 个展览",
+    "assessment_mode": "过程性考核＋期末综合汇报"
+  },
+  "schedule": [
+    {
+      "week": 1,
+      "week_theme": "开题：内容数据搭建与空间阅读",
+      "date_range": {
+        "start": "2026-09-07",
+        "end": "2026-09-10"
+      },
+      "sessions": [
+        {
+          "session": 1,
+          "date": "2026-09-07",
+          "weekday": "周一",
+          "title": "课程导论与开题：选定一个“词”",
+          "method": "讲授＋案例研讨",
+          "teaching_content": [
+            "“内容”与“策展”的概念框架",
+            "文化研究、话语实践、媒体研究与意识形态批判视角导入",
+            "经典与当代展览案例解析",
+            "发布课题任务书：2 个班，每组 2–3 人，共计 20 组；每组选定一个兼具哲学内涵、观念包容度和空间类型性的“词”作为展览内容主题"
+          ],
+          "deliverables_or_homework": [
+            "完成分组（2–3 人/组，共 20 组）",
+            "每组确定选“词”并陈述选题理由",
+            "课后启动围绕该“词”的初步检索"
+          ],
+          "word_pool": [
+            "桌面",
+            "橱窗",
+            "客厅",
+            "暗房",
+            "蓄水池",
+            "黄页",
+            "田",
+            "晒场",
+            "阳台",
+            "宴席",
+            "谷仓",
+            "监控室",
+            "隧道"
+          ]
+        },
+        {
+          "session": 2,
+          "date": "2026-09-10",
+          "weekday": "周四",
+          "title": "内容数据库搭建与空间阅读方法",
+          "method": "讲授＋场地踏勘",
+          "teaching_content": [
+            "围绕所选之“词”创建内容数据库：50 个经典艺术档案、50 个文学意象、50 个社会素材、50 个形式灵感，共计 200 条",
+            "采集规范、编目与标签化管理",
+            "场地踏勘要点",
+            "空间类型学：日常“另类”空间与博物馆权威空间",
+            "空间叙事初识"
+          ],
+          "deliverables_or_homework": [
+            "搭建小组内容数据库框架（四类 × 50 条的采集结构与标签体系）",
+            "完成场地踏勘记录（文字＋照片＋速写）"
+          ]
+        }
+      ]
+    },
+    {
+      "week": 2,
+      "week_theme": "展览内容网站搭建",
+      "date_range": {
+        "start": "2026-09-14",
+        "end": "2026-09-17"
+      },
+      "sessions": [
+        {
+          "session": 3,
+          "date": "2026-09-14",
+          "weekday": "周一",
+          "title": "知识谱系学与内容档案结构化",
+          "method": "讲授＋工作坊",
+          "teaching_content": [
+            "知识谱系学分析方法：概念源流与话语结构梳理",
+            "内容档案的结构化：分类体系、元数据与检索逻辑",
+            "展览内容网站的信息架构设计"
+          ],
+          "deliverables_or_homework": [
+            "提交内容档案结构图与网站信息架构图（站点地图＋栏目逻辑）"
+          ]
+        },
+        {
+          "session": 4,
+          "date": "2026-09-17",
+          "weekday": "周四",
+          "title": "内容网站搭建实操",
+          "method": "软件工作坊＋互评",
+          "teaching_content": [
+            "页面叙事与视觉层级",
+            "图像研究与图版编辑规范",
+            "网站原型上线测试与互评"
+          ],
+          "deliverables_or_homework": [
+            "展览内容网站原型上线（阶段成果 ①，计入考核）",
+            "课后按互评意见迭代"
+          ],
+          "milestone": 1
+        }
+      ]
+    },
+    {
+      "week": 3,
+      "week_theme": "建立策展逻辑和提案",
+      "date_range": {
+        "start": "2026-09-21",
+        "end": "2026-09-24"
+      },
+      "sessions": [
+        {
+          "session": 5,
+          "date": "2026-09-21",
+          "weekday": "周一",
+          "title": "策展方法论：从内容到叙事",
+          "method": "讲授＋文本细读",
+          "teaching_content": [
+            "主题凝练",
+            "策展逻辑的建立：问题意识、论述线索与作品/展品组织策略",
+            "策展提案的结构与写作规范"
+          ],
+          "deliverables_or_homework": [
+            "完成策展提案大纲（主题阐述＋叙事线索＋展品清单雏形）"
+          ]
+        },
+        {
+          "session": 6,
+          "date": "2026-09-24",
+          "weekday": "周四",
+          "title": "策展提案工作坊",
+          "method": "提案工作坊＋互评",
+          "teaching_content": [
+            "分组陈述提案草案，师生共同质询与修正",
+            "提案评审标准讲解：学术性、可行性、公共性"
+          ],
+          "deliverables_or_homework": [
+            "提交正式策展提案文本（阶段成果 ②，计入考核）"
+          ],
+          "milestone": 2
+        }
+      ]
+    },
+    {
+      "week": 4,
+      "week_theme": "展览设计方案",
+      "date_range": {
+        "start": "2026-09-28",
+        "end": "2026-10-01"
+      },
+      "sessions": [
+        {
+          "session": 7,
+          "date": "2026-09-28",
+          "weekday": "周一",
+          "title": "空间叙事表达与展线规划",
+          "method": "讲授＋设计工作坊",
+          "teaching_content": [
+            "展线规划与观众动线设计",
+            "物理空间与意义空间的相互转译",
+            "隐喻修辞学方法在空间与展陈中的应用",
+            "展览平面布局与氛围构想"
+          ],
+          "deliverables_or_homework": [
+            "完成展览概念方案：平面布局草图＋展线叙事说明＋氛围参考图"
+          ]
+        },
+        {
+          "session": 8,
+          "date": "2026-10-01",
+          "weekday": "周四",
+          "title": "展览设计方案深化",
+          "method": "设计工作坊",
+          "teaching_content": [
+            "平面图、流线图、重点展项效果图",
+            "材料与尺度初探"
+          ],
+          "deliverables_or_homework": [
+            "深化概念方案，形成可用于中期提案的图纸包"
+          ],
+          "holiday_conflict": true,
+          "holiday_note": "国庆假期不上课",
+          "cancelled": true
+        }
+      ]
+    },
+    {
+      "week": 5,
+      "week_theme": "设计方案初步提案",
+      "date_range": {
+        "start": "2026-10-05",
+        "end": "2026-10-08"
+      },
+      "sessions": [
+        {
+          "session": 9,
+          "date": "2026-10-05",
+          "weekday": "周一",
+          "title": "中期评图（一）",
+          "method": "中期评图",
+          "teaching_content": [
+            "各组汇报展览设计方案初步提案，包含策展逻辑、空间方案与内容网站的整合说明"
+          ],
+          "deliverables_or_homework": [
+            "中期提案汇报（阶段成果 ③，计入考核）",
+            "记录评审意见"
+          ],
+          "milestone": 3,
+          "holiday_conflict": true,
+          "holiday_note": "国庆假期不上课",
+          "cancelled": true
+        },
+        {
+          "session": 10,
+          "date": "2026-10-08",
+          "weekday": "周四",
+          "title": "中期评图（二）与任务分解",
+          "method": "中期评图＋辅导",
+          "teaching_content": [
+            "汇报与集中评议",
+            "明确各组修改方向与第 6–8 周深化任务分工"
+          ],
+          "deliverables_or_homework": [
+            "形成修改任务清单与后半程工作计划"
+          ],
+          "holiday_conflict": false
+        }
+      ]
+    },
+    {
+      "week": 6,
+      "week_theme": "展具 · 视觉 · 活动方案深化设计",
+      "date_range": {
+        "start": "2026-11-02",
+        "end": "2026-11-05"
+      },
+      "sessions": [
+        {
+          "session": 11,
+          "date": "2026-11-02",
+          "weekday": "周一",
+          "title": "展具深化设计",
+          "method": "讲授＋工作坊",
+          "teaching_content": [
+            "展具的结构、材料、工艺与制作可行性",
+            "展陈设备选型与成本控制",
+            "重点展项打样与测试安排"
+          ],
+          "deliverables_or_homework": [
+            "完成展具深化图纸（节点大样＋材料清单＋预算初估）"
+          ]
+        },
+        {
+          "session": 12,
+          "date": "2026-11-05",
+          "weekday": "周四",
+          "title": "视觉系统与公共教育活动方案",
+          "method": "工作坊＋辅导",
+          "teaching_content": [
+            "展览视觉系统设计：主视觉、导视系统、图录与延展物料",
+            "公共教育活动方案深化：开幕活动、公教项目与社群动员计划"
+          ],
+          "deliverables_or_homework": [
+            "完成视觉系统方案与活动方案深化文本（阶段成果 ④）"
+          ],
+          "milestone": 4
+        }
+      ]
+    },
+    {
+      "week": 7,
+      "week_theme": "展览总体商业计划书",
+      "date_range": {
+        "start": "2026-11-09",
+        "end": "2026-11-12"
+      },
+      "sessions": [
+        {
+          "session": 13,
+          "date": "2026-11-09",
+          "weekday": "周一",
+          "title": "展览运营与商业计划书写作",
+          "method": "讲授＋案例分析",
+          "teaching_content": [
+            "预算编制、赞助与合作、票务与衍生品策略",
+            "商业计划书的结构与写作",
+            "传播推广计划：媒体矩阵与时间节点"
+          ],
+          "deliverables_or_homework": [
+            "完成商业计划书初稿（预算表＋运营方案＋推广计划）"
+          ]
+        },
+        {
+          "session": 14,
+          "date": "2026-11-12",
+          "weekday": "周四",
+          "title": "商业计划书工作坊",
+          "method": "工作坊＋一对一辅导",
+          "teaching_content": [
+            "财务测算与风险预案",
+            "一对一辅导，逐组打磨计划书与最终汇报框架"
+          ],
+          "deliverables_or_homework": [
+            "提交展览总体商业计划书（阶段成果 ⑤，计入考核）",
+            "确定综合汇报分工"
+          ],
+          "milestone": 5
+        }
+      ]
+    },
+    {
+      "week": 8,
+      "week_theme": "综合汇报",
+      "date_range": {
+        "start": "2026-11-16",
+        "end": "2026-11-19"
+      },
+      "sessions": [
+        {
+          "session": 15,
+          "date": "2026-11-16",
+          "weekday": "周一",
+          "title": "综合汇报预演",
+          "method": "预演＋辅导",
+          "teaching_content": [
+            "全流程内容整合：内容档案—网站—策展提案—空间方案—深化设计—商业计划书",
+            "汇报技巧与答辩要点",
+            "最终修改"
+          ],
+          "deliverables_or_homework": [
+            "完成综合汇报文件终稿（展板、模型、视频与计划书合订）"
+          ]
+        },
+        {
+          "session": 16,
+          "date": "2026-11-19",
+          "weekday": "周四",
+          "title": "期末综合汇报与评审",
+          "method": "期末评图＋总结",
+          "teaching_content": [
+            "邀请校内教师与行业评委联合评审",
+            "公众展示与答辩",
+            "课程总结与成果归档要求"
+          ],
+          "deliverables_or_homework": [
+            "期末综合汇报（占总评 30%）",
+            "课后一周内提交课程成果电子档案"
+          ]
+        }
+      ]
+    }
+  ],
+  "assessment": [
+    {
+      "item": "出勤与课堂参与",
+      "timing": "第 1–8 周",
+      "weight_percent": 10
+    },
+    {
+      "item": "内容档案与展览内容网站",
+      "timing": "第 2 周提交",
+      "weight_percent": 15
+    },
+    {
+      "item": "策展逻辑与提案",
+      "timing": "第 3 周提交",
+      "weight_percent": 15
+    },
+    {
+      "item": "展览设计方案初步提案（中期）",
+      "timing": "第 5 周汇报",
+      "weight_percent": 15
+    },
+    {
+      "item": "深化设计与商业计划书",
+      "timing": "第 7 周提交",
+      "weight_percent": 15
+    },
+    {
+      "item": "期末综合汇报",
+      "timing": "第 8 周汇报",
+      "weight_percent": 30
+    }
+  ],
+  "schedule_adjustment": {
+    "reason": "国庆假期",
+    "affected_sessions": [8, 9],
+    "suggestion": "安排提示：10/1 与 10/5 国庆假期不上课；第 2 周第二次课按 9/17（周四）安排；9/22（周二）为课外实践；9/29（周二）空间现场勘探拍摄由全体教员授课；第 6–8 周上课时间为周一、周三、周四。实际安排以教务通知为准。",
+    "additional_sessions": [
+      {
+        "week": 3,
+        "date": "2026-09-22",
+        "weekday": "周二",
+        "title": "19 号楼空间参观 · 测量 · 拍摄",
+        "method": "课外实践",
+        "teaching_content": [
+          "实地踏勘展览场地，完成空间测量、影像拍摄记录与现状条件核对。"
+        ],
+        "deliverables_or_homework": [
+          "提交场地测量数据、影像记录与现状平面草图。"
+        ],
+        "auxiliary": true
+      },
+      {
+        "week": 4,
+        "date": "2026-09-29",
+        "weekday": "周二",
+        "title": "空间现场勘探拍摄",
+        "method": "全体教员授课",
+        "teaching_content": [
+          "复核场地尺度与现状条件，拍摄空间影像；结合各组方案讨论展陈条件与现场限制。"
+        ],
+        "deliverables_or_homework": [
+          "提交现场勘探记录与影像档案，并据现场条件更新空间方案。"
+        ],
+        "auxiliary": true
+      },
+      {
+        "week": 6,
+        "date": "2026-11-04",
+        "weekday": "周三",
+        "title": "空间展具放样实操",
+        "method": "实操工作坊",
+        "teaching_content": [
+          "现场 1:1 放样，验证尺度、观众视线、动线与关键节点工艺；根据实测结果修正图纸。"
+        ],
+        "deliverables_or_homework": [
+          "完成放样记录与深化图纸修正。"
+        ],
+        "auxiliary": true
+      },
+      {
+        "week": 7,
+        "date": "2026-11-11",
+        "weekday": "周三",
+        "title": "实物制作与测试",
+        "method": "制作工作坊",
+        "teaching_content": [
+          "推进重点展项制作，复核结构与表面工艺；检查制作进度、质量、预算及视觉物料输出。"
+        ],
+        "deliverables_or_homework": [
+          "完成中期制作进度复核与问题修正清单。"
+        ],
+        "auxiliary": true
+      },
+      {
+        "week": 8,
+        "date": "2026-11-18",
+        "weekday": "周三",
+        "title": "展览现场拍摄",
+        "method": "现场拍摄工作坊",
+        "teaching_content": [
+          "拍摄展陈空间、展具细节与观众动线；现场筛选图片和视频，整理展览档案与汇报素材。"
+        ],
+        "deliverables_or_homework": [
+          "完成展览影像档案与综合汇报素材。"
+        ],
+        "auxiliary": true
+      }
+    ],
+    "status": "实际安排以教务通知为准"
+  },
+  "source": {
+    "page_title": "内容与策展 / CONTENT & CURATING",
+    "url": "https://d6v3ebzbldbv4.ok.kimi.link/#intro",
+    "extracted_on": "2026-08-15"
+  }
+}

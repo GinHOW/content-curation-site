@@ -9,6 +9,18 @@
 }
 
 :root {
+  /* 编辑式策展页面语义色（保留旧变量供其他页面继续使用） */
+  --paper: #ffffff;
+  --paper-white: #ffffff;
+  --ink: #111111;
+  --rule: #c9c8c1;
+  --muted: #8c8c88;
+  --accent-blue: #78a2ed;
+  --accent-yellow: #f2ef78;
+  --accent-orange: #f05a2a;
+  --accent-green: #2faf87;
+  --accent-magenta: #de67b5;
+
   /* 色彩系统 */
   --blue-light: #1B4ED8;
   --white: #FFFFFF;
@@ -155,4 +167,27 @@ a {
 
 .fade-in {
   animation: fadeInUp 0.5s ease forwards;
+}
+
+/* --- Mobile Responsive --- */
+
+@media (max-width: 768px) {
+  .stamp {
+    width: 56px;
+    height: 56px;
+    font-size: 0.9rem;
+    border-width: 3px;
+  }
+
+  .stamp-sm {
+    width: 36px;
+    height: 36px;
+    font-size: 0.65rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

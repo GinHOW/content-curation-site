@@ -1,12 +1,12 @@
 export const courseInfo = {
   name: '内容与策展',
   nameEn: 'Content & Curation',
-  cycle: '8 周，每周 3 次课',
+  cycle: '8 周，16 课次',
   duration: '每次课 2–3 学时',
   audience: '三年级',
   output: '策展网站',
   format: '策展网站为个人独立完成；展览方案可 2–3 人小组合作',
-  description: `本课程围绕"内容如何被采集、组织、构建为可公开访问的策展网站"这一核心问题展开。学生将从网络中采集内容、进行策展分析与叙事设计，最终通过 vibe coding（AI 辅助编程）的方式，使用 React 或 Vue 框架搭建一个完整的策展网站。`,
+  description: `本课程围绕"内容如何被采集、筛选、诠释、组织为可公开访问的策展项目"这一核心问题展开。学生将从网络中采集内容、进行策展分析与叙事设计，最终通过 vibe coding（AI 辅助编程）的方式，使用 React 或 Vue 框架搭建一个完整的策展网站。课程发布网站本身也是示范项目，持续公开从内容组织、提示词设计、代码修改到上线维护的完整过程。`,
   objectives: [
     '理解"策展"的方法论框架——采集、筛选、组织、呈现的完整链条',
     '掌握网络内容采集的基本方法（网页爬取、多源采集、数据整理）',
@@ -19,7 +19,7 @@ export const courseInfo = {
   ],
 }
 
-// 开课日期：2026年9月7日（周一），每周一、三、四上课
+// 旧版课程草稿保留供其他页面参考；首页日历以 course_schedule.json 为准。
 const startDate = new Date(2026, 8, 7) // month is 0-indexed
 
 function getWeekDates(weekIndex) {
@@ -383,10 +383,12 @@ export const weeks = [
 
 export const grading = {
   overview: [
-    { item: '课堂参与', weight: '15%', desc: '出勤（5%）+ 课堂讨论与工作坊参与度（5%）+ 过程文档（5%）' },
-    { item: '阶段性作业', weight: '20%', desc: '每周课后作业的完成质量' },
-    { item: '策展网站', weight: '45%', desc: '内容质量（15%）+ 设计水平（10%）+ 技术完成度（10%）+ 代码理解（10%）' },
-    { item: '展览方案（含空间展具）', weight: '20%', desc: '展具设计逻辑（8%）+ 方案可行性（5%）+ 线上—线下关联（7%）' },
+    { item: '出勤与课堂参与', weight: '10%', desc: '第 1—8 周的出勤与课堂参与' },
+    { item: '内容档案与展览内容网站', weight: '15%', desc: '第 2 周提交' },
+    { item: '策展逻辑与提案', weight: '15%', desc: '第 3 周提交' },
+    { item: '展览设计方案初步提案', weight: '15%', desc: '第 5 周中期汇报' },
+    { item: '深化设计与商业计划书', weight: '15%', desc: '第 7 周提交' },
+    { item: '期末综合汇报', weight: '30%', desc: '第 8 周汇报' },
   ],
   website: [
     { dimension: '内容质量', weight: '15%', standard: '策展主题明确、叙事线索清晰、内容来源可靠、素材丰富度' },
@@ -405,7 +407,7 @@ export const candidates = [
   { object: '绳结', direction: '结构技术、文化隐喻、社会关系、结绳记事' },
   { object: '假发', direction: '身份符号、权力结构、审美变迁、当代表达' },
   { object: '棋盘/棋子', direction: '博弈思维、造型美学、杜尚、跨文化比较' },
-  { object: '邮轮', direction: '移动社会、旅行文化、空间设计、产业生态（教师示范对象）' },
+  { object: '邮轮', direction: '移动社会、旅行文化、空间设计、产业生态' },
   { object: '镜子', direction: '自我认知、光学技术、艺术装置、文化象征' },
   { object: '钥匙', direction: '安全与权限、锁具技术、隐喻系统、城市变迁' },
 ]

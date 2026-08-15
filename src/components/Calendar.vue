@@ -45,9 +45,17 @@
 
       <section class="calendar-panel" aria-label="课程日历">
         <div class="calendar-nav">
-          <button @click="prevMonth" class="nav-btn" type="button" aria-label="上一个月">←</button>
+          <button @click="prevMonth" class="nav-btn" type="button" aria-label="上一个月">
+            <svg class="calendar-nav-arrow" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M48 32H18m0 0L32 18M18 32l14 14" />
+            </svg>
+          </button>
           <h2 class="month-title">{{ currentMonthLabel }}</h2>
-          <button @click="nextMonth" class="nav-btn" type="button" aria-label="下一个月">→</button>
+          <button @click="nextMonth" class="nav-btn" type="button" aria-label="下一个月">
+            <svg class="calendar-nav-arrow" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M16 32h30m0 0L32 18m14 14L32 46" />
+            </svg>
+          </button>
         </div>
 
         <div class="calendar-weekdays" aria-hidden="true">
@@ -540,6 +548,23 @@ onMounted(setDefaultSelection)
   font-size: 1.2rem;
   cursor: pointer;
   transition: background-color 180ms ease, color 180ms ease;
+}
+
+.calendar-nav-arrow {
+  width: 2.1rem;
+  height: 2.1rem;
+  color: currentColor;
+}
+
+.calendar-nav-arrow path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.calendar-nav-arrow path {
+  stroke-width: 3.5;
 }
 
 .nav-btn:hover,

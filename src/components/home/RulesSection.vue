@@ -14,7 +14,13 @@
         <p class="lead-copy">
           课程以一个兼具观念容量与空间类型性的“词”为入口，完成从内容研究到展览落地的整体策划。
         </p>
-        <router-link class="text-link" to="/syllabus">查看完整课程大纲 <span aria-hidden="true">→</span></router-link>
+        <router-link class="text-link rules-cta" to="/syllabus" aria-label="查看完整课程大纲">
+          <svg class="rules-cta-arrow" viewBox="0 0 64 64" aria-hidden="true">
+            <circle cx="32" cy="32" r="29" />
+            <path d="M16 32h30m0 0L32 18m14 14L32 46" />
+          </svg>
+          <span>完整课程大纲</span>
+        </router-link>
       </div>
     </div>
 
@@ -51,9 +57,67 @@
 
         <div class="grading-summary">
           <span class="panel-label">评分摘要 / EVALUATION</span>
-          <div v-for="item in grading.overview" :key="item.item" class="grading-row">
-            <span>{{ item.item }}</span>
-            <strong>{{ item.weight }}</strong>
+          <div class="grading-chart">
+            <div
+              class="grading-donut"
+              role="img"
+              :aria-label="gradingAriaLabel"
+            >
+              <svg class="grading-donut-svg" viewBox="0 0 100 100" aria-hidden="true">
+                <circle class="grading-donut-track" cx="50" cy="50" r="42" />
+                <circle
+                  v-for="segment in gradingSegments"
+                  :key="segment.index"
+                  class="grading-segment"
+                  :class="{
+                    'is-active': activeGradingIndex === segment.index,
+                    'is-muted': activeGradingIndex !== null && activeGradingIndex !== segment.index,
+                  }"
+                  :cx="50"
+                  :cy="50"
+                  :r="42"
+                  :stroke="segment.color"
+                  :stroke-dasharray="segment.dasharray"
+                  :stroke-dashoffset="segment.dashoffset"
+                  tabindex="0"
+                  role="button"
+                  :aria-label="`${segment.item}${segment.weight}`"
+                  @mouseenter="setActiveGrading(segment.index)"
+                  @mouseleave="clearActiveGrading"
+                  @click="setActiveGrading(segment.index)"
+                  @focus="setActiveGrading(segment.index)"
+                  @blur="clearActiveGrading"
+                  @keydown.enter.prevent="setActiveGrading(segment.index)"
+                  @keydown.space.prevent="setActiveGrading(segment.index)"
+                />
+              </svg>
+              <span class="grading-donut-hole"><span>100<small>%</small></span></span>
+            </div>
+            <div class="grading-legend">
+              <button
+                v-for="(item, index) in grading.overview"
+                :key="item.item"
+                type="button"
+                class="grading-legend-item"
+                :class="{
+                  'is-active': activeGradingIndex === index,
+                  'is-muted': activeGradingIndex !== null && activeGradingIndex !== index,
+                }"
+                :aria-pressed="activeGradingIndex === index"
+                @mouseenter="setActiveGrading(index)"
+                @mouseleave="clearActiveGrading"
+                @focus="setActiveGrading(index)"
+                @blur="clearActiveGrading"
+              >
+                <span
+                  class="grading-swatch"
+                  aria-hidden="true"
+                  :style="{ backgroundColor: gradingPalette[index] }"
+                ></span>
+                <span class="grading-legend-label">{{ item.item }}</span>
+                <strong>{{ item.weight }}</strong>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -62,7 +126,49 @@
 </template>
 
 <script setup>
+import { computed, ref } from 'vue'
 import { grading } from '../../data/syllabus.js'
 
 const methodSteps = ['选题', '建库', '结构', '网站', '展具', '视觉', '事件', '商业']
+const gradingPalette = [
+  'var(--home-blue)',
+  'var(--home-yellow)',
+  'var(--home-orange)',
+  'var(--home-green)',
+  'var(--home-magenta)',
+  'var(--home-ink)',
+]
+
+const gradingCircumference = 2 * Math.PI * 42
+const activeGradingIndex = ref(null)
+
+const gradingSegments = computed(() => {
+  let cursor = 0
+  return grading.overview.map((item, index) => {
+    const value = Number.parseInt(item.weight, 10)
+    const length = gradingCircumference * value / 100
+    const segment = {
+      index,
+      item: item.item,
+      weight: item.weight,
+      color: gradingPalette[index],
+      dasharray: `${length} ${gradingCircumference}`,
+      dashoffset: -cursor,
+    }
+    cursor += length
+    return segment
+  })
+})
+
+const setActiveGrading = (index) => {
+  activeGradingIndex.value = index
+}
+
+const clearActiveGrading = () => {
+  activeGradingIndex.value = null
+}
+
+const gradingAriaLabel = computed(() => (
+  `评分构成：${grading.overview.map((item) => `${item.item}${item.weight}`).join('、')}`
+))
 </script>

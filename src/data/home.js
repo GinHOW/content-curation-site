@@ -24,7 +24,7 @@ export const teachingTeam = [
 export const overviewMeta = [
   { label: '教学周期', values: ['8 周'] },
   { label: '课程总时长', values: ['16 课次'] },
-  { label: '上课时间', values: ['第 1–5 周周一、周四下午', '第 6–8 周周一、周三、周四下午'] },
+  { label: '上课时间', values: ['第 1–5 周 周一、周四下午', '第 6–8 周 周一、周三、周四下午'] },
 ]
 
 export const methodSteps = ['采集', '筛选', '诠释', '组织', '呈现']

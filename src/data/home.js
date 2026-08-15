@@ -1,7 +1,7 @@
 export const homeNavItems = [
   { id: 'overview', label: '总体介绍' },
   { id: 'retrospective', label: '策展超市回顾' },
-  { id: 'city', label: '策展城市' },
+  { id: 'city', label: '策展超市 2.0' },
   { id: 'course-rules', label: '课程规则' },
   { id: 'course-calendar', label: '课程日程', nested: true },
 ]
@@ -43,3 +43,21 @@ export const spatialRooms = [
   { id: 'room11', number: '11', keywords: ['谷仓','楼梯间'] },
   { id: 'room12', number: '12', keywords: ['监控室', '隧道'] },
 ]
+
+// 18 个专色为选题库预留；词条名称与颜色一一对应，后续替换词条时只需更新这里。
+export const spatialKeywordColors = {
+  桌面: 'var(--home-spot-01)',
+  橱窗: 'var(--home-spot-02)',
+  客厅: 'var(--home-spot-03)',
+  暗房: 'var(--home-spot-04)',
+  蓄水池: 'var(--home-spot-05)',
+  黄页: 'var(--home-spot-06)',
+  田: 'var(--home-spot-07)',
+  晒场: 'var(--home-spot-08)',
+  阳台: 'var(--home-spot-09)',
+  宴席: 'var(--home-spot-10)',
+  谷仓: 'var(--home-spot-11)',
+  楼梯间: 'var(--home-spot-12)',
+  监控室: 'var(--home-spot-13)',
+  隧道: 'var(--home-spot-14)',
+}

@@ -50,7 +50,11 @@
             <dt>核心产出</dt>
             <dd class="rules-output">
               <strong>1 个完整展览</strong>
-              <span>内容档案、内容网站、策展提案、空间方案、视觉与展具方案、活动方案及商业计划书</span>
+              <span>① 内容网站原型上线</span>
+              <span>② 正式策展提案文本</span>
+              <span>③ 展览设计方案初步提案与中期汇报</span>
+              <span>④ 视觉系统与公共教育活动方案深化文本</span>
+              <span>⑤ 展览总体商业计划书</span>
             </dd>
           </div>
         </dl>
@@ -58,6 +62,31 @@
         <div class="grading-summary">
           <span class="panel-label">评分摘要 / EVALUATION</span>
           <div class="grading-chart">
+            <div class="grading-legend">
+              <button
+                v-for="(item, index) in grading.overview"
+                :key="item.item"
+                type="button"
+                class="grading-legend-item"
+                :class="{
+                  'is-active': activeGradingIndex === index,
+                  'is-muted': activeGradingIndex !== null && activeGradingIndex !== index,
+                }"
+                :aria-pressed="activeGradingIndex === index"
+                @mouseenter="setActiveGrading(index)"
+                @mouseleave="clearActiveGrading"
+                @focus="setActiveGrading(index)"
+                @blur="clearActiveGrading"
+              >
+                <span
+                  class="grading-swatch"
+                  aria-hidden="true"
+                  :style="{ backgroundColor: gradingPalette[index] }"
+                ></span>
+                <span class="grading-legend-label">{{ item.item }}</span>
+                <strong>{{ item.weight }}</strong>
+              </button>
+            </div>
             <div
               class="grading-donut"
               role="img"
@@ -92,31 +121,6 @@
                 />
               </svg>
               <span class="grading-donut-hole"><span>100<small>%</small></span></span>
-            </div>
-            <div class="grading-legend">
-              <button
-                v-for="(item, index) in grading.overview"
-                :key="item.item"
-                type="button"
-                class="grading-legend-item"
-                :class="{
-                  'is-active': activeGradingIndex === index,
-                  'is-muted': activeGradingIndex !== null && activeGradingIndex !== index,
-                }"
-                :aria-pressed="activeGradingIndex === index"
-                @mouseenter="setActiveGrading(index)"
-                @mouseleave="clearActiveGrading"
-                @focus="setActiveGrading(index)"
-                @blur="clearActiveGrading"
-              >
-                <span
-                  class="grading-swatch"
-                  aria-hidden="true"
-                  :style="{ backgroundColor: gradingPalette[index] }"
-                ></span>
-                <span class="grading-legend-label">{{ item.item }}</span>
-                <strong>{{ item.weight }}</strong>
-              </button>
             </div>
           </div>
         </div>

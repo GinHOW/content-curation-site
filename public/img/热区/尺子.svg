@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_物体热区" data-name="物体热区" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2450 1536">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        stroke-width: 0px;
+      }
+
+      .cls-2 {
+        fill: #fff;
+      }
+    </style>
+  </defs>
+  <g id="_尺子" data-name="尺子">
+    <rect class="cls-1" x="306.32" y="357.49" width="576.96" height="67.16"/>
+    <path class="cls-2" d="M882.77,357.99v66.16H306.82v-66.16h575.96M883.77,356.99H305.82v68.16h577.96v-68.16h0Z"/>
+  </g>
+</svg>

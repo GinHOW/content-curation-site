@@ -1,35 +1,51 @@
 <template>
   <div class="shelf-showcase" :class="{ 'shelf-showcase--active': active !== null }">
     <div class="shelf-inner">
-      <!-- Shelf background -->
-      <img src="/img/货架图.jpeg" alt="货架" class="shelf-bg" />
+      <img src="/img/货架图.png" alt="陈列九件物体的货架" class="shelf-bg" />
 
-      <!-- Individual item images -->
-      <div class="items-layer">
-        <button
+      <!--
+        热区 SVG 和新版底图共用 2450 × 1536 坐标系。这样替换底图时不再需要
+        以百分比手动校准物体的位置；底图中的物体保持原始比例，SVG 只负责交互。
+      -->
+      <svg
+        class="items-layer"
+        viewBox="0 0 2450 1536"
+        preserveAspectRatio="none"
+        aria-label="选择货架中的物件，进入对应的课程策展项目"
+      >
+        <g
           v-for="(item, i) in items"
           :key="item.name"
           class="item"
-          :class="{ 'item--active': active === i, 'item--dimmed': active !== null && active !== i }"
-          :style="item.style"
-          type="button"
+          :class="{ 'item--active': active === i }"
+          role="button"
+          tabindex="0"
           :aria-label="`查看${item.label}策展项目`"
           @mouseenter="active = i"
           @mouseleave="active = null"
           @focus="active = i"
           @blur="active = null"
           @click="handleClick(item)"
+          @keydown.enter.prevent="handleClick(item)"
+          @keydown.space.prevent="handleClick(item)"
         >
-          <img
-            :src="`/img/货架透明图/objects/${item.name}.png`"
-            alt=""
-            aria-hidden="true"
-            class="item-img"
-            loading="lazy"
+          <image
+            :href="`/img/objects/${item.name}.png`"
+            :x="item.x"
+            :y="item.y"
+            :width="item.width"
+            :height="item.height"
+            preserveAspectRatio="none"
+            class="item-image"
+            pointer-events="none"
           />
-          <span class="item-index" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
-        </button>
-      </div>
+          <use :href="`/img/热区/${item.name}.svg#_${item.name}`" class="item-hotspot" />
+          <g class="item-index" aria-hidden="true" :transform="`translate(${item.labelX} ${item.labelY})`">
+            <rect width="58" height="35" />
+            <text x="29" y="23">{{ String(i + 1).padStart(2, '0') }}</text>
+          </g>
+        </g>
+      </svg>
     </div>
   </div>
 </template>
@@ -48,15 +64,16 @@ const handleClick = (item) => {
 }
 
 const items = [
-  { name: '尺子', label: '直尺', exhibitionId: 'northward-river', style: { top: '23%',  left: '12%',  width: '29%', height: '5.5%' } },
-  { name: '帽子', label: '礼帽', exhibitionId: 'four-hat-act', style: { top: '17.5%',  left: '50.5%', width: '12%', height: '12%' } },
-  { name: '假发', label: '假发', exhibitionId: 'headline', style: { top: '29.4%', left: '20.6%',  width: '16%', height: '20%' } },
-  { name: '眼睛', label: '眼睛', exhibitionId: 'why-we-look', style: { top: '30%', left: '65%', width: '13%', height: '13%' } },
-  { name: '钥匙', label: '钥匙', exhibitionId: 'threshold', style: { top: '64%', left: '26%',  width: '9%',  height: '8%' } },
-  { name: '棋子', label: '棋子', exhibitionId: 'chess-box', style: { top: '58.5%', left: '53.5%', width: '30%', height: '14%' } },
-  { name: '手套', label: '手套', exhibitionId: 'hand-held-drama', style: { top: '76%', left: '19.8%',  width: '20%', height: '10%' } },
-  { name: '绳结', label: '绳结', exhibitionId: 'jiejie', style: { top: '75.5%', left: '51.3%', width: '20%', height: '14%' } },
-  { name: '信封', label: '信封', exhibitionId: 'black-chamber', style: { top: '77.5%', left: '72.5%', width: '13%', height: '8%' } },
+  // 透明 PNG 的原始像素尺寸对应新版底图坐标；以热区中心对齐，避免被热区轮廓压缩。
+  { name: '尺子', label: '直尺', exhibitionId: 'northward-river', x: 206, y: 360, width: 777, height: 63, labelX: 306, labelY: 357 },
+  { name: '帽子', label: '礼帽', exhibitionId: 'four-hat-act', x: 1254, y: 279, width: 312, height: 153, labelX: 1262, labelY: 272 },
+  { name: '假发', label: '假发', exhibitionId: 'headline', x: 402, y: 454, width: 489, height: 319, labelX: 426, labelY: 470 },
+  { name: '眼睛', label: '眼睛', exhibitionId: 'why-we-look', x: 1652, y: 467, width: 345, height: 189, labelX: 1665, labelY: 485 },
+  { name: '钥匙', label: '钥匙', exhibitionId: 'threshold', x: 577, y: 987, width: 229, height: 101, labelX: 580, labelY: 990 },
+  { name: '棋子', label: '棋子', exhibitionId: 'chess-box', x: 1332, y: 912, width: 819, height: 196, labelX: 1346, labelY: 925 },
+  { name: '手套', label: '手套', exhibitionId: 'hand-held-drama', x: 401, y: 1187, width: 543, height: 136, labelX: 403, labelY: 1190 },
+  { name: '绳结', label: '绳结', exhibitionId: 'jiejie', x: 1297, y: 1149, width: 504, height: 224, labelX: 1311, labelY: 1163 },
+  { name: '信封', label: '信封', exhibitionId: 'black-chamber', x: 1864, y: 1209, width: 321, height: 107, labelX: 1867, labelY: 1212 },
 ]
 </script>
 
@@ -73,7 +90,7 @@ const items = [
 .shelf-inner {
   position: relative;
   width: 100%;
-  aspect-ratio: 2752 / 1536;
+  aspect-ratio: 2450 / 1536;
   overflow: hidden;
 }
 
@@ -101,74 +118,54 @@ const items = [
 }
 
 .item {
-  position: absolute;
-  display: block;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--home-ink, #111);
-  font: inherit;
-  text-align: left;
   cursor: pointer;
-  transition: opacity 180ms ease, filter 180ms ease, border-color 180ms ease;
-  opacity: 0.26;
-  filter: grayscale(0.7);
-}
-
-.item:hover,
-.item--active {
-  opacity: 1;
-  filter: none;
-  border-color: transparent;
   outline: none;
-  z-index: 10;
 }
 
-.item:focus-visible {
+.item-hotspot {
+  fill: #ffffff;
+  opacity: 0;
+  pointer-events: visiblePainted;
+  transition: opacity 180ms ease;
+}
+
+.item-image {
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.item:hover .item-image,
+.item--active .item-image {
   opacity: 1;
-  filter: none;
-  border-color: transparent;
-  outline: 2px solid var(--home-blue, #5d8ee8);
-  outline-offset: 3px;
-  z-index: 10;
 }
 
-.item-img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 0;
-}
-
-/* Dimmed: other items when hovering */
-.item--dimmed {
-  opacity: 0.1;
-  filter: grayscale(1);
+.item:focus-visible .item-hotspot {
+  fill-opacity: 0;
+  opacity: 1;
+  stroke: var(--home-blue, #5d8ee8);
+  stroke-width: 8;
+  vector-effect: non-scaling-stroke;
 }
 
 .item-index {
-  position: absolute;
-  top: 0.25rem;
-  left: 0.25rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.8rem;
-  min-height: 1.35rem;
-  padding: 0.12rem 0.25rem;
-  border: 1px solid var(--home-ink, #111);
   background: #ffffff;
   color: var(--home-ink, #111);
   font-family: var(--font-heavy);
-  font-size: 0.62rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  line-height: 1;
   pointer-events: none;
-  z-index: 11;
+}
+
+.item-index rect {
+  fill: #ffffff;
+  stroke: var(--home-ink, #111);
+  stroke-width: 2;
+}
+
+.item-index text {
+  fill: var(--home-ink, #111);
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  text-anchor: middle;
 }
 
 @media (max-width: 767px) {
@@ -179,26 +176,23 @@ const items = [
 
   .shelf-inner {
     position: absolute;
-    width: 179.16%; /* 2752 / 1536 * 100 */
-    aspect-ratio: 2752 / 1536;
+    width: 159.51%; /* 2450 / 1536 * 100 */
+    aspect-ratio: 2450 / 1536;
     top: 0;
     left: 100%;
     transform-origin: top left;
     transform: rotate(90deg);
   }
 
-  .item-index {
-    top: 0.15rem;
-    left: 0.15rem;
-    min-width: 1.55rem;
-    min-height: 1.1rem;
-    font-size: 0.52rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .shelf-bg,
-  .item {
+  .item-hotspot {
+    transition-duration: 0.01ms;
+  }
+
+  .item-image {
     transition-duration: 0.01ms;
   }
 }
@@ -209,11 +203,4 @@ const items = [
   background: #ffffff;
 }
 
-.item {
-  background: transparent;
-}
-
-.item-index {
-  background: #ffffff;
-}
 </style>

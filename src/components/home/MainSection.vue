@@ -22,13 +22,14 @@
       </div>
     </div>
 
-    <SpatialMap :rooms="spatialRooms" />
+    <ControllerSpatialMap :rooms="spatialRooms" :image-library="spatialTopicImages" />
   </section>
 </template>
 
 <script setup>
-import SpatialMap from './SpatialMap.vue'
+import ControllerSpatialMap from './ControllerSpatialMap.vue'
 import { spatialRooms } from '../../data/home.js'
+import { spatialTopicImages } from '../../data/spatialTopicImages.js'
 </script>
 
 <style scoped>

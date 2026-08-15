@@ -1,17 +1,21 @@
 <template>
   <div
     class="spatial-map-section"
+    :class="{
+      'is-embedded': embedded,
+      'has-embedded-focus': embedded && selectedRoom,
+    }"
     aria-label="空间原型图"
-    @click="handleSectionClick"
   >
     <div
       class="spatial-map-scroll"
       role="region"
       aria-label="空间原型图"
+      @click="handleMapClick"
     >
       <svg
         class="spatial-map-canvas"
-        viewBox="0 0 2900 480"
+        :viewBox="mapViewBox"
         role="img"
         aria-labelledby="spatial-map-title spatial-map-description"
       >
@@ -21,6 +25,7 @@
         </desc>
         <g class="spatial-map-world">
           <image
+            class="spatial-map-image"
             :href="mapUrl"
             x="0"
             y="0"
@@ -40,6 +45,7 @@
               'is-dimmed': Boolean(activeRoomId && activeRoomId !== room.id),
             }"
             :data-room-id="room.id"
+            :style="{ '--spatial-room-color': roomColor(room) }"
             role="button"
             tabindex="0"
             :aria-label="roomLabel(room)"
@@ -111,8 +117,8 @@
           </template>
 
           <template v-else-if="room.id === 'room11'">
-            <path class="spatial-room-hit" d="M1636.83,88.35c.1,25.2-.1,50.4,0,75.59h156.45v89.65h140.05v-116.41c-24.92-4.96-55.96-12.33-85.91-23.41-55.98-20.71-98.48-49.76-130.75-73.22-13.98,10.01-29.62,20.25-46.94,30.24-11.31,6.52-22.31,12.35-32.9,17.56Z" />
-            <path class="spatial-room-shape" d="M1636.83,88.35c.1,25.2-.1,50.4,0,75.59h156.45v89.65h140.05v-116.41c-24.92-4.96-55.96-12.33-85.91-23.41-55.98-20.71-98.48-49.76-130.75-73.22-13.98,10.01-29.62,20.25-46.94,30.24-11.31,6.52-22.31,12.35-32.9,17.56Z" />
+            <path class="spatial-room-hit" d="M1636.83,88.35c.1,25.2-.1,50.4,0,75.59h156.45v89.65h140.05v-117.41c-7.64-1.59-17.47-3.81-28.84-6.85-6.63-1.77-17.88-4.93-34.33-10.47-5.93-2-32.76-11.03-56.57-21.51-40.49-17.82-75.48-41.24-96.93-56.81-13.98,10.01-29.62,20.25-46.94,30.24-11.31,6.52-22.31,12.35-32.9,17.56Z" />
+            <path class="spatial-room-shape" d="M1636.83,88.35c.1,25.2-.1,50.4,0,75.59h156.45v89.65h140.05v-117.41c-7.64-1.59-17.47-3.81-28.84-6.85-6.63-1.77-17.88-4.93-34.33-10.47-5.93-2-32.76-11.03-56.57-21.51-40.49-17.82-75.48-41.24-96.93-56.81-13.98,10.01-29.62,20.25-46.94,30.24-11.31,6.52-22.31,12.35-32.9,17.56Z" />
           </template>
 
           <template v-else-if="room.id === 'room12'">
@@ -124,12 +130,17 @@
       </svg>
     </div>
 
-    <div class="spatial-map-status" aria-live="polite">
+    <div
+      v-if="!embedded"
+      class="spatial-map-status"
+      :style="{ '--spatial-status-color': activeRoom ? roomColor(activeRoom) : 'var(--home-muted)' }"
+      aria-live="polite"
+    >
       <span v-if="activeRoom">ROOM {{ activeRoom.number }} / {{ activeRoom.keywords.join(' · ') }}</span>
       <span v-else>选择空间查看关键词</span>
     </div>
 
-    <div class="spatial-word-pool" aria-labelledby="spatial-word-pool-title">
+    <div v-if="!embedded" class="spatial-word-pool" aria-labelledby="spatial-word-pool-title">
       <p id="spatial-word-pool-title" class="spatial-pool-label">选题库 / WORD POOL</p>
       <div class="spatial-keywords">
         <button
@@ -137,13 +148,13 @@
           :key="keyword"
           class="spatial-keyword"
           :class="{ 'is-active': activeRoom?.keywords.includes(keyword) }"
+          :style="{ '--spatial-keyword-color': keywordColor(keyword) }"
           type="button"
-          :aria-pressed="activeRoom?.keywords.includes(keyword) ?? false"
+          :aria-pressed="selectedRoom?.keywords.includes(keyword) ?? false"
           @click.stop="selectKeyword(keyword)"
         >
           {{ keyword }}
         </button>
-        <span class="spatial-keyword spatial-keyword-more" aria-hidden="true">……</span>
       </div>
       <p class="spatial-pool-note">
         每个词兼具哲学内涵与观念的包容度，同时指向一种空间类型。
@@ -151,7 +162,7 @@
     </div>
 
     <DemoArchive
-      v-if="selectedRoom?.keywords.includes('客厅')"
+      v-if="!embedded && selectedRoom?.keywords.includes('客厅')"
       :archive="livingRoomArchive"
     />
 
@@ -159,21 +170,52 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import mapUrl from '../../assets/spatial-map/map.svg'
 import DemoArchive from './DemoArchive.vue'
 import { livingRoomArchive } from '../../data/demoArchive.js'
+import { spatialKeywordColors } from '../../data/home.js'
 
 const props = defineProps({
   rooms: {
     type: Array,
     required: true,
   },
+  selectedKeyword: {
+    type: String,
+    default: '',
+  },
+  embedded: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const hoveredRoomId = ref(null)
 const focusedRoomId = ref(null)
 const selectedRoomId = ref(null)
+const selectedKeywordValue = ref('')
+
+const MAP_WIDTH = 2900
+const MAP_HEIGHT = 480
+// The central monitor is about 2.24:1. Keeping the focus window at the same
+// ratio lets the selected space fill the display without distorting the map.
+const EMBEDDED_MAP_ASPECT = 2.24
+const WIDE_FOCUS_ROOM_IDS = new Set(['room1', 'room2'])
+const roomFocusBounds = {
+  room1: { x: 145, y: 105, width: 1130, height: 335 },
+  room2: { x: 744, y: 260, width: 1332, height: 180 },
+  room3: { x: 2242, y: 351, width: 139, height: 88 },
+  room4: { x: 2386, y: 351, width: 301, height: 88 },
+  room5: { x: 1044, y: 172, width: 285, height: 173 },
+  room6: { x: 1488, y: 260, width: 300, height: 85 },
+  room7: { x: 1794, y: 138, width: 283, height: 207 },
+  room8: { x: 2242, y: 260, width: 292, height: 85 },
+  room9: { x: 2539, y: 176, width: 148, height: 169 },
+  room10: { x: 1335, y: 90, width: 453, height: 165 },
+  room11: { x: 1637, y: 40, width: 297, height: 214 },
+  room12: { x: 2084, y: 81, width: 450, height: 174 },
+}
 
 const keywordList = computed(() => [
   ...new Set(props.rooms.flatMap((room) => room.keywords)),
@@ -191,6 +233,59 @@ const selectedRoom = computed(() =>
   props.rooms.find((room) => room.id === selectedRoomId.value),
 )
 
+const mapViewBox = computed(() => {
+  const bounds = props.embedded && selectedRoom.value
+    ? roomFocusBounds[selectedRoom.value.id]
+    : null
+
+  if (!bounds) return `0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`
+
+  const isWideFocus = WIDE_FOCUS_ROOM_IDS.has(selectedRoom.value.id)
+  const targetWidth = bounds.width * (isWideFocus ? 1.45 : 1.55)
+  const targetHeight = bounds.height * 1.9
+  // The two long spaces need contextual breathing room. Their focus window
+  // intentionally remains wider than the monitor, so SVG's default `meet`
+  // alignment leaves a calm frame rather than cropping their two ends.
+  const viewHeight = isWideFocus
+    ? MAP_HEIGHT
+    : Math.min(
+      MAP_HEIGHT,
+      Math.max(targetHeight, targetWidth / EMBEDDED_MAP_ASPECT),
+    )
+  const viewWidth = isWideFocus
+    ? Math.min(MAP_WIDTH, targetWidth)
+    : viewHeight * EMBEDDED_MAP_ASPECT
+  const centerX = bounds.x + bounds.width / 2
+  const centerY = bounds.y + bounds.height / 2
+  const x = Math.max(0, Math.min(MAP_WIDTH - viewWidth, centerX - viewWidth / 2))
+  const y = Math.max(0, Math.min(MAP_HEIGHT - viewHeight, centerY - viewHeight / 2))
+
+  return `${x} ${y} ${viewWidth} ${viewHeight}`
+})
+
+watch(
+  () => props.selectedKeyword,
+  (keyword) => {
+    selectedKeywordValue.value = keyword
+    if (!keyword) {
+      selectedRoomId.value = null
+      return
+    }
+    const room = props.rooms.find((item) => item.keywords.includes(keyword))
+    if (room) selectedRoomId.value = room.id
+  },
+)
+
+const keywordColor = (keyword) =>
+  spatialKeywordColors[keyword] || 'var(--home-orange)'
+
+const roomColor = (room) => {
+  const matchingKeyword = room.keywords.includes(selectedKeywordValue.value)
+    ? selectedKeywordValue.value
+    : room.keywords[0]
+  return keywordColor(matchingKeyword)
+}
+
 const roomLabel = (room) =>
   `空间 ${room.number}：${room.keywords.join('、')}`
 
@@ -198,25 +293,74 @@ const clearSelection = () => {
   selectedRoomId.value = null
 }
 
-const handleSectionClick = (event) => {
-  if (event.target?.closest?.('button, [role="button"]')) return
+const handleMapClick = (event) => {
+  if (event.target?.closest?.('.spatial-room')) return
   clearSelection()
 }
 
 const selectRoom = (id) => {
-  if (!props.rooms.some((room) => room.id === id)) return
-  selectedRoomId.value = selectedRoomId.value === id ? null : id
+  const room = props.rooms.find((item) => item.id === id)
+  if (!room) return
+
+  if (selectedRoomId.value === id) {
+    selectedRoomId.value = null
+    selectedKeywordValue.value = ''
+    return
+  }
+
+  selectedRoomId.value = id
+  if (!room.keywords.includes(selectedKeywordValue.value)) {
+    selectedKeywordValue.value = room.keywords[0]
+  }
 }
 
 const selectKeyword = (keyword) => {
   const room = props.rooms.find((item) => item.keywords.includes(keyword))
-  if (room) selectRoom(room.id)
+  if (!room) return
+  const isSameRoom = selectedRoomId.value === room.id
+  const isSameKeyword = selectedKeywordValue.value === keyword
+  selectedKeywordValue.value = keyword
+  if (isSameRoom && !isSameKeyword) return
+  selectRoom(room.id)
 }
 </script>
 
 <style scoped>
 .spatial-map-section {
   margin-top: clamp(4rem, 8vw, 8rem);
+}
+
+.spatial-map-section.is-embedded {
+  height: 100%;
+  margin-top: 0;
+}
+
+.spatial-map-section.is-embedded .spatial-map-scroll,
+.spatial-map-section.is-embedded .spatial-map-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.spatial-map-section.is-embedded .spatial-map-canvas {
+  aspect-ratio: auto;
+}
+
+/* In the controller, the selected room is the only colour signal. The map
+   remains untouched in its original full-page presentation. */
+.spatial-map-section.is-embedded.has-embedded-focus .spatial-map-image {
+  filter: grayscale(1) contrast(1.1) brightness(0.94);
+}
+
+.spatial-map-section.is-embedded.has-embedded-focus .spatial-room.is-dimmed .spatial-room-shape,
+.spatial-map-section.is-embedded.has-embedded-focus .spatial-room.is-active:not(.is-selected) .spatial-room-shape {
+  opacity: 0;
+  fill-opacity: 0;
+}
+
+.spatial-map-section.is-embedded.has-embedded-focus .spatial-room.is-selected .spatial-room-shape {
+  opacity: 1;
+  fill-opacity: 0.38;
+  stroke-width: 2.5;
 }
 
 .spatial-word-pool {
@@ -233,20 +377,29 @@ const selectKeyword = (keyword) => {
 .spatial-keywords {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  align-items: flex-start;
+  gap: 0.35rem;
   margin-top: 1rem;
 }
 
 .spatial-keyword {
-  min-height: 44px;
-  padding: 0.55rem 0.9rem;
-  border: 1px solid var(--home-rule);
-  border-radius: 0;
-  color: var(--home-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(2.75rem, 4vw, 3.5rem);
+  min-height: clamp(6rem, 10vw, 8rem);
+  padding: 0.65rem 0.25rem;
+  border: 2px solid color-mix(in srgb, var(--spatial-keyword-color) 64%, var(--home-rule));
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--spatial-keyword-color) 72%, var(--home-ink));
   background: var(--home-paper);
   font: inherit;
   font-size: 0.9rem;
+  font-weight: 700;
   line-height: 1.2;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
   cursor: pointer;
   transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease;
 }
@@ -254,17 +407,10 @@ const selectKeyword = (keyword) => {
 .spatial-keyword:hover,
 .spatial-keyword:focus-visible,
 .spatial-keyword.is-active {
-  border-color: var(--home-orange);
-  color: var(--home-orange);
-  background: color-mix(in srgb, var(--home-orange) 8%, var(--home-paper));
-}
-
-.spatial-keyword-more {
-  display: inline-flex;
-  align-items: center;
-  border-style: dashed;
-  color: var(--home-muted);
-  cursor: default;
+  border-color: var(--spatial-keyword-color);
+  border-width: 2px;
+  color: color-mix(in srgb, var(--spatial-keyword-color) 82%, var(--home-ink));
+  background: color-mix(in srgb, var(--spatial-keyword-color) 10%, var(--home-paper));
 }
 
 .spatial-pool-note {
@@ -277,7 +423,7 @@ const selectKeyword = (keyword) => {
 .spatial-map-status {
   min-height: 1.5rem;
   margin-top: 0.9rem;
-  color: var(--home-orange);
+  color: var(--spatial-status-color, var(--home-orange));
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -311,10 +457,10 @@ const selectKeyword = (keyword) => {
 }
 
 .spatial-room-shape {
-  fill: var(--home-orange);
+  fill: var(--spatial-room-color, var(--home-orange));
   fill-opacity: 0;
-  stroke: var(--home-orange);
-  stroke-width: 4;
+  stroke: var(--spatial-room-color, var(--home-orange));
+  stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
   opacity: 0;
   pointer-events: none;
@@ -329,14 +475,14 @@ const selectKeyword = (keyword) => {
 .spatial-room.is-active .spatial-room-shape {
   opacity: 1;
   fill-opacity: 0.2;
-  stroke-width: 7;
+  stroke-width: 2;
 }
 
 .spatial-room:focus-visible .spatial-room-shape {
   opacity: 1;
   fill-opacity: 0.14;
   stroke: var(--home-ink);
-  stroke-width: 8;
+  stroke-width: 3;
 }
 
 @media (max-width: 1023px) {
@@ -352,6 +498,17 @@ const selectKeyword = (keyword) => {
 
   .spatial-map-canvas {
     width: 100%;
+  }
+
+  .spatial-keywords {
+    gap: 0.4rem;
+  }
+
+  .spatial-keyword {
+    width: 2.6rem;
+    min-height: 5.35rem;
+    padding-inline: 0.2rem;
+    font-size: 0.85rem;
   }
 }
 

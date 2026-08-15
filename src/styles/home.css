@@ -9,6 +9,25 @@
   --home-orange: #f05a2a;
   --home-green: #2faf87;
   --home-magenta: #de67b5;
+  /* 选题库预留的 18 个专色；组件通过词条映射引用，避免各处重复写色值。 */
+  --home-spot-01: #2d63d6;
+  --home-spot-02: #c4ad18;
+  --home-spot-03: #f05a2a;
+  --home-spot-04: #2f9b79;
+  --home-spot-05: #c84f91;
+  --home-spot-06: #657fdb;
+  --home-spot-07: #b57d1f;
+  --home-spot-08: #5550a8;
+  --home-spot-09: #168fa0;
+  --home-spot-10: #c9672f;
+  --home-spot-11: #708f2d;
+  --home-spot-12: #b44d57;
+  --home-spot-13: #8059a4;
+  --home-spot-14: #287766;
+  --home-spot-15: #a77f43;
+  --home-spot-16: #4c718f;
+  --home-spot-17: #cb7186;
+  --home-spot-18: #566770;
   --home-column-gap: clamp(3rem, 5vw, 5rem);
   --home-mobile-gap: 2rem;
 
@@ -568,7 +587,7 @@
 
 .home-page .grading-chart {
   display: grid;
-  grid-template-columns: minmax(9rem, 0.8fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(9rem, 0.8fr);
   gap: clamp(1.5rem, 3vw, 3rem);
   align-items: start;
   padding-top: 1rem;
@@ -581,6 +600,7 @@
   aspect-ratio: 1;
   place-items: center;
   align-self: start;
+  justify-self: end;
 }
 
 .home-page .grading-donut-svg {
@@ -725,7 +745,6 @@
   font-size: clamp(1.1rem, 1.8vw, 1.5rem);
   font-weight: 400;
   letter-spacing: 0.02em;
-  animation: rules-cta-breathe 5.5s ease-in-out infinite;
   transition: color 180ms ease;
 }
 
@@ -769,18 +788,6 @@
 .home-page .rules-header-grid .rules-cta:hover {
   color: var(--home-ink);
   border-bottom-color: transparent;
-  animation-play-state: paused;
-}
-
-@keyframes rules-cta-breathe {
-  0%,
-  100% {
-    opacity: 0.72;
-  }
-
-  50% {
-    opacity: 1;
-  }
 }
 
 .home-page .section-title-lockup {

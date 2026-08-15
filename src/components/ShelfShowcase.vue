@@ -1,7 +1,7 @@
 <template>
   <div class="shelf-showcase" :class="{ 'shelf-showcase--active': active !== null }">
     <div class="shelf-inner">
-      <img src="/img/货架图.png" alt="陈列九件物体的货架" class="shelf-bg" />
+      <img src="/img/货架图.webp" alt="陈列九件物体的货架" class="shelf-bg" />
 
       <!--
         热区 SVG 和新版底图共用 2450 × 1536 坐标系。这样替换底图时不再需要

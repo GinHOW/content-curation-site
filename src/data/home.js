@@ -30,18 +30,18 @@ export const overviewMeta = [
 export const methodSteps = ['采集', '筛选', '诠释', '组织', '呈现']
 
 export const spatialRooms = [
-  { id: 'room1', number: '01', keywords: ['桌面'] },
-  { id: 'room2', number: '02', keywords: ['橱窗'] },
-  { id: 'room3', number: '03', keywords: ['客厅'] },
+  { id: 'room1', number: '01', keywords: ['客厅'] },
+  { id: 'room2', number: '02', keywords: ['橱窗', '隧道'] },
+  { id: 'room3', number: '03', keywords: ['桌面'] },
   { id: 'room4', number: '04', keywords: ['暗房'] },
   { id: 'room5', number: '05', keywords: ['蓄水池'] },
-  { id: 'room6', number: '06', keywords: ['黄页'] },
-  { id: 'room7', number: '07', keywords: ['田'] },
+  { id: 'room6', number: '06', keywords: ['田'] },
+  { id: 'room7', number: '07', keywords: ['黄页'] },
   { id: 'room8', number: '08', keywords: ['晒场'] },
   { id: 'room9', number: '09', keywords: ['阳台'] },
   { id: 'room10', number: '10', keywords: ['宴席'] },
   { id: 'room11', number: '11', keywords: ['谷仓','楼梯间'] },
-  { id: 'room12', number: '12', keywords: ['监控室', '隧道'] },
+  { id: 'room12', number: '12', keywords: ['监控室'] },
 ]
 
 // 18 个专色为选题库预留；词条名称与颜色一一对应，后续替换词条时只需更新这里。

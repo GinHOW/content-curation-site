@@ -17,7 +17,7 @@
       </div>
     </section>
 
-    <div class="controller-stage">
+    <div ref="stageElement" class="controller-stage">
       <picture>
         <source srcset="/Curator2026/controller2.0.webp" type="image/webp" />
         <img
@@ -57,7 +57,11 @@
         @keydown.enter.prevent="selectTopicFromScreen(slot)"
         @keydown.space.prevent="selectTopicFromScreen(slot)"
       >
-        <div class="controller-topic-screen-content" :style="screenContentStyle(screenIndex)">
+        <div
+          class="controller-topic-screen-content"
+          :class="{ 'has-image': slot.type === 'image' }"
+          :style="screenContentStyle(screenIndex)"
+        >
           <img
             v-if="slot.type === 'image'"
             :src="slot.src"
@@ -82,10 +86,14 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import SpatialMap from './SpatialMap.vue'
 import { spatialKeywordColors } from '../../data/home.js'
 import { livingRoomArchive } from '../../data/demoArchive.js'
+import {
+  controllerScreenBleed,
+  controllerScreenZones,
+} from '../../data/controllerScreenZones.js'
 
 const props = defineProps({
   rooms: {
@@ -98,101 +106,116 @@ const props = defineProps({
   },
 })
 
-// The polygons below are the four-corner screen contours from public/Curator2026/screen/.
-// Keeping the geometry inline avoids loading the Illustrator SVGs' embedded preview image
-// 18 times, while retaining the slight perspective on every physical monitor.
-const screenZones = [
-  {
-    id: 'screen1',
-    clip: 'polygon(87.49% 31.65%, 87.49% 44.88%, 99.41% 45.18%, 99.41% 31.45%)',
-    content: { top: '31.35%', left: '87.32%', width: '12.18%', height: '14.05%' },
-  },
-  {
-    id: 'screen2',
-    clip: 'polygon(86.06% 46.41%, 86.06% 57.64%, 97.20% 58.64%, 97.20% 46.74%)',
-    content: { top: '46.1%', left: '85.88%', width: '11.5%', height: '12.85%' },
-  },
-  {
-    id: 'screen3',
-    clip: 'polygon(71.28% 48.60%, 71.28% 58.05%, 82.00% 58.45%, 82.00% 48.80%)',
-    content: { top: '48.3%', left: '71.1%', width: '11.05%', height: '10.35%' },
-  },
-  {
-    id: 'screen4',
-    clip: 'polygon(69.74% 33.71%, 69.74% 46.01%, 84.25% 46.28%, 84.25% 33.52%)',
-    content: { top: '33.4%', left: '69.56%', width: '14.86%', height: '13.15%' },
-  },
-  {
-    id: 'screen5',
-    clip: 'polygon(69.47% 18.76%, 69.47% 30.59%, 84.41% 30.29%, 84.41% 18.09%)',
-    content: { top: '17.8%', left: '69.28%', width: '15.3%', height: '13.05%' },
-  },
-  {
-    id: 'screen6',
-    clip: 'polygon(86.47% 28.66%, 99.35% 28.22%, 99.35% 15.95%, 86.43% 16.70%)',
-    content: { top: '15.65%', left: '86.25%', width: '13.3%', height: '13.35%' },
-  },
-  {
-    id: 'screen7',
-    clip: 'polygon(86.43% 1.85%, 86.43% 13.79%, 99.16% 12.90%, 99.16% 0.57%)',
-    content: { top: '0.3%', left: '86.22%', width: '13.15%', height: '13.9%' },
-  },
-  {
-    id: 'screen8',
-    clip: 'polygon(69.04% 2.43%, 69.04% 14.83%, 83.96% 14.22%, 83.96% 1.45%)',
-    content: { top: '1.2%', left: '68.85%', width: '15.3%', height: '14.05%' },
-  },
-  {
-    id: 'screen9',
-    clip: 'polygon(58.17% 4.01%, 58.17% 14.45%, 67.27% 14.14%, 67.27% 3.67%)',
-    content: { top: '3.4%', left: '57.98%', width: '9.5%', height: '11.45%' },
-  },
-  {
-    id: 'screen10',
-    clip: 'polygon(43.68% 3.50%, 56.15% 3.50%, 56.15% 14.45%, 43.68% 14.45%)',
-    content: { top: '3.25%', left: '43.5%', width: '12.85%', height: '11.45%' },
-  },
-  {
-    id: 'screen11',
-    clip: 'polygon(30.47% 3.69%, 30.47% 14.25%, 41.78% 14.45%, 41.78% 4.00%)',
-    content: { top: '3.4%', left: '30.28%', width: '11.7%', height: '11.45%' },
-  },
-  {
-    id: 'screen12',
-    clip: 'polygon(19.77% 2.50%, 19.77% 17.53%, 28.99% 17.81%, 28.99% 2.93%)',
-    content: { top: '2.2%', left: '19.58%', width: '9.6%', height: '16.05%' },
-  },
-  {
-    id: 'screen13',
-    clip: 'polygon(18.03% 20.84%, 18.03% 44.05%, 29.49% 43.94%, 29.49% 21.12%)',
-    content: { top: '20.55%', left: '17.82%', width: '11.85%', height: '23.8%' },
-  },
-  {
-    id: 'screen14',
-    clip: 'polygon(18.33% 47.22%, 18.33% 58.15%, 29.31% 57.88%, 29.31% 47.12%)',
-    content: { top: '46.85%', left: '18.12%', width: '11.35%', height: '11.65%' },
-  },
-  {
-    id: 'screen15',
-    clip: 'polygon(5.12% 46.07%, 5.12% 58.43%, 15.75% 57.47%, 15.75% 45.62%)',
-    content: { top: '45.35%', left: '4.92%', width: '11.05%', height: '13.05%' },
-  },
-  {
-    id: 'screen16',
-    clip: 'polygon(0.58% 31.35%, 0.58% 43.42%, 14.38% 43.09%, 14.38% 31.48%)',
-    content: { top: '31.05%', left: '0.38%', width: '14.2%', height: '12.7%' },
-  },
-  {
-    id: 'screen17',
-    clip: 'polygon(0.81% 16.14%, 0.81% 28.42%, 16.87% 28.67%, 16.87% 16.80%)',
-    content: { top: '15.85%', left: '0.61%', width: '16.45%', height: '13.1%' },
-  },
-  {
-    id: 'screen18',
-    clip: 'polygon(0.96% 0.84%, 0.96% 13.15%, 16.77% 13.92%, 16.77% 2.12%)',
-    content: { top: '0.55%', left: '0.76%', width: '16.2%', height: '13.75%' },
-  },
-]
+// The generated zones are calibrated from public/Curator2026/screen/*.svg.
+// The polygon remains the visual aperture; its normalized four corners also
+// drive the content homography so images, text, and static all share it.
+function polygonToQuad(clip) {
+  const values = [...clip.matchAll(/(-?\d*\.?\d+)%\s+(-?\d*\.?\d+)%/g)]
+    .map((match) => ({ x: Number(match[1]), y: Number(match[2]) }))
+  if (values.length !== 4) return null
+
+  const byY = [...values].sort((a, b) => a.y - b.y)
+  const top = byY.slice(0, 2).sort((a, b) => a.x - b.x)
+  const bottom = byY.slice(2).sort((a, b) => a.x - b.x)
+  return [top[0], top[1], bottom[1], bottom[0]]
+}
+
+const screenZones = controllerScreenZones.map((zone) => ({
+  ...zone,
+  quad: zone.quad || polygonToQuad(zone.clip),
+}))
+
+const stageElement = ref(null)
+const stageSize = ref({ width: 0, height: 0 })
+let stageResizeObserver
+let stageResizeHandler
+
+function updateStageSize() {
+  if (!stageElement.value) return
+  const rect = stageElement.value.getBoundingClientRect()
+  stageSize.value = { width: rect.width, height: rect.height }
+}
+
+function homographyMatrix(sourceWidth, sourceHeight, targetPoints) {
+  const [topLeft, topRight, bottomRight, bottomLeft] = targetPoints
+  const x1 = topRight.x - bottomRight.x
+  const x2 = bottomLeft.x - bottomRight.x
+  const x3 = topLeft.x - topRight.x + bottomRight.x - bottomLeft.x
+  const y1 = topRight.y - bottomRight.y
+  const y2 = bottomLeft.y - bottomRight.y
+  const y3 = topLeft.y - topRight.y + bottomRight.y - bottomLeft.y
+  const denominator = x1 * y2 - x2 * y1
+
+  if (Math.abs(denominator) < 0.0001) return 'none'
+
+  let g = 0
+  let h = 0
+  if (Math.abs(x3) > 0.0001 || Math.abs(y3) > 0.0001) {
+    g = (x3 * y2 - x2 * y3) / denominator
+    h = (x1 * y3 - x3 * y1) / denominator
+  }
+
+  const a = topRight.x - topLeft.x + g * topRight.x
+  const b = bottomLeft.x - topLeft.x + h * bottomLeft.x
+  const c = topLeft.x
+  const d = topRight.y - topLeft.y + g * topRight.y
+  const e = bottomLeft.y - topLeft.y + h * bottomLeft.y
+  const f = topLeft.y
+
+  // The source coordinates are the content box's real pixel dimensions,
+  // while the homography above uses a normalized 0..1 square.
+  const values = [
+    a / sourceWidth, d / sourceWidth, 0, g / sourceWidth,
+    b / sourceHeight, e / sourceHeight, 0, h / sourceHeight,
+    0, 0, 1, 0,
+    c, f, 0, 1,
+  ]
+  return `matrix3d(${values.map((value) => Number(value.toFixed(6))).join(',')})`
+}
+
+function perspectiveForZone(zone) {
+  const { width, height } = stageSize.value
+  if (!width || !height || !zone.quad || !zone.content) return 'none'
+
+  const left = Number.parseFloat(zone.content.left)
+  const top = Number.parseFloat(zone.content.top)
+  const contentWidth = Number.parseFloat(zone.content.width)
+  const contentHeight = Number.parseFloat(zone.content.height)
+  const sourceWidth = (width * contentWidth) / 100
+  const sourceHeight = (height * contentHeight) / 100
+  const targetPoints = zone.quad.map((point) => ({
+    x: ((point.x - left) * width) / 100,
+    y: ((point.y - top) * height) / 100,
+  }))
+  const center = targetPoints.reduce(
+    (result, point) => ({ x: result.x + point.x / targetPoints.length, y: result.y + point.y / targetPoints.length }),
+    { x: 0, y: 0 },
+  )
+  const bleedX = (width * controllerScreenBleed) / 100
+  const bleedY = (height * controllerScreenBleed) / 100
+  const expandedTargetPoints = targetPoints.map((point) => ({
+    x: point.x + (point.x >= center.x ? bleedX : -bleedX),
+    y: point.y + (point.y >= center.y ? bleedY : -bleedY),
+  }))
+
+  return homographyMatrix(sourceWidth, sourceHeight, expandedTargetPoints)
+}
+
+onMounted(() => {
+  updateStageSize()
+  if (typeof ResizeObserver !== 'undefined' && stageElement.value) {
+    stageResizeObserver = new ResizeObserver(updateStageSize)
+    stageResizeObserver.observe(stageElement.value)
+  } else {
+    stageResizeHandler = updateStageSize
+    window.addEventListener('resize', stageResizeHandler, { passive: true })
+  }
+})
+
+onBeforeUnmount(() => {
+  stageResizeObserver?.disconnect()
+  if (stageResizeHandler) window.removeEventListener('resize', stageResizeHandler)
+})
 
 const keywords = computed(() => props.rooms.flatMap((room) => room.keywords))
 const activeTopic = ref('')
@@ -348,7 +371,12 @@ function screenFrameStyle(screenIndex) {
 }
 
 function screenContentStyle(screenIndex) {
-  return screenZones[screenIndex].content
+  const zone = screenZones[screenIndex]
+  return {
+    ...zone.content,
+    transformOrigin: '0 0',
+    transform: perspectiveForZone(zone),
+  }
 }
 </script>
 
@@ -431,7 +459,7 @@ function screenContentStyle(screenIndex) {
 .controller-center-screen {
   top: 19.5%;
   left: 31.68%;
-  width: 36.22%;
+  width: 36.37%;
   height: 29.95%;
   overflow: hidden;
   background: #f8f8f4;
@@ -498,6 +526,48 @@ function screenContentStyle(screenIndex) {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.controller-topic-screen-content.has-image {
+  background: #101413;
+}
+
+.controller-topic-screen-content.has-image img {
+  filter: saturate(0.86) contrast(1.08) brightness(0.98);
+}
+
+.controller-topic-screen-content.has-image::before {
+  position: absolute;
+  inset: -28%;
+  z-index: 2;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cfilter id='image-noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23image-noise)'/%3E%3C/svg%3E"),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08), transparent 42%, rgba(0, 0, 0, 0.12));
+  background-size: 72px 72px, 100% 100%;
+  content: '';
+  filter: contrast(2.1) grayscale(1);
+  opacity: 0.16;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: controller-image-noise 180ms steps(2, end) infinite;
+}
+
+.controller-topic-screen-content.has-image::after {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.11) 0,
+    rgba(255, 255, 255, 0.11) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  content: '';
+  opacity: 0.34;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: controller-image-scan 1.8s linear infinite;
 }
 
 .controller-static-placeholder {
@@ -654,6 +724,18 @@ function screenContentStyle(screenIndex) {
   70% { opacity: 0.9; }
 }
 
+@keyframes controller-image-noise {
+  0% { transform: translate3d(-4%, -3%, 0); }
+  33% { transform: translate3d(3%, 4%, 0); }
+  66% { transform: translate3d(-2%, 2%, 0); }
+  100% { transform: translate3d(4%, -4%, 0); }
+}
+
+@keyframes controller-image-scan {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 12px; }
+}
+
 @keyframes controller-center-noise {
   0% { transform: translate3d(-3%, -4%, 0); }
   33% { transform: translate3d(4%, 2%, 0); }
@@ -695,6 +777,8 @@ function screenContentStyle(screenIndex) {
   .controller-static-placeholder::before,
   .controller-static-placeholder::after,
   .controller-static-word,
+  .controller-topic-screen-content.has-image::before,
+  .controller-topic-screen-content.has-image::after,
   .controller-center-screen::before {
     animation: none;
   }

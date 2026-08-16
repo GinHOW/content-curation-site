@@ -190,6 +190,7 @@ const props = defineProps({
     default: false,
   },
 })
+const emit = defineEmits(['select-keyword'])
 
 const hoveredRoomId = ref(null)
 const focusedRoomId = ref(null)
@@ -296,6 +297,8 @@ const clearSelection = () => {
 const handleMapClick = (event) => {
   if (event.target?.closest?.('.spatial-room')) return
   clearSelection()
+  selectedKeywordValue.value = ''
+  if (props.embedded) emit('select-keyword', '')
 }
 
 const selectRoom = (id) => {
@@ -305,6 +308,7 @@ const selectRoom = (id) => {
   if (selectedRoomId.value === id) {
     selectedRoomId.value = null
     selectedKeywordValue.value = ''
+    if (props.embedded) emit('select-keyword', '')
     return
   }
 
@@ -312,6 +316,7 @@ const selectRoom = (id) => {
   if (!room.keywords.includes(selectedKeywordValue.value)) {
     selectedKeywordValue.value = room.keywords[0]
   }
+  if (props.embedded) emit('select-keyword', selectedKeywordValue.value)
 }
 
 const selectKeyword = (keyword) => {

@@ -18,7 +18,7 @@
           :events="courseEvents"
           :start-date="startDate"
           :course-start-date="courseStartDate"
-          :cycle="courseInfo.cycle"
+          :cycle="courseCycle"
         />
       </div>
     </div>
@@ -32,8 +32,8 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { courseInfo } from '../data/syllabus.js'
 import {
+  courseCycle,
   homeNavItems,
   overviewMeta,
   teachingTeam,

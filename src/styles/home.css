@@ -30,6 +30,7 @@
   --home-spot-18: #566770;
   --home-column-gap: clamp(3rem, 5vw, 5rem);
   --home-mobile-gap: 2rem;
+  --section-anchor-offset: clamp(2rem, 10vh, 8rem);
 
   min-height: 100vh;
   background: var(--home-paper);
@@ -179,7 +180,7 @@
   position: relative;
   padding: clamp(5rem, 10vw, 10rem) clamp(3.5rem, 4vw, 4.5rem);
   background: var(--home-paper);
-  scroll-margin-top: 1rem;
+  scroll-margin-top: var(--section-anchor-offset);
 }
 
 .home-page .section-grid {
@@ -917,6 +918,10 @@
   .home-page .home-section {
     padding: clamp(4rem, 14vw, 6rem) 1rem;
     scroll-margin-top: 0;
+  }
+
+  .home-page .overview-section {
+    padding-top: 2.5rem;
   }
 
   .home-page .section-grid {

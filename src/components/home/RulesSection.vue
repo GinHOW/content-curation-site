@@ -64,7 +64,7 @@
           <div class="grading-chart">
             <div class="grading-legend">
               <button
-                v-for="(item, index) in grading.overview"
+                v-for="(item, index) in gradingOverview"
                 :key="item.item"
                 type="button"
                 class="grading-legend-item"
@@ -131,7 +131,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { grading } from '../../data/syllabus.js'
+import { gradingOverview } from '../../data/home.js'
 
 const methodSteps = ['选题', '建库', '结构', '网站', '展具', '视觉', '事件', '商业']
 const gradingPalette = [
@@ -148,7 +148,7 @@ const activeGradingIndex = ref(null)
 
 const gradingSegments = computed(() => {
   let cursor = 0
-  return grading.overview.map((item, index) => {
+  return gradingOverview.map((item, index) => {
     const value = Number.parseInt(item.weight, 10)
     const length = gradingCircumference * value / 100
     const segment = {
@@ -173,6 +173,6 @@ const clearActiveGrading = () => {
 }
 
 const gradingAriaLabel = computed(() => (
-  `评分构成：${grading.overview.map((item) => `${item.item}${item.weight}`).join('、')}`
+  `评分构成：${gradingOverview.map((item) => `${item.item}${item.weight}`).join('、')}`
 ))
 </script>

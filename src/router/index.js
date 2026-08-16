@@ -1,16 +1,37 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
-import Syllabus from '../views/Syllabus.vue'
-import References from '../views/References.vue'
-import Works from '../views/Works.vue'
-import WorkDetail from '../views/WorkDetail.vue'
 
 const routes = [
-  { path: '/', name: 'Home', component: Home },
-  { path: '/syllabus', name: 'Syllabus', component: Syllabus },
-  { path: '/references', name: 'References', component: References },
-  { path: '/works', name: 'Works', component: Works },
-  { path: '/works/:id', name: 'WorkDetail', component: WorkDetail, props: true },
+  {
+    path: '/',
+    name: 'Home',
+    component: () => import('../views/Home.vue'),
+    meta: { title: '内容与策展 · 2026 课程网站' },
+  },
+  {
+    path: '/syllabus',
+    name: 'Syllabus',
+    component: () => import('../views/Syllabus.vue'),
+    meta: { title: '教学大纲 · 内容与策展 2026' },
+  },
+  {
+    path: '/references',
+    name: 'References',
+    component: () => import('../views/References.vue'),
+    meta: { title: '参考资料 · 内容与策展 2026' },
+  },
+  {
+    path: '/works',
+    name: 'Works',
+    component: () => import('../views/Works.vue'),
+    meta: { title: '学生作品 · 内容与策展 2026' },
+  },
+  {
+    path: '/works/:id',
+    name: 'WorkDetail',
+    component: () => import('../views/WorkDetail.vue'),
+    props: true,
+    meta: { title: '作品详情 · 内容与策展 2026' },
+  },
 ]
 
 const router = createRouter({
@@ -18,6 +39,12 @@ const router = createRouter({
   routes,
   scrollBehavior() {
     return { top: 0 }
+  },
+})
+
+router.afterEach((to) => {
+  if (to.meta?.title) {
+    document.title = to.meta.title
   }
 })
 

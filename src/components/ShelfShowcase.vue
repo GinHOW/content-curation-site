@@ -1,5 +1,11 @@
 <template>
-  <div class="shelf-showcase" :class="{ 'shelf-showcase--active': active !== null }">
+  <div
+    class="shelf-showcase"
+    :class="{ 'shelf-showcase--active': active !== null }"
+    @pointerenter="handlePointerEnter"
+    @pointermove="handlePointerMove"
+    @pointerleave="handlePointerLeave"
+  >
     <div class="shelf-inner">
       <img src="/img/货架图.webp" alt="陈列九件物体的货架" class="shelf-bg" />
 
@@ -47,6 +53,15 @@
         </g>
       </svg>
     </div>
+
+    <div
+      v-show="cursorVisible"
+      class="shelf-cursor"
+      :style="{ left: `${cursorPosition.x}px`, top: `${cursorPosition.y}px` }"
+      aria-hidden="true"
+    >
+      <span>进入物件</span>
+    </div>
   </div>
 </template>
 
@@ -56,6 +71,26 @@ import { ref } from 'vue'
 const emit = defineEmits(['open-exhibition'])
 
 const active = ref(null)
+const cursorVisible = ref(false)
+const cursorPosition = ref({ x: 0, y: 0 })
+
+const handlePointerEnter = (event) => {
+  if (event.pointerType === 'touch') return
+  cursorVisible.value = true
+  handlePointerMove(event)
+}
+
+const handlePointerMove = (event) => {
+  const bounds = event.currentTarget.getBoundingClientRect()
+  cursorPosition.value = {
+    x: event.clientX - bounds.left,
+    y: event.clientY - bounds.top,
+  }
+}
+
+const handlePointerLeave = () => {
+  cursorVisible.value = false
+}
 
 const handleClick = (item) => {
   if (item.exhibitionId) {
@@ -68,7 +103,7 @@ const items = [
   { name: '尺子', label: '直尺', exhibitionId: 'northward-river', x: 206, y: 360, width: 777, height: 63, labelX: 306, labelY: 357 },
   { name: '帽子', label: '礼帽', exhibitionId: 'four-hat-act', x: 1254, y: 279, width: 312, height: 153, labelX: 1262, labelY: 272 },
   { name: '假发', label: '假发', exhibitionId: 'headline', x: 402, y: 454, width: 489, height: 319, labelX: 426, labelY: 470 },
-  { name: '眼睛', label: '眼睛', exhibitionId: 'why-we-look', x: 1652, y: 467, width: 345, height: 189, labelX: 1665, labelY: 485 },
+  { name: '眼睛', label: '眼睛', exhibitionId: 'why-we-look', x: 1665, y: 483, width: 318, height: 156, labelX: 1665, labelY: 485 },
   { name: '钥匙', label: '钥匙', exhibitionId: 'threshold', x: 577, y: 987, width: 229, height: 101, labelX: 580, labelY: 990 },
   { name: '棋子', label: '棋子', exhibitionId: 'chess-box', x: 1332, y: 912, width: 819, height: 196, labelX: 1346, labelY: 925 },
   { name: '手套', label: '手套', exhibitionId: 'hand-held-drama', x: 401, y: 1187, width: 543, height: 136, labelX: 403, labelY: 1190 },
@@ -82,7 +117,6 @@ const items = [
   position: relative;
   width: 100%;
   overflow: hidden;
-  cursor: default;
   border-bottom: 0;
   background: #ffffff;
 }
@@ -131,12 +165,16 @@ const items = [
 
 .item-image {
   opacity: 0;
-  transition: opacity 180ms ease;
+  transform: scale(1);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 180ms ease, transform 180ms ease;
 }
 
 .item:hover .item-image,
 .item--active .item-image {
   opacity: 1;
+  transform: scale(1.02);
 }
 
 .item:focus-visible .item-hotspot {
@@ -168,10 +206,55 @@ const items = [
   text-anchor: middle;
 }
 
-@media (max-width: 767px) {
-  /* 手机端：将横版货架旋转 90° 以竖版形式占据更大画面 */
+.shelf-cursor {
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  border: 1px solid var(--home-ink, #111);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.54);
+  color: var(--home-ink, #111);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: opacity 160ms ease;
+}
+
+.shelf-cursor[style*='display: none'] {
+  opacity: 0;
+}
+
+.shelf-showcase--active .shelf-cursor {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media (hover: hover) and (pointer: fine) {
   .shelf-showcase {
-    aspect-ratio: 1536 / 2752;
+    cursor: none;
+  }
+
+  .shelf-showcase--active {
+    cursor: pointer;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .shelf-cursor {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  /* 手机端旋转货架，并裁掉底部过多的空置货架区域。 */
+  .shelf-showcase {
+    aspect-ratio: 1536 / 2200;
   }
 
   .shelf-inner {

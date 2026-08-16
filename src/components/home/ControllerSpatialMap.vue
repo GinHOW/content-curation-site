@@ -17,6 +17,7 @@
       </div>
     </section>
 
+    <div class="controller-stage-viewport">
     <div ref="stageElement" class="controller-stage">
       <picture>
         <source srcset="/Curator2026/controller2.0.webp" type="image/webp" />
@@ -80,6 +81,7 @@
         </div>
       </article>
     </div>
+    </div>
 
     <p class="controller-status" aria-live="polite">{{ liveStatus }}</p>
   </figure>
@@ -94,6 +96,7 @@ import {
   controllerScreenBleed,
   controllerScreenZones,
 } from '../../data/controllerScreenZones.js'
+import { perspectiveForZone, polygonToQuad } from '../../utils/homography.js'
 
 const props = defineProps({
   rooms: {
@@ -109,17 +112,6 @@ const props = defineProps({
 // The generated zones are calibrated from public/Curator2026/screen/*.svg.
 // The polygon remains the visual aperture; its normalized four corners also
 // drive the content homography so images, text, and static all share it.
-function polygonToQuad(clip) {
-  const values = [...clip.matchAll(/(-?\d*\.?\d+)%\s+(-?\d*\.?\d+)%/g)]
-    .map((match) => ({ x: Number(match[1]), y: Number(match[2]) }))
-  if (values.length !== 4) return null
-
-  const byY = [...values].sort((a, b) => a.y - b.y)
-  const top = byY.slice(0, 2).sort((a, b) => a.x - b.x)
-  const bottom = byY.slice(2).sort((a, b) => a.x - b.x)
-  return [top[0], top[1], bottom[1], bottom[0]]
-}
-
 const screenZones = controllerScreenZones.map((zone) => ({
   ...zone,
   quad: zone.quad || polygonToQuad(zone.clip),
@@ -129,76 +121,23 @@ const stageElement = ref(null)
 const stageSize = ref({ width: 0, height: 0 })
 let stageResizeObserver
 let stageResizeHandler
+let resizeRaf = null
 
 function updateStageSize() {
   if (!stageElement.value) return
-  const rect = stageElement.value.getBoundingClientRect()
-  stageSize.value = { width: rect.width, height: rect.height }
-}
-
-function homographyMatrix(sourceWidth, sourceHeight, targetPoints) {
-  const [topLeft, topRight, bottomRight, bottomLeft] = targetPoints
-  const x1 = topRight.x - bottomRight.x
-  const x2 = bottomLeft.x - bottomRight.x
-  const x3 = topLeft.x - topRight.x + bottomRight.x - bottomLeft.x
-  const y1 = topRight.y - bottomRight.y
-  const y2 = bottomLeft.y - bottomRight.y
-  const y3 = topLeft.y - topRight.y + bottomRight.y - bottomLeft.y
-  const denominator = x1 * y2 - x2 * y1
-
-  if (Math.abs(denominator) < 0.0001) return 'none'
-
-  let g = 0
-  let h = 0
-  if (Math.abs(x3) > 0.0001 || Math.abs(y3) > 0.0001) {
-    g = (x3 * y2 - x2 * y3) / denominator
-    h = (x1 * y3 - x3 * y1) / denominator
-  }
-
-  const a = topRight.x - topLeft.x + g * topRight.x
-  const b = bottomLeft.x - topLeft.x + h * bottomLeft.x
-  const c = topLeft.x
-  const d = topRight.y - topLeft.y + g * topRight.y
-  const e = bottomLeft.y - topLeft.y + h * bottomLeft.y
-  const f = topLeft.y
-
-  // The source coordinates are the content box's real pixel dimensions,
-  // while the homography above uses a normalized 0..1 square.
-  const values = [
-    a / sourceWidth, d / sourceWidth, 0, g / sourceWidth,
-    b / sourceHeight, e / sourceHeight, 0, h / sourceHeight,
-    0, 0, 1, 0,
-    c, f, 0, 1,
-  ]
-  return `matrix3d(${values.map((value) => Number(value.toFixed(6))).join(',')})`
-}
-
-function perspectiveForZone(zone) {
-  const { width, height } = stageSize.value
-  if (!width || !height || !zone.quad || !zone.content) return 'none'
-
-  const left = Number.parseFloat(zone.content.left)
-  const top = Number.parseFloat(zone.content.top)
-  const contentWidth = Number.parseFloat(zone.content.width)
-  const contentHeight = Number.parseFloat(zone.content.height)
-  const sourceWidth = (width * contentWidth) / 100
-  const sourceHeight = (height * contentHeight) / 100
-  const targetPoints = zone.quad.map((point) => ({
-    x: ((point.x - left) * width) / 100,
-    y: ((point.y - top) * height) / 100,
-  }))
-  const center = targetPoints.reduce(
-    (result, point) => ({ x: result.x + point.x / targetPoints.length, y: result.y + point.y / targetPoints.length }),
-    { x: 0, y: 0 },
-  )
-  const bleedX = (width * controllerScreenBleed) / 100
-  const bleedY = (height * controllerScreenBleed) / 100
-  const expandedTargetPoints = targetPoints.map((point) => ({
-    x: point.x + (point.x >= center.x ? bleedX : -bleedX),
-    y: point.y + (point.y >= center.y ? bleedY : -bleedY),
-  }))
-
-  return homographyMatrix(sourceWidth, sourceHeight, expandedTargetPoints)
+  
+  if (resizeRaf) cancelAnimationFrame(resizeRaf)
+  
+  resizeRaf = requestAnimationFrame(() => {
+    const rect = stageElement.value.getBoundingClientRect()
+    // 若获取到宽小于高，说明移动端触发了 transform: rotate(90deg)，需纠正被翻转的尺寸
+    if (rect.width < rect.height) {
+      stageSize.value = { width: rect.height, height: rect.width }
+    } else {
+      stageSize.value = { width: rect.width, height: rect.height }
+    }
+    resizeRaf = null
+  })
 }
 
 onMounted(() => {
@@ -213,6 +152,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  if (resizeRaf) cancelAnimationFrame(resizeRaf)
   stageResizeObserver?.disconnect()
   if (stageResizeHandler) window.removeEventListener('resize', stageResizeHandler)
 })
@@ -375,7 +315,12 @@ function screenContentStyle(screenIndex) {
   return {
     ...zone.content,
     transformOrigin: '0 0',
-    transform: perspectiveForZone(zone),
+    transform: perspectiveForZone(
+      zone,
+      stageSize.value.width,
+      stageSize.value.height,
+      controllerScreenBleed,
+    ),
   }
 }
 </script>
@@ -393,6 +338,12 @@ function screenContentStyle(screenIndex) {
   isolation: isolate;
   overflow: hidden;
   background: #fff;
+}
+
+.controller-stage-viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
 }
 
 .controller-base {
@@ -749,14 +700,29 @@ function screenContentStyle(screenIndex) {
   }
 
   .controller-topic-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    /* 手机端保持横排文字，但用矩阵铺满宽度，避免单行横向溢出。 */
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    width: 100%;
+    min-width: 0;
+    border-right: 1px solid var(--home-rule);
+  }
+
+  .controller-topic-library {
+    overflow: visible;
+    margin-inline: -1rem;
+    margin-bottom: clamp(2.5rem, 8vw, 4rem);
+    padding-inline: 1rem;
+    padding-bottom: 0.45rem;
+    touch-action: manipulation;
   }
 
   .controller-topic-grid button {
-    justify-content: flex-start;
+    min-width: 0;
+    justify-content: center;
     min-height: 3.25rem;
-    padding: 0.7rem 0.8rem;
-    font-size: 0.9rem;
+    padding: 0.7rem 0.4rem;
+    font-size: 0.86rem;
   }
 
   .controller-topic-grid button::before {
@@ -769,6 +735,19 @@ function screenContentStyle(screenIndex) {
 
   .controller-topic-grid button span {
     writing-mode: horizontal-tb;
+  }
+
+  .controller-stage-viewport {
+    aspect-ratio: 999 / 1446;
+  }
+
+  .controller-stage {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    width: 144.74%;
+    transform: rotate(90deg);
+    transform-origin: top left;
   }
 
 }

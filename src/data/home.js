@@ -27,6 +27,17 @@ export const overviewMeta = [
   { label: '上课时间', values: ['第 1–5 周 周一、周四下午', '第 6–8 周 周一、周三、周四下午'] },
 ]
 
+export const courseCycle = '8 周，16 课次'
+
+export const gradingOverview = [
+  { item: '出勤与课堂参与', weight: '10%', desc: '第 1—8 周的出勤与课堂参与' },
+  { item: '内容档案与展览内容网站', weight: '15%', desc: '第 2 周提交' },
+  { item: '策展逻辑与提案', weight: '15%', desc: '第 3 周提交' },
+  { item: '展览设计方案初步提案', weight: '15%', desc: '第 5 周中期汇报' },
+  { item: '深化设计与商业计划书', weight: '15%', desc: '第 7 周提交' },
+  { item: '期末综合汇报', weight: '30%', desc: '第 8 周汇报' },
+]
+
 export const methodSteps = ['采集', '筛选', '诠释', '组织', '呈现']
 
 export const spatialRooms = [

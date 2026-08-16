@@ -165,6 +165,7 @@ const { activeSection, navigateTo } = useHomeSections(
   --syllabus-green: #2faf87;
   --syllabus-orange: #f05a2a;
   --syllabus-gap: clamp(3rem, 5vw, 5rem);
+  --section-anchor-offset: clamp(7rem, 22vh, 12rem);
   min-height: 100vh;
   color: var(--syllabus-ink);
   background: #ffffff;
@@ -184,7 +185,7 @@ const { activeSection, navigateTo } = useHomeSections(
 }
 
 .syllabus-section {
-  scroll-margin-top: 1rem;
+  scroll-margin-top: var(--section-anchor-offset);
 }
 
 .schedule-heading { padding-top: clamp(4rem, 8vw, 8rem); }
@@ -341,6 +342,7 @@ const { activeSection, navigateTo } = useHomeSections(
 
 @media (max-width: 767px) {
   .syllabus-main > .site-nav { margin-inline: 1rem; }
+  .syllabus-section { scroll-margin-top: 0; }
   .schedule-heading { padding-top: 3rem; }
   .schedule-heading h1,
   .assessment-heading h2 { font-size: clamp(4rem, 20vw, 6.5rem); }

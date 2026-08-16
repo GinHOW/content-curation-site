@@ -60,71 +60,20 @@
           >
             <title>{{ roomLabel(room) }}</title>
 
-          <template v-if="room.id === 'room1'">
-            <path class="spatial-room-hit" d="M145.78,439.66h433.35v-94.33h302.64v-90.91c99.29-1.29,206.58,1.29,305.87,0,.12-26.62.24-56.23.36-82.85-33.29-4.13-72.57-8.02-114.24-19.5-42.24-11.65-79.09-27.57-110.09-41.29-38.11,17.78-90.03,40.62-152.86,64.17-74.59,27.96-135.66,50.7-215.87,67.49-148.86,31.14-274.89,22.92-365.89,16.98-34.6-2.26-63.3-5.18-83.26-7.46v187.71Z" />
-            <path class="spatial-room-shape" d="M145.78,439.66h433.35v-94.33h302.64v-90.91c99.29-1.29,206.58,1.29,305.87,0,.12-26.62.24-56.23.36-82.85-33.29-4.13-72.57-8.02-114.24-19.5-42.24-11.65-79.09-27.57-110.09-41.29-38.11,17.78-90.03,40.62-152.86,64.17-74.59,27.96-135.66,50.7-215.87,67.49-148.86,31.14-274.89,22.92-365.89,16.98-34.6-2.26-63.3-5.18-83.26-7.46v187.71Z" />
-          </template>
-
-          <template v-else-if="room.id === 'room2'">
-            <polygon class="spatial-room-hit" points="743.93 351.75 743.93 439.66 2075.45 439.66 2075.45 351.75 1482.03 351.75 1482.03 260.46 1335.01 260.46 1335.01 350.75 1036.15 350.75 1036.15 262.13 889.78 262.13 889.78 351.75" />
-            <polygon class="spatial-room-shape" points="743.93 351.75 743.93 439.66 2075.45 439.66 2075.45 351.75 1482.03 351.75 1482.03 260.46 1335.01 260.46 1335.01 350.75 1036.15 350.75 1036.15 262.13 889.78 262.13 889.78 351.75" />
-          </template>
-
-          <template v-else-if="room.id === 'room3'">
-            <rect class="spatial-room-hit" x="2242.48" y="351.75" width="138.09" height="86.91" />
-            <rect class="spatial-room-shape" x="2242.48" y="351.75" width="138.09" height="86.91" />
-          </template>
-
-          <template v-else-if="room.id === 'room4'">
-            <g transform="translate(56.15 32.27)">
-              <rect class="spatial-room-hit" x="2330.49" y="319.48" width="300.38" height="86.91" />
-              <rect class="spatial-room-shape" x="2330.49" y="319.48" width="300.38" height="86.91" />
+            <g :transform="getRoomGeometry(room.id)?.transform">
+              <component
+                v-if="getRoomGeometry(room.id)"
+                :is="getRoomGeometry(room.id).type"
+                class="spatial-room-hit"
+                v-bind="getShapeProps(getRoomGeometry(room.id))"
+              />
+              <component
+                v-if="getRoomGeometry(room.id)"
+                :is="getRoomGeometry(room.id).type"
+                class="spatial-room-shape"
+                v-bind="getShapeProps(getRoomGeometry(room.id))"
+              />
             </g>
-          </template>
-
-          <template v-else-if="room.id === 'room5'">
-            <g transform="translate(56.15 32.27)">
-              <path class="spatial-room-hit" d="M1138.28,140.78c.02,29.69-.02,58.39,0,88.08h-150.1c-.04,27.46-.08,57.92-.12,85.38,94.31-.42,190.72-.84,285.03-1.25.7-55.87-.7-113.74,0-169.61-21.15,1.55-44.34,2.32-69.28,1.78-23.56-.51-45.45-2.13-65.53-4.38Z" />
-              <path class="spatial-room-shape" d="M1138.28,140.78c.02,29.69-.02,58.39,0,88.08h-150.1c-.04,27.46-.08,57.92-.12,85.38,94.31-.42,190.72-.84,285.03-1.25.7-55.87-.7-113.74,0-169.61-21.15,1.55-44.34,2.32-69.28,1.78-23.56-.51-45.45-2.13-65.53-4.38Z" />
-            </g>
-          </template>
-
-          <template v-else-if="room.id === 'room6'">
-            <g transform="translate(56.15 32.27)">
-              <rect class="spatial-room-hit" x="1432.29" y="228.2" width="299.47" height="84.04" />
-              <rect class="spatial-room-shape" x="1432.29" y="228.2" width="299.47" height="84.04" />
-            </g>
-          </template>
-
-          <template v-else-if="room.id === 'room7'">
-            <path class="spatial-room-hit" d="M1939.92,138.31v121.82h-145.8v84.38h282.87v-193.31c-21.63-.64-44.73-1.04-69.12-3.52-24.14-2.45-46.83-5.69-67.96-9.37Z" />
-            <path class="spatial-room-shape" d="M1939.92,138.31v121.82h-145.8v84.38h282.87v-193.31c-21.63-.64-44.73-1.04-69.12-3.52-24.14-2.45-46.83-5.69-67.96-9.37Z" />
-          </template>
-
-          <template v-else-if="room.id === 'room8'">
-            <rect class="spatial-room-hit" x="2242.09" y="260.43" width="291.32" height="84.49" />
-            <rect class="spatial-room-shape" x="2242.09" y="260.43" width="291.32" height="84.49" />
-          </template>
-
-          <template v-else-if="room.id === 'room9'">
-            <path class="spatial-room-hit" d="M2539.51,176.09v168.69h87.42v-91.03h60.09v-50.48c-23.33-1.71-49.21-4.8-77.07-10.04-25.84-4.86-49.39-10.82-70.43-17.13Z" />
-            <path class="spatial-room-shape" d="M2539.51,176.09v168.69h87.42v-91.03h60.09v-50.48c-23.33-1.71-49.21-4.8-77.07-10.04-25.84-4.86-49.39-10.82-70.43-17.13Z" />
-          </template>
-
-          <template v-else-if="room.id === 'room10'">
-            <path class="spatial-room-hit" d="M1335.01,175.27v78.37c149.89.32,302.99.64,452.88.96.07-27.36-.07-57.72,0-85.09h-156.69v-78.68c-19.63,9.45-44.75,20.73-74.5,32.1-18.68,7.14-51.12,19.44-93.8,30.46-32.69,8.45-75.95,17.33-127.89,21.87Z" />
-            <path class="spatial-room-shape" d="M1335.01,175.27v78.37c149.89.32,302.99.64,452.88.96.07-27.36-.07-57.72,0-85.09h-156.69v-78.68c-19.63,9.45-44.75,20.73-74.5,32.1-18.68,7.14-51.12,19.44-93.8,30.46-32.69,8.45-75.95,17.33-127.89,21.87Z" />
-          </template>
-
-          <template v-else-if="room.id === 'room11'">
-            <path class="spatial-room-hit" d="M1636.83,88.35c.1,25.2-.1,50.4,0,75.59h156.45v89.65h140.05v-117.41c-7.64-1.59-17.47-3.81-28.84-6.85-6.63-1.77-17.88-4.93-34.33-10.47-5.93-2-32.76-11.03-56.57-21.51-40.49-17.82-75.48-41.24-96.93-56.81-13.98,10.01-29.62,20.25-46.94,30.24-11.31,6.52-22.31,12.35-32.9,17.56Z" />
-            <path class="spatial-room-shape" d="M1636.83,88.35c.1,25.2-.1,50.4,0,75.59h156.45v89.65h140.05v-117.41c-7.64-1.59-17.47-3.81-28.84-6.85-6.63-1.77-17.88-4.93-34.33-10.47-5.93-2-32.76-11.03-56.57-21.51-40.49-17.82-75.48-41.24-96.93-56.81-13.98,10.01-29.62,20.25-46.94,30.24-11.31,6.52-22.31,12.35-32.9,17.56Z" />
-          </template>
-
-          <template v-else-if="room.id === 'room12'">
-            <path class="spatial-room-hit" d="M2083.58,254.9v-103.55c34.18-.35,80.65-4.35,133.39-19.7,48.44-14.1,87.05-33.37,114.99-50,28.39,19.5,64,40.7,106.82,59.63,34.49,15.24,66.72,25.94,95.03,33.57v80.05h-450.22Z" />
-            <path class="spatial-room-shape" d="M2083.58,254.9v-103.55c34.18-.35,80.65-4.35,133.39-19.7,48.44-14.1,87.05-33.37,114.99-50,28.39,19.5,64,40.7,106.82,59.63,34.49,15.24,66.72,25.94,95.03,33.57v80.05h-450.22Z" />
-          </template>
           </g>
         </g>
       </svg>
@@ -175,6 +124,14 @@ import mapUrl from '../../assets/spatial-map/map.svg'
 import DemoArchive from './DemoArchive.vue'
 import { livingRoomArchive } from '../../data/demoArchive.js'
 import { spatialKeywordColors } from '../../data/home.js'
+import { spatialRoomGeometries } from '../../data/spatialRoomGeometry.js'
+
+const getRoomGeometry = (roomId) => spatialRoomGeometries[roomId]
+const getShapeProps = (geometry) => {
+  if (!geometry) return {}
+  const { type, transform, ...rest } = geometry
+  return rest
+}
 
 const props = defineProps({
   rooms: {

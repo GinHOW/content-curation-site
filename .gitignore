@@ -27,8 +27,9 @@ lerna-debug.log*
 # Cloudflare / Wrangler
 .wrangler/
 
-# 大资源文件（托管在 Cloudflare R2）
-public/course-gifs/
+# 大资源文件（托管在 Cloudflare R2）；目录缩略图随前端代码发布。
+public/course-gifs/*
+!public/course-gifs/*-thumb.webp
 agent.md
 public/货架.ai
 public/Curator2026/controller.ai

@@ -1,5 +1,5 @@
 <template>
-  <div class="syllabus-page home-page">
+  <div id="top" class="syllabus-page home-page">
     <a class="skip-link" href="#schedule">跳转到教学进度</a>
 
     <div class="home-shell syllabus-shell">
@@ -128,7 +128,7 @@
               <span>School of Communication &amp; Design 2026</span>
               <strong>内容与策展 · CONTENT &amp; CURATION</strong>
             </div>
-            <a href="#schedule">返回顶部 <span aria-hidden="true">↑</span></a>
+            <BackToTop />
           </footer>
         </section>
       </main>
@@ -139,6 +139,7 @@
 <script setup>
 import HomeEdgeNav from '../components/home/HomeEdgeNav.vue'
 import HomeSiteNav from '../components/home/HomeSiteNav.vue'
+import BackToTop from '../components/BackToTop.vue'
 import { useHomeSections } from '../composables/useHomeSections.js'
 import { assessmentItems, syllabusWeeks, wordPool } from '../data/syllabusSchedule.js'
 

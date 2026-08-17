@@ -1,5 +1,5 @@
 <template>
-  <div class="home-page">
+  <div id="top" class="home-page">
     <a class="skip-link" href="#overview">跳转到主要内容</a>
 
     <div class="home-shell">

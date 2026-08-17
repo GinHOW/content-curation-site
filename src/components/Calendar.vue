@@ -63,12 +63,17 @@
         <CalendarAgendaView :visible-month-events="visibleMonthEvents" />
       </section>
     </div>
+
+    <div class="calendar-back-to-top">
+      <BackToTop />
+    </div>
   </div>
 </template>
 
 <script setup>
 import CalendarDetailPanel from './calendar/CalendarDetailPanel.vue'
 import CalendarAgendaView from './calendar/CalendarAgendaView.vue'
+import BackToTop from './BackToTop.vue'
 import { useCalendarSchedule } from '../composables/useCalendarSchedule.js'
 
 const props = defineProps({
@@ -136,6 +141,12 @@ const {
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   gap: clamp(2rem, 5vw, 5rem);
   align-items: start;
+}
+
+.calendar-back-to-top {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: clamp(2rem, 4vw, 4rem);
 }
 
 .calendar-panel {

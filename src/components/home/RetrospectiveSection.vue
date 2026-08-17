@@ -9,7 +9,7 @@
       <div class="section-title-column">
         <p class="eyebrow">2025 · Selected Outcomes</p>
         <div class="section-title-lockup">
-          <h2 id="retrospective-title">策展<br />超市</h2>
+          <h2 id="retrospective-title">策展<br />超市 1.0</h2>
         </div>
       </div>
       <div class="section-copy-column retrospective-copy">

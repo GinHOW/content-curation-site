@@ -252,9 +252,9 @@ const items = [
 }
 
 @media (max-width: 767px) {
-  /* 手机端旋转货架，并裁掉底部过多的空置货架区域。 */
+  /* 手机端旋转货架，容器高度与旋转后的完整底图保持一致。 */
   .shelf-showcase {
-    aspect-ratio: 1536 / 2200;
+    aspect-ratio: 1536 / 2450;
   }
 
   .shelf-inner {

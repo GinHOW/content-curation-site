@@ -9,6 +9,9 @@
       @mouseleave="hidePreview"
       @focus="showPreview(reference, $event)"
       @blur="hidePreview"
+      @click.stop="openPreview(reference, $event)"
+      @keydown.enter.prevent="openPreview(reference, $event)"
+      @keydown.space.prevent="openPreview(reference, $event)"
     >
       <img :src="reference" :alt="`${sessionLabel} 课程参考图 ${index + 1}`" loading="lazy" />
     </figure>
@@ -16,8 +19,8 @@
 
   <Teleport to="body">
     <Transition name="reference-preview">
-      <div v-if="activeReference" class="reference-preview" :style="previewStyle" aria-hidden="true">
-        <img :src="activeReference" alt="" />
+      <div v-if="activeReference" class="reference-preview" :style="previewStyle" aria-label="关闭参考图预览" role="button" tabindex="0" @click="closePreview" @keydown.esc="closePreview">
+        <img :src="activeReference" alt="" @click.stop />
       </div>
     </Transition>
   </Teleport>
@@ -28,8 +31,9 @@ import { ref } from 'vue'
 
 const activeReference = ref(null)
 const previewStyle = ref({})
+const previewPinned = ref(false)
 
-const showPreview = (reference, event) => {
+const showPreview = (reference, event, pinned = false) => {
   const rect = event.currentTarget.getBoundingClientRect()
   const viewportWidth = window.innerWidth
   const viewportHeight = window.innerHeight
@@ -39,10 +43,18 @@ const showPreview = (reference, event) => {
     '--preview-origin-y': `${rect.top + rect.height / 2 - viewportHeight / 2}px`,
     '--preview-origin-scale': `${Math.max(0.1, Math.min(0.28, rect.width / (viewportWidth * 0.78)))}`,
   }
+  previewPinned.value = pinned
   activeReference.value = reference
 }
 
 const hidePreview = () => {
+  if (previewPinned.value) return
+  activeReference.value = null
+}
+
+const openPreview = (reference, event) => showPreview(reference, event, true)
+const closePreview = () => {
+  previewPinned.value = false
   activeReference.value = null
 }
 
@@ -96,6 +108,7 @@ defineProps({
   display: grid;
   place-items: center;
   padding: clamp(2rem, 6vw, 6rem);
+  /* 桌面端悬停预览不拦截鼠标，避免鼠标进入预览层后触发缩略图离开而闪烁。 */
   pointer-events: none;
   background: rgb(255 255 255 / 0.82);
   backdrop-filter: blur(2px);
@@ -129,7 +142,10 @@ defineProps({
 }
 @media (max-width: 767px) {
   .course-reference-gallery { margin-top: 1rem; }
-  .reference-preview { padding: 1.25rem; }
+  .reference-preview {
+    padding: 1.25rem;
+    pointer-events: auto;
+  }
   .reference-preview img { max-width: 90vw; max-height: 76vh; }
 }
 @media (prefers-reduced-motion: reduce) {

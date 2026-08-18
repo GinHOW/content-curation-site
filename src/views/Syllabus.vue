@@ -191,8 +191,10 @@ import { assessmentItems, syllabusWeeks, wordPool } from '../data/syllabusSchedu
 
 const weekSectionId = (week) => `week-${week.toLowerCase()}`
 const milestoneLabel = (milestone) => ['①', '②', '③', '④', '⑤'][milestone - 1] || milestone
-const collapsedSessions = ref(new Set())
 const sessionKey = (week, session) => `${week}-${session.number}-${session.date}`
+const collapsedSessions = ref(new Set(
+  syllabusWeeks.flatMap((week) => week.sessions.map((session) => sessionKey(week.week, session))),
+))
 const sessionContentId = (week, session) => `session-content-${sessionKey(week, session)}`
 const sessionDeliverablesId = (week, session) => `session-deliverables-${sessionKey(week, session)}`
 const isSessionCollapsed = (week, session) => collapsedSessions.value.has(sessionKey(week, session))

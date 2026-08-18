@@ -182,7 +182,6 @@ watch(
 )
 </script>
 
-<style src="../styles/home.css"></style>
 
 <style scoped>
 .works-page {

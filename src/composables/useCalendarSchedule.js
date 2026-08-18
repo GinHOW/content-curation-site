@@ -48,9 +48,16 @@ export const getTeachingPoints = (event) => {
 export const getDeliverables = (event) => {
   if (!event) return []
   if (event.courseSchedule?.deliverables_or_homework?.length) {
-    return event.courseSchedule.deliverables_or_homework
+    return event.courseSchedule.deliverables_or_homework.map((item) => {
+      if (typeof item === 'string') return { text: item }
+      return {
+        content: item.content || '',
+        form: item.form || '',
+        quantity: item.quantity || '',
+      }
+    })
   }
-  return event.homework || []
+  return (event.homework || []).map((item) => typeof item === 'string' ? { text: item } : item)
 }
 
 export function useCalendarSchedule(props, emit) {

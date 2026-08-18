@@ -6,6 +6,7 @@
         :key="item.id"
         class="index-link"
         :class="{ 'is-active': activeSection === item.id }"
+        :style="item.color ? { '--tab-color': item.color, '--tab-ink': '#111111' } : undefined"
         :href="`#${item.id}`"
         :aria-current="activeSection === item.id ? 'location' : undefined"
         @click="handleClick($event, item.id)"
@@ -38,4 +39,3 @@ const handleClick = (event, id) => {
   emit('navigate', id)
 }
 </script>
-

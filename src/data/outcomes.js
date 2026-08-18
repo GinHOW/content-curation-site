@@ -45,7 +45,7 @@ const workOutcomes = works.map((work, index) => ({
 
 export const outcomeYears = [
   { id: '2025', label: '2025', note: '策展超市 · 已归档' },
-  { id: '2026', label: '2026', note: '内容与策展 · 进行中' },
+  { id: '2026', label: '2026', note: '内容与策展2026 · 进行中' },
 ]
 
 export const outcomesByYear = {

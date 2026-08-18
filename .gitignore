@@ -5,6 +5,15 @@ dist-ssr
 .DS_Store
 *.local
 
+# Local environment configuration
+.env
+.env.*
+!.env.example
+
+# Course reference source archives; the website uses the WebP copies in public.
+src/assets/course-references-originals/
+public/course-references/._*
+
 # Logs
 logs
 *.log

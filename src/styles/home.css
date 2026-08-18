@@ -5,8 +5,8 @@
   --home-muted: #747474;
   --home-rule: #dddddd;
   --home-blue: #78a2ed;
-  --home-yellow: #f2ef78;
   --home-orange: #f05a2a;
+  --home-yellow: #efe373;
   --home-green: #2faf87;
   --home-magenta: #de67b5;
   /* 选题库预留的 18 个专色；组件通过词条映射引用，避免各处重复写色值。 */
@@ -140,7 +140,7 @@
   gap: 0.35rem;
   align-items: center;
   width: max-content;
-  color: var(--home-muted);
+  color: var(--tab-ink, var(--home-muted));
   white-space: nowrap;
   pointer-events: none;
   transform: translate(-50%, -50%) rotate(90deg);

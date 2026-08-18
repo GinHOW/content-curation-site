@@ -31,7 +31,14 @@
         <div v-if="getDeliverables(event).length" class="detail-block">
           <p class="detail-block-label">课程产出 / DELIVERABLE</p>
           <ul class="detail-points detail-deliverables">
-            <li v-for="item in getDeliverables(event)" :key="item">{{ item }}</li>
+            <li v-for="(item, index) in getDeliverables(event)" :key="`${event.date}-deliverable-${index}`">
+              <template v-if="item.text">{{ item.text }}</template>
+              <div v-else class="deliverable-fields">
+                <p v-if="item.content"><strong>内容</strong><span>{{ item.content }}</span></p>
+                <p v-if="item.form"><strong>形式</strong><span>{{ item.form }}</span></p>
+                <p v-if="item.quantity"><strong>数量</strong><span>{{ item.quantity }}</span></p>
+              </div>
+            </li>
           </ul>
         </div>
       </article>
@@ -197,8 +204,38 @@ defineProps({
   position: absolute;
   top: 0;
   left: 0;
-  content: '—';
+  content: '·';
   color: var(--calendar-muted);
+}
+
+.detail-deliverables li {
+  padding-left: 0;
+}
+
+.detail-deliverables li::before {
+  content: none;
+}
+
+.deliverable-fields {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.deliverable-fields p {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.85rem;
+  row-gap: 0.35rem;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.deliverable-fields strong {
+  color: var(--calendar-muted);
+  font-size: inherit;
+  font-weight: 400;
+  white-space: nowrap;
 }
 
 .detail-empty {

@@ -32,6 +32,18 @@ const routes = [
     props: true,
     meta: { title: '作品详情 · 内容与策展 2026' },
   },
+  {
+    path: '/manage',
+    name: 'Admin',
+    component: () => import('../views/Admin.vue'),
+    meta: { title: '选题库管理 · 内容与策展 2026' },
+  },
+  {
+    path: '/student',
+    name: 'Student',
+    component: () => import('../views/Student.vue'),
+    meta: { title: '学生入口 · 内容与策展 2026' },
+  },
 ]
 
 const router = createRouter({

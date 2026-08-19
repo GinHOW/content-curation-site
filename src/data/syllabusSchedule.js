@@ -34,8 +34,6 @@ const referencesBySession = referenceFiles.reduce((map, filename) => {
   return map
 }, {})
 
-export const wordPool = courseSchedule.course.word_pool || []
-
 export const syllabusWeeks = courseSchedule.schedule.map((week) => ({
   week: `W${week.week}`,
   title: week.week_theme,

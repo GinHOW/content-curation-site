@@ -36,6 +36,7 @@
         <SpatialMap
           :rooms="rooms"
           :selected-keyword="activeTopic"
+          :topic-colors="topicColors"
           embedded
           @select-keyword="selectTopicFromMap"
         />
@@ -88,7 +89,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import SpatialMap from './SpatialMap.vue'
 import { spatialKeywordColors } from '../../data/home.js'
 import { livingRoomArchive } from '../../data/demoArchive.js'
@@ -104,6 +105,10 @@ const props = defineProps({
     required: true,
   },
   imageLibrary: {
+    type: Object,
+    default: () => ({}),
+  },
+  topicColors: {
     type: Object,
     default: () => ({}),
   },
@@ -159,7 +164,12 @@ onBeforeUnmount(() => {
 
 const keywords = computed(() => props.rooms.flatMap((room) => room.keywords))
 const activeTopic = ref('')
-const liveStatus = ref(`请选择上方选题标签；静默屏幕正在随机显示 ${keywords.value.length} 个空间标签。`)
+const liveStatus = ref('')
+watch(keywords, (nextKeywords) => {
+  if (!activeTopic.value) {
+    liveStatus.value = `请选择上方选题标签；静默屏幕正在随机显示 ${new Set(nextKeywords).size} 个空间标签。`
+  }
+}, { immediate: true })
 const archiveTitlesByKeyword = {
   客厅: livingRoomArchive.categories.flatMap((category) =>
     category.items.map(([title]) => title),
@@ -244,7 +254,7 @@ function buildScreenSlots(keyword = '') {
 
 const screenSlots = ref(buildScreenSlots())
 
-const colorFor = (keyword) => spatialKeywordColors[keyword] || 'var(--home-ink)'
+const colorFor = (keyword) => props.topicColors[keyword] || spatialKeywordColors[keyword] || 'var(--home-ink)'
 
 function selectTopic(keyword) {
   if (activeTopic.value === keyword) {

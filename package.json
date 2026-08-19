@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "generate:screen-zones": "node scripts/generate-controller-screen-zones.mjs"
+    "generate:screen-zones": "node scripts/generate-controller-screen-zones.mjs",
+    "d1:migrate:local": "npx wrangler d1 migrations apply content-curation-site --local",
+    "d1:migrate:remote": "npx wrangler d1 migrations apply content-curation-site --remote"
   },
   "dependencies": {
     "vue": "^3.5.39",

@@ -5,50 +5,85 @@
         <p class="panel-label">选题库 / WORD POOL</p>
         <h3 id="topic-matcher-title">选题匹配</h3>
       </div>
-      <p class="topic-matcher-hint">选择一个标签，再点击小组完成匹配；再次点击已匹配小组可清除。</p>
+      <div class="topic-matcher-header-actions">
+        <p v-if="!isCollapsed" class="topic-matcher-hint">选择一个标签，再点击小组完成匹配；再次点击已匹配小组可清除。</p>
+        <button
+          type="button"
+          class="topic-matcher-toggle"
+          :aria-expanded="!isCollapsed"
+          aria-controls="topic-matcher-controls"
+          @click="isCollapsed = !isCollapsed"
+        >
+          {{ isCollapsed ? '展开匹配' : '折叠' }}
+        </button>
+      </div>
     </header>
 
     <div class="topic-word-list" aria-label="选题标签">
-      <button v-for="word in availableWords" :key="word" type="button" class="topic-word" :class="{ 'is-selected': selectedWord === word }" :aria-pressed="selectedWord === word" @click="toggleWord(word)">
+      <button v-for="word in availableWords" :key="word" type="button" class="topic-word" :class="{ 'is-selected': selectedWord === word }" :aria-pressed="selectedWord === word" :disabled="!canInteract" @click="toggleWord(word)">
         {{ word }}
       </button>
     </div>
-    <label v-if="selectedWord === '自定义'" class="custom-topic-input">
-      <span>自定义词</span>
-      <input v-model.trim="customWord" type="text" maxlength="24" placeholder="输入一个词" />
-    </label>
+    <div v-show="!isCollapsed" id="topic-matcher-controls">
+      <p v-if="loading" class="topic-state-message" aria-live="polite">正在读取共享选题库……</p>
+      <p v-else-if="stateError" class="topic-state-message is-error" role="status">共享选题库暂时无法读取：{{ stateError }}</p>
+      <label v-if="!readonly && selectedWord === '自定义'" class="custom-topic-input">
+        <span>自定义词</span>
+        <input v-model.trim="customWord" type="text" maxlength="24" placeholder="输入一个词" />
+      </label>
 
-    <div class="group-matcher-heading">
-      <p>16 个小组</p>
-      <span>{{ matchedCount }} / {{ groups.length }} 已匹配</span>
+      <div class="group-matcher-heading">
+        <p>16 个小组</p>
+        <span>{{ matchedCount }} / {{ groups.length }} 已匹配</span>
+      </div>
+      <div class="group-list" aria-label="小组匹配状态">
+        <button v-for="group in groups" :key="group.id" type="button" class="group-slot" :class="{ 'has-match': assignments[group.code], 'is-ready': selectedWord }" :aria-label="assignments[group.code] ? `${group.code}，已匹配：${assignments[group.code]}` : `${group.code}，待匹配`" :disabled="!canInteract" @click="matchGroup(group.code)">
+          <strong>{{ group.code }}</strong>
+          <span>{{ assignments[group.code] || '待匹配' }}</span>
+        </button>
+      </div>
+      <p class="sr-only" aria-live="polite">{{ statusMessage }}</p>
     </div>
-    <div class="group-list" aria-label="小组匹配状态">
-      <button v-for="group in groups" :key="group" type="button" class="group-slot" :class="{ 'has-match': assignments[group], 'is-ready': selectedWord }" :aria-label="assignments[group] ? `${group}，已匹配：${assignments[group]}` : `${group}，待匹配`" @click="matchGroup(group)">
-        <strong>{{ group }}</strong>
-        <span>{{ assignments[group] || '待匹配' }}</span>
-      </button>
-    </div>
-    <p class="sr-only" aria-live="polite">{{ statusMessage }}</p>
   </section>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
-const props = defineProps({ words: { type: Array, default: () => [] } })
-const groups = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8']
-const availableWords = computed(() => [...props.words, '自定义'])
+const props = defineProps({
+  topics: { type: Array, default: () => [] },
+  groups: { type: Array, default: () => [] },
+  words: { type: Array, default: () => [] },
+  readonly: { type: Boolean, default: true },
+  demoMode: { type: Boolean, default: false },
+  loading: { type: Boolean, default: false },
+  stateError: { type: String, default: '' },
+})
+const defaultGroups = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8']
+const groups = computed(() => props.groups.length ? props.groups : defaultGroups.map((code, index) => ({ id: code, code, sortOrder: index + 1 })))
+const availableWords = computed(() => [
+  ...(props.topics.length ? props.topics.map((topic) => topic.label) : props.words),
+  ...(props.readonly ? [] : ['自定义']),
+])
+const canInteract = computed(() => (!props.readonly || props.demoMode) && !props.loading && !props.stateError)
 const selectedWord = ref('')
 const customWord = ref('')
-const assignments = ref(Object.fromEntries(groups.map((group) => [group, ''])))
+const isCollapsed = ref(false)
+const assignments = ref({})
 const statusMessage = ref('')
-const matchedCount = computed(() => Object.values(assignments.value).filter(Boolean).length)
+const matchedCount = computed(() => groups.value.filter((group) => assignments.value[group.code]).length)
+
+watch(groups, (nextGroups) => {
+  assignments.value = Object.fromEntries(nextGroups.map((group) => [group.code, group.topicLabel || '']))
+}, { immediate: true })
 
 const toggleWord = (word) => {
+  if (!canInteract.value) return
   selectedWord.value = selectedWord.value === word ? '' : word
   statusMessage.value = selectedWord.value ? (word === '自定义' ? '请输入自定义词' : `已选择标签：${word}`) : '已取消标签选择'
 }
 const matchGroup = (group) => {
+  if (!canInteract.value) return
   const wordToMatch = selectedWord.value === '自定义' ? customWord.value : selectedWord.value
   if (wordToMatch) {
     assignments.value[group] = wordToMatch
@@ -67,12 +102,16 @@ const matchGroup = (group) => {
 <style scoped>
 .topic-matcher { padding: 1.5rem; border: 1px solid color-mix(in srgb, var(--week-color) 66%, #ffffff); background: color-mix(in srgb, var(--week-color) 8%, #ffffff); }
 .topic-matcher-header { display: flex; flex-wrap: wrap; gap: 0.8rem 2rem; align-items: end; justify-content: space-between; }
+.topic-matcher-header-actions { display: flex; flex-wrap: wrap; align-items: end; justify-content: flex-end; gap: 0.75rem 1rem; }
 .topic-matcher h3 { margin-top: 0.35rem; font-size: 1.2rem; line-height: 1.2; }
 .topic-matcher-hint { max-width: 26rem; margin: 0; color: var(--syllabus-muted); font-size: 0.78rem; line-height: 1.5; }
+.topic-matcher-toggle { min-height: 2rem; padding: 0.35rem 0.65rem; border: 1px solid color-mix(in srgb, var(--week-color) 62%, #ffffff); color: var(--syllabus-ink); background: transparent; font: inherit; font-size: 0.75rem; cursor: pointer; }
+.topic-matcher-toggle:hover { background: color-mix(in srgb, var(--week-color) 18%, #ffffff); }
 .topic-word-list { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 1.25rem; }
 .topic-word, .group-slot { border: 1px solid color-mix(in srgb, var(--week-color) 62%, #ffffff); color: var(--syllabus-ink); background: #ffffff; font: inherit; cursor: pointer; transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, transform 160ms ease; }
 .topic-word { min-height: 2.5rem; padding: 0.45rem 0.85rem; }
 .topic-word:hover, .topic-word.is-selected { border-color: var(--week-color); background: var(--week-color); }
+.topic-word:disabled, .group-slot:disabled { cursor: default; opacity: 1; }
 .custom-topic-input {
   display: grid;
   grid-template-columns: auto minmax(10rem, 1fr);
@@ -103,6 +142,8 @@ const matchGroup = (group) => {
 .group-slot.has-match { border-color: var(--week-color); background: color-mix(in srgb, var(--week-color) 22%, #ffffff); }
 .group-slot:hover { transform: translateY(-1px); }
 .topic-word:focus-visible, .group-slot:focus-visible { outline: 2px solid var(--syllabus-ink); outline-offset: 3px; }
+.topic-state-message { margin: 0.8rem 0 0; color: var(--syllabus-muted); font-size: 0.75rem; }
+.topic-state-message.is-error { color: var(--syllabus-ink); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 @media (max-width: 767px) { .topic-matcher { padding: 1.1rem; } .topic-matcher-header { align-items: start; } .topic-matcher-hint { max-width: none; } .topic-word { min-height: 2.75rem; } .custom-topic-input { grid-template-columns: 1fr; max-width: none; } .custom-topic-input input { min-height: 2.75rem; } .group-list { grid-template-columns: repeat(4, minmax(0, 1fr)); } .group-slot { min-height: 4.8rem; } }
 @media (prefers-reduced-motion: reduce) { .topic-word, .group-slot { transition: none; } }

@@ -146,6 +146,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  topicColors: {
+    type: Object,
+    default: () => ({}),
+  },
 })
 const emit = defineEmits(['select-keyword'])
 
@@ -235,7 +239,7 @@ watch(
 )
 
 const keywordColor = (keyword) =>
-  spatialKeywordColors[keyword] || 'var(--home-orange)'
+  props.topicColors[keyword] || spatialKeywordColors[keyword] || 'var(--home-orange)'
 
 const roomColor = (room) => {
   const matchingKeyword = room.keywords.includes(selectedKeywordValue.value)

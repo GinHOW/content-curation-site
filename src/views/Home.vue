@@ -12,7 +12,13 @@
       <div id="main-content" class="home-main">
         <OverviewSection :team="teachingTeam" :meta="overviewMeta" />
         <RetrospectiveSection @open-exhibition="openExhibition" />
-        <MainSection />
+        <MainSection
+          :rooms="rooms"
+          :topic-colors="topicColors"
+          :loading="loading"
+          :state-error="error"
+          @retry="refresh"
+        />
         <RulesSection />
         <CalendarSection
           :events="courseEvents"
@@ -39,6 +45,7 @@ import {
   teachingTeam,
 } from '../data/home.js'
 import { useHomeSections } from '../composables/useHomeSections.js'
+import { useCourseState } from '../composables/useCourseState.js'
 import { buildCourseEvents } from '../utils/buildCourseEvents.js'
 import HomeEdgeNav from '../components/home/HomeEdgeNav.vue'
 import OverviewSection from '../components/home/OverviewSection.vue'
@@ -50,6 +57,7 @@ import ExhibitionDetail from './ExhibitionDetail.vue'
 
 const sectionIds = homeNavItems.map((item) => item.id)
 const { activeSection, navigateTo } = useHomeSections(sectionIds)
+const { rooms, topicColors, loading, error, refresh } = useCourseState()
 
 const activeExhibition = ref(null)
 const openExhibition = (id) => { activeExhibition.value = id }

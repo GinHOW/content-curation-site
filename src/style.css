@@ -1,193 +1,72 @@
 /* ============================================
-   内容与策展 · 课程总网站 — 全局样式
+   内容与策展 · 全站基础样式
+   以首页的编辑式策展视觉语言为准。
    ============================================ */
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+*, *::before, *::after { box-sizing: border-box; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
 
 :root {
-  /* 编辑式策展页面语义色（保留旧变量供其他页面继续使用） */
-  --paper: #ffffff;
-  --paper-white: #ffffff;
-  --ink: #111111;
-  --rule: #c9c8c1;
-  --muted: #8c8c88;
-  --accent-blue: #78a2ed;
-  --accent-yellow: #f2ef78;
-  --accent-orange: #f05a2a;
-  --accent-green: #2faf87;
-  --accent-magenta: #de67b5;
-
-  /* 色彩系统 */
-  --blue-light: #1B4ED8;
-  --white: #FFFFFF;
-  --red-stamp: #d63511;
-  --gray-text: #666;
-  
-  /* 棋盘格纹 */
-  --checker-size: 16px;
-  --checker-blue: var(--blue-light);
-  --checker-white: var(--white);
-  
-  /* 字体 */
+  --color-surface: #ffffff;
+  --color-text: #111111;
+  --color-text-muted: #747474;
+  --color-rule: #dddddd;
+  --color-blue: #78a2ed;
+  --color-orange: #f05a2a;
+  --color-yellow: #efe373;
+  --color-green: #2faf87;
+  --color-magenta: #de67b5;
   --font-heavy: "AlibabaPuHuiTi-3", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-body: "AlibabaPuHuiTi-3", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
-  
-  /* 间距 */
   --space: clamp(1.5rem, 4vw, 3rem);
   --max-w: 1200px;
-}
 
-html {
-  font-size: 16px;
-  scroll-behavior: smooth;
+  /* 供尚未迁移的页面使用的新版 token 别名。 */
+  --paper: var(--color-surface); --paper-white: var(--color-surface); --white: var(--color-surface);
+  --ink: var(--color-text); --rule: var(--color-rule); --muted: var(--color-text-muted);
+  --accent-blue: var(--color-blue); --accent-yellow: var(--color-yellow); --accent-orange: var(--color-orange);
+  --accent-green: var(--color-green); --accent-magenta: var(--color-magenta);
+  --blue-light: var(--color-blue); --red-stamp: var(--color-orange); --gray-text: var(--color-text-muted);
 }
 
 body {
-  background: var(--white);
-  color: var(--blue-light);
+  min-width: 320px;
+  margin: 0;
+  background: var(--color-surface);
+  color: var(--color-text);
   font-family: var(--font-body);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* --- Typography --- */
+button, input, textarea, select { font: inherit; }
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
 
-h1, h2, h3, h4 {
-  font-family: var(--font-heavy);
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
+:focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; }
+
+.skip-link {
+  position: fixed; top: 0.75rem; left: 0.75rem; z-index: 100;
+  padding: 0.6rem 0.8rem; color: var(--color-surface); background: var(--color-text);
+  transform: translateY(-150%); transition: transform 180ms ease;
+}
+.skip-link:focus { transform: translateY(0); }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
 
-h1 { 
-  font-size: clamp(3rem, 8vw, 5rem); 
-  line-height: 1.1;
-}
-
-h2 { 
-  font-size: clamp(1.5rem, 4vw, 2.5rem); 
-  line-height: 1.2;
-}
-
-h3 { 
-  font-size: clamp(1rem, 2.5vw, 1.5rem); 
-}
-
-p { 
-  margin-bottom: 1rem; 
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* --- Checkerboard Pattern (CSS only) --- */
-
-.checker-pattern {
-  background-image: repeating-linear-gradient(
-    0deg,
-    var(--checker-blue) 0,
-    var(--checker-blue) var(--checker-size),
-    var(--checker-white) var(--checker-size),
-    var(--checker-white) calc(var(--checker-size) * 2)
-  ),
-  repeating-linear-gradient(
-    90deg,
-    var(--checker-blue) 0,
-    var(--checker-blue) var(--checker-size),
-    var(--checker-white) var(--checker-size),
-    var(--checker-white) calc(var(--checker-size) * 2)
-  );
-  background-size: calc(var(--checker-size) * 2) calc(var(--checker-size) * 2);
-  background-position: center center;
-}
-
-.checker-border {
-  position: relative;
-  border: 4px solid transparent;
-  border-image: repeating-linear-gradient(
-    45deg,
-    var(--checker-blue) 0,
-    var(--checker-blue) 8px,
-    var(--checker-white) 8px,
-    var(--checker-white) 16px
-  ) 4;
-}
-
-/* --- Red Stamp --- */
-
-.stamp {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 4px solid var(--red-stamp);
-  color: var(--red-stamp);
-  font-family: var(--font-heavy);
-  font-weight: 900;
-  font-size: 1.2rem;
-  transform: rotate(-15deg);
-  flex-shrink: 0;
-}
-
-.stamp-sm {
-  width: 48px;
-  height: 48px;
-  font-size: 0.75rem;
-  border-width: 3px;
-}
-
-/* --- Layout --- */
-
-.container {
-  max-width: var(--max-w);
-  margin: 0 auto;
-  padding: 0 var(--space);
-}
-
-/* --- Fade-in Animation --- */
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.fade-in {
-  animation: fadeInUp 0.5s ease forwards;
-}
-
-/* --- Mobile Responsive --- */
-
-@media (max-width: 768px) {
-  .stamp {
-    width: 56px;
-    height: 56px;
-    font-size: 0.9rem;
-    border-width: 3px;
-  }
-
-  .stamp-sm {
-    width: 36px;
-    height: 36px;
-    font-size: 0.65rem;
-  }
-}
+.container { width: min(100% - (var(--space) * 2), var(--max-w)); margin-inline: auto; }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

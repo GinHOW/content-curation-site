@@ -20,6 +20,7 @@
         >
           <div class="section-grid schedule-heading">
             <div class="section-title-column">
+              <StudentEntryLink />
               <p class="eyebrow">Course Schedule</p>
               <h1 id="schedule-title">八周<br />十六课次</h1>
               <dl class="course-facts" aria-label="课程数据摘要">
@@ -163,7 +164,18 @@
                     </tr>
                     <tr v-if="week.week === 'W1' && session.number === '01'" v-show="!isSessionCollapsed(week.week, session)" class="topic-matcher-row">
                       <td colspan="6" class="topic-matcher-cell">
-                        <TopicMatcher :words="wordPool" />
+                        <TopicMatcher
+                          :topics="topics"
+                          :groups="groups"
+                          demo-mode
+                          :loading="loading"
+                          :state-error="error"
+                        />
+                      </td>
+                    </tr>
+                    <tr v-if="week.week === 'W1' && session.number === '02'" v-show="!isSessionCollapsed(week.week, session)" class="archive-demo-row">
+                      <td colspan="6" class="archive-demo-cell">
+                        <LivingRoomArchive />
                       </td>
                     </tr>
                   </template>
@@ -189,8 +201,11 @@ import HomeSiteNav from '../components/home/HomeSiteNav.vue'
 import BackToTop from '../components/BackToTop.vue'
 import CourseReferenceGallery from '../components/CourseReferenceGallery.vue'
 import TopicMatcher from '../components/TopicMatcher.vue'
+import LivingRoomArchive from '../components/LivingRoomArchive.vue'
+import StudentEntryLink from '../components/StudentEntryLink.vue'
 import { useHomeSections } from '../composables/useHomeSections.js'
-import { assessmentItems, syllabusWeeks, wordPool } from '../data/syllabusSchedule.js'
+import { useCourseState } from '../composables/useCourseState.js'
+import { assessmentItems, syllabusWeeks } from '../data/syllabusSchedule.js'
 
 const weekSectionId = (week) => `week-${week.toLowerCase()}`
 const milestoneLabel = (milestone) => ['①', '②', '③', '④', '⑤'][milestone - 1] || milestone
@@ -273,6 +288,7 @@ const syllabusNavItems = [
 const { activeSection, navigateTo } = useHomeSections(
   syllabusNavItems.map((item) => item.id),
 )
+const { topics, groups, loading, error } = useCourseState()
 </script>
 
 <style scoped>
@@ -309,7 +325,7 @@ const { activeSection, navigateTo } = useHomeSections(
 .schedule-heading {
   grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
   gap: var(--home-column-gap);
-  padding-top: clamp(4rem, 8vw, 8rem);
+  padding-top: clamp(2.25rem, 4vw, 4rem);
 }
 .eyebrow,
 .panel-label,
@@ -416,6 +432,10 @@ const { activeSection, navigateTo } = useHomeSections(
   overflow-wrap: anywhere;
 }
 .schedule-table .topic-matcher-cell {
+  padding: 1.2rem 0 1.8rem;
+  border-bottom: 1px solid var(--syllabus-rule);
+}
+.schedule-table .archive-demo-cell {
   padding: 1.2rem 0 1.8rem;
   border-bottom: 1px solid var(--syllabus-rule);
 }
@@ -554,7 +574,7 @@ const { activeSection, navigateTo } = useHomeSections(
 .assessment-list a:hover { text-decoration: underline; }
 @media (max-width: 1023px) {
   .syllabus-main > .site-nav { margin-inline: clamp(3.5rem, 4vw, 4.5rem); }
-  .schedule-heading { padding-top: 4rem; }
+  .schedule-heading { padding-top: 3rem; }
   .schedule-table td { font-size: 0.78rem; }
 }
 
@@ -575,7 +595,7 @@ const { activeSection, navigateTo } = useHomeSections(
 @media (max-width: 767px) {
   .syllabus-main > .site-nav { margin-inline: 1rem; }
   .syllabus-section { scroll-margin-top: 0; }
-  .schedule-heading { grid-template-columns: 1fr; padding-top: 3rem; }
+  .schedule-heading { grid-template-columns: 1fr; padding-top: 2.25rem; }
   .schedule-heading h1 { font-size: clamp(4rem, 20vw, 6.5rem); }
   .course-facts { width: min(100%, 14rem); }
   .schedule-summary > p { font-size: 1.15rem; }
@@ -636,6 +656,8 @@ const { activeSection, navigateTo } = useHomeSections(
   .schedule-table .topic-matcher-row { padding: 1.4rem 0 2rem; }
   .schedule-table .topic-matcher-cell { display: block; padding: 0; border: 0; }
   .schedule-table .topic-matcher-cell::before { content: none; }
+  .schedule-table .archive-demo-cell { display: block; padding: 0; border: 0; }
+  .schedule-table .archive-demo-cell::before { content: none; }
   .schedule-table td::before { content: attr(data-label); color: var(--syllabus-muted); font-size: 0.68rem; font-weight: 500; line-height: 1.4; letter-spacing: 0.05em; }
   .schedule-table .session-number { font-size: 1.4rem; }
   .session-method { font-size: 0.85rem !important; }

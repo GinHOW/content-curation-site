@@ -22,14 +22,31 @@
       </div>
     </div>
 
-    <ControllerSpatialMap :rooms="spatialRooms" :image-library="spatialTopicImages" />
+    <p v-if="loading" class="city-data-status" aria-live="polite">正在读取共享选题库……</p>
+    <div v-else-if="stateError" class="city-data-status is-error" role="status">
+      <span>共享选题库暂时无法读取：{{ stateError }}</span>
+      <button type="button" @click="$emit('retry')">重试</button>
+    </div>
+    <ControllerSpatialMap
+      v-else
+      :rooms="rooms"
+      :topic-colors="topicColors"
+      :image-library="spatialTopicImages"
+    />
   </section>
 </template>
 
 <script setup>
 import ControllerSpatialMap from './ControllerSpatialMap.vue'
-import { spatialRooms } from '../../data/home.js'
 import { spatialTopicImages } from '../../data/spatialTopicImages.js'
+
+defineProps({
+  rooms: { type: Array, default: () => [] },
+  topicColors: { type: Object, default: () => ({}) },
+  loading: { type: Boolean, default: false },
+  stateError: { type: String, default: '' },
+})
+defineEmits(['retry'])
 </script>
 
 <style scoped>
@@ -37,4 +54,8 @@ import { spatialTopicImages } from '../../data/spatialTopicImages.js'
 .city-title-version {
   white-space: nowrap;
 }
+
+.city-data-status { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 2rem 0 0; padding: 0.8rem 0; border-top: 1px solid var(--home-rule); color: var(--home-muted); font-size: 0.8rem; }
+.city-data-status.is-error { color: var(--home-ink); }
+.city-data-status button { border: 1px solid var(--home-ink); background: var(--home-paper); padding: 0.35rem 0.65rem; cursor: pointer; font: inherit; }
 </style>

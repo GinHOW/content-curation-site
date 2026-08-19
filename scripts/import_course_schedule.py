@@ -7,8 +7,6 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / 'outputs/01a009c5/内容与策展_课程进度表 2.1.csv'
 TARGET = Path(__file__).resolve().parents[1] / 'src/data/course_schedule.json'
 
-WORD_POOL = ['桌面', '橱窗', '客厅', '暗房', '蓄水池', '黄页', '田', '晒场', '阳台', '宴席', '谷仓', '监控室', '隧道']
-
 def split_points(value):
     points = []
     for line in (value or '').splitlines():
@@ -77,7 +75,6 @@ def main():
             'audience': '视觉传播专业三年级', 'prerequisite': '视觉传播二年级基础课程', 'duration_weeks': 8,
             'session_count': 16, 'class_time': '第 1–5 周周一、周四下午；第 3–4 周另设周二加课；第 6–8 周周一、周三、周四下午',
             'overall_period': {'start': '2026-09-07', 'end': '2026-11-19'},
-            'word_pool': WORD_POOL,
             'phases': [
                 {'name': '第一阶段', 'weeks': '第 1–5 周', 'start': '2026-09-07', 'end': '2026-10-08'},
                 {'name': '第二阶段', 'weeks': '第 6–8 周', 'start': '2026-11-02', 'end': '2026-11-19'},

@@ -13,11 +13,16 @@ export const teachingTeam = [
   },
   {
     role: '课程联合',
-    names: ['炳莨'],
+    names: ['冯炳莨'],
   },
+
   {
     role: '课程助理',
     names: ['贾晓旭 · 华宏梁 · 左佑 · 王岚 · 周黄宇 · 方钰杭'],
+  },
+  {
+    role: '课程支持',
+    names: ['KIMI', 'Parti'],
   },
 ]
 
@@ -51,7 +56,7 @@ export const spatialRooms = [
   { id: 'room8', number: '08', keywords: ['晒场'] },
   { id: 'room9', number: '09', keywords: ['阳台'] },
   { id: 'room10', number: '10', keywords: ['宴席'] },
-  { id: 'room11', number: '11', keywords: ['谷仓','楼梯间'] },
+  { id: 'room11', number: '11', keywords: ['谷仓', '楼梯间'] },
   { id: 'room12', number: '12', keywords: ['监控室'] },
 ]
 

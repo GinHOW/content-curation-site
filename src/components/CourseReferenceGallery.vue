@@ -1,14 +1,13 @@
 <template>
-  <section class="course-reference-gallery" :aria-label="`${sessionLabel} 课程参考图`">
+  <section
+    class="course-reference-gallery"
+    :aria-label="`${sessionLabel} 课程参考图`"
+  >
     <figure
       v-for="(reference, index) in references"
       :key="reference"
       tabindex="0"
-      :aria-label="`${sessionLabel} 课程参考图 ${index + 1}；聚焦或悬停查看彩色放大图像`"
-      @mouseenter="showPreview(reference, $event)"
-      @mouseleave="hidePreview"
-      @focus="showPreview(reference, $event)"
-      @blur="hidePreview"
+      :aria-label="`${sessionLabel} 课程参考图 ${index + 1}；点击查看彩色放大图像`"
       @click.stop="openPreview(reference, $event)"
       @keydown.enter.prevent="openPreview(reference, $event)"
       @keydown.space.prevent="openPreview(reference, $event)"
@@ -19,8 +18,43 @@
 
   <Teleport to="body">
     <Transition name="reference-preview">
-      <div v-if="activeReference" class="reference-preview" :style="previewStyle" aria-label="关闭参考图预览" role="button" tabindex="0" @click="closePreview" @keydown.esc="closePreview">
-        <img :src="activeReference" alt="" @click.stop />
+      <div
+        v-if="activeReference"
+        class="reference-preview"
+        :style="previewStyle"
+        aria-label="关闭参考图预览"
+        role="button"
+        tabindex="0"
+        @click="closePreview"
+        @keydown.esc="closePreview"
+        @keydown.left.prevent="showReference(activeIndex - 1)"
+        @keydown.right.prevent="showReference(activeIndex + 1)"
+        @touchstart.passive="startSwipe"
+        @touchend="endSwipe"
+      >
+        <button
+          v-if="references.length > 1"
+          type="button"
+          class="reference-nav reference-nav-prev"
+          aria-label="上一张参考图"
+          @click.stop="showReference(activeIndex - 1)"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m14.5 5.5-6.5 6.5 6.5 6.5" />
+          </svg>
+        </button>
+        <img :src="activeReference" alt="" draggable="false" @click.stop />
+        <button
+          v-if="references.length > 1"
+          type="button"
+          class="reference-nav reference-nav-next"
+          aria-label="下一张参考图"
+          @click.stop="showReference(activeIndex + 1)"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m9.5 5.5 6.5 6.5-6.5 6.5" />
+          </svg>
+        </button>
       </div>
     </Transition>
   </Teleport>
@@ -30,10 +64,11 @@
 import { ref } from 'vue'
 
 const activeReference = ref(null)
+const activeIndex = ref(-1)
 const previewStyle = ref({})
-const previewPinned = ref(false)
+const swipeStart = ref(null)
 
-const showPreview = (reference, event, pinned = false) => {
+const showPreview = (reference, event) => {
   const rect = event.currentTarget.getBoundingClientRect()
   const viewportWidth = window.innerWidth
   const viewportHeight = window.innerHeight
@@ -43,25 +78,44 @@ const showPreview = (reference, event, pinned = false) => {
     '--preview-origin-y': `${rect.top + rect.height / 2 - viewportHeight / 2}px`,
     '--preview-origin-scale': `${Math.max(0.1, Math.min(0.28, rect.width / (viewportWidth * 0.78)))}`,
   }
-  previewPinned.value = pinned
   activeReference.value = reference
 }
 
-const hidePreview = () => {
-  if (previewPinned.value) return
-  activeReference.value = null
+const openPreview = (reference, event) => {
+  activeIndex.value = references.indexOf(reference)
+  showPreview(reference, event)
 }
-
-const openPreview = (reference, event) => showPreview(reference, event, true)
+const showReference = (index) => {
+  if (references.length < 2) return
+  const nextIndex = (index + references.length) % references.length
+  activeIndex.value = nextIndex
+  activeReference.value = references[nextIndex]
+}
 const closePreview = () => {
-  previewPinned.value = false
   activeReference.value = null
+  activeIndex.value = -1
+}
+const startSwipe = (event) => {
+  const touch = event.touches[0]
+  swipeStart.value = { x: touch.clientX, y: touch.clientY }
+}
+const endSwipe = (event) => {
+  if (!swipeStart.value || references.length < 2) return
+  const touch = event.changedTouches[0]
+  const distanceX = touch.clientX - swipeStart.value.x
+  const distanceY = touch.clientY - swipeStart.value.y
+  swipeStart.value = null
+
+  // 只在全屏预览内响应清晰的横向滑动，避免与纵向阅读手势冲突。
+  if (Math.abs(distanceX) < 48 || Math.abs(distanceX) <= Math.abs(distanceY)) return
+  showReference(activeIndex.value + (distanceX < 0 ? 1 : -1))
 }
 
-defineProps({
+const props = defineProps({
   sessionLabel: { type: String, required: true },
   references: { type: Array, default: () => [] },
 })
+const references = props.references
 </script>
 
 <style scoped>
@@ -89,14 +143,6 @@ defineProps({
   transform-origin: center;
   transition: filter 220ms ease, transform 220ms ease;
 }
-.course-reference-gallery figure:hover,
-.course-reference-gallery figure:focus { z-index: 1; }
-.course-reference-gallery figure:hover img,
-.course-reference-gallery figure:focus img {
-  border-color: var(--week-color, #111111);
-  filter: grayscale(0);
-  transform: scale(1.03);
-}
 .course-reference-gallery figure:focus-visible {
   outline: 2px solid var(--syllabus-ink, #111111);
   outline-offset: 4px;
@@ -108,8 +154,8 @@ defineProps({
   display: grid;
   place-items: center;
   padding: clamp(2rem, 6vw, 6rem);
-  /* 桌面端悬停预览不拦截鼠标，避免鼠标进入预览层后触发缩略图离开而闪烁。 */
-  pointer-events: none;
+  /* 全屏遮罩拦截底层课次热区，点击空白处关闭预览。 */
+  pointer-events: auto;
   background: rgb(255 255 255 / 0.82);
   backdrop-filter: blur(2px);
 }
@@ -122,6 +168,36 @@ defineProps({
   border: 1px solid var(--syllabus-ink, #111111);
   box-shadow: 0 1.5rem 3.5rem rgb(0 0 0 / 0.16);
 }
+.reference-nav {
+  display: none;
+  position: fixed;
+  top: 50%;
+  z-index: 2;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--syllabus-ink, #111111);
+  border-radius: 50%;
+  color: var(--syllabus-ink, #111111);
+  background: rgb(255 255 255 / 0.9);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+.reference-nav svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+.reference-nav:hover,
+.reference-nav:focus-visible { background: var(--week-color, #efe373); }
+.reference-nav-prev { left: 1.25rem; }
+.reference-nav-next { right: 1.25rem; }
 .reference-preview-enter-active,
 .reference-preview-leave-active {
   transition: background-color 220ms ease;
@@ -144,9 +220,13 @@ defineProps({
   .course-reference-gallery { margin-top: 1rem; }
   .reference-preview {
     padding: 1.25rem;
-    pointer-events: auto;
   }
   .reference-preview img { max-width: 90vw; max-height: 76vh; }
+  .reference-nav { display: none; }
+}
+/* iPad 等无悬停能力的大屏触控设备保留显式切换按钮。 */
+@media (hover: none) and (pointer: coarse) and (min-width: 768px) {
+  .reference-nav { display: inline-flex; }
 }
 @media (prefers-reduced-motion: reduce) {
   .course-reference-gallery img,

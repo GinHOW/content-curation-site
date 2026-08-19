@@ -41,6 +41,7 @@ export const syllabusWeeks = courseSchedule.schedule.map((week) => ({
   title: week.week_theme,
   dates: `${formatDate(week.date_range.start)} — ${formatDate(week.date_range.end)}`,
   sessions: week.sessions.map((session) => ({
+    anchorId: `session-${week.week}-${session.session}-${session.date}`,
     number: session.session === '+' ? '+' : String(session.session).padStart(2, '0'),
     date: formatDate(session.date),
     day: session.weekday,
@@ -65,9 +66,23 @@ const getAssessmentMilestone = (timing) => {
   return match ? milestoneSymbols.indexOf(match[1]) + 1 : null
 }
 
+const getAssessmentTarget = (item) => {
+  const milestone = getAssessmentMilestone(item.timing)
+  if (milestone) return `milestone-${milestone}`
+
+  for (const week of courseSchedule.schedule) {
+    const matchedSession = week.sessions.find((session) => (session.deliverables_or_homework || [])
+      .some((deliverable) => String(typeof deliverable === 'string' ? deliverable : deliverable.content || '')
+        .includes(item.item)))
+    if (matchedSession) return `session-${week.week}-${matchedSession.session}-${matchedSession.date}`
+  }
+  return null
+}
+
 export const assessmentItems = courseSchedule.assessment.map((item) => ({
   item: item.item,
   timing: item.timing,
   weight: `${item.weight_percent}%`,
   milestone: getAssessmentMilestone(item.timing),
+  target: getAssessmentTarget(item),
 }))

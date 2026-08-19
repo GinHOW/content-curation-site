@@ -46,7 +46,10 @@
                   <li v-for="item in assessmentItems" :key="item.item">
                     <div>
                       <strong>
-                        <a :href="item.milestone ? `#milestone-${item.milestone}` : '#schedule'">{{ item.item }}</a>
+                        <a
+                          :href="item.target ? `#${item.target}` : '#schedule'"
+                          @click="item.target && activateTarget(item.target, $event)"
+                        >{{ item.item }}</a>
                       </strong>
                       <span>{{ item.timing }}</span>
                     </div>
@@ -95,7 +98,7 @@
                 </thead>
                 <tbody>
                   <template v-for="session in week.sessions" :key="`${week.week}-${session.number}-${session.date}`">
-                    <tr :class="{ 'is-holiday': session.holiday, 'is-auxiliary': session.auxiliary }">
+                    <tr :id="session.anchorId" :class="{ 'is-holiday': session.holiday, 'is-auxiliary': session.auxiliary }">
                       <td
                         colspan="3"
                         class="session-overview"
@@ -123,7 +126,7 @@
                             </div>
                           </div>
                         </div>
-                        <CourseReferenceGallery v-if="session.references.length && !isSessionCollapsed(week.week, session)" :session-label="session.number" :references="session.references" @click.stop />
+                        <CourseReferenceGallery v-if="session.references.length && !isSessionCollapsed(week.week, session)" :session-label="session.number" :references="session.references" />
                       </td>
                       <td data-label="教学内容要点" class="session-content" :class="{ 'is-collapsed': isSessionCollapsed(week.week, session) }">
                         <div :id="sessionContentId(week.week, session)" v-show="!isSessionCollapsed(week.week, session)" class="session-content-body">
@@ -180,7 +183,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import HomeEdgeNav from '../components/home/HomeEdgeNav.vue'
 import HomeSiteNav from '../components/home/HomeSiteNav.vue'
 import BackToTop from '../components/BackToTop.vue'
@@ -195,14 +198,50 @@ const sessionKey = (week, session) => `${week}-${session.number}-${session.date}
 const collapsedSessions = ref(new Set(
   syllabusWeeks.flatMap((week) => week.sessions.map((session) => sessionKey(week.week, session))),
 ))
+const activeHash = ref('')
 const sessionContentId = (week, session) => `session-content-${sessionKey(week, session)}`
 const sessionDeliverablesId = (week, session) => `session-deliverables-${sessionKey(week, session)}`
-const isSessionCollapsed = (week, session) => collapsedSessions.value.has(sessionKey(week, session))
-const toggleSession = (week, session) => {
-  const key = sessionKey(week, session)
-  if (collapsedSessions.value.has(key)) collapsedSessions.value.delete(key)
-  else collapsedSessions.value.add(key)
+const isSessionCollapsed = (week, session) => {
+  if (session.milestone && activeHash.value === `#milestone-${session.milestone}`) return false
+  if (activeHash.value === `#${session.anchorId}`) return false
+  return collapsedSessions.value.has(sessionKey(week, session))
 }
+const toggleSession = (week, session) => {
+  if (session.milestone && activeHash.value === `#milestone-${session.milestone}`) activeHash.value = ''
+  const key = sessionKey(week, session)
+  const next = new Set(collapsedSessions.value)
+  if (next.has(key)) next.delete(key)
+  else next.add(key)
+  collapsedSessions.value = next
+}
+const syncHashTarget = async () => {
+  activeHash.value = window.location.hash
+  if (!activeHash.value.startsWith('#milestone-') && !activeHash.value.startsWith('#session-')) return
+  await nextTick()
+  const target = document.getElementById(activeHash.value.slice(1))
+  if (!target) return
+
+  // 保留标题上方的上下文，让阶段成果不会紧贴浏览器顶端。
+  const targetTop = target.getBoundingClientRect().top + window.scrollY
+  window.scrollTo({
+    top: Math.max(0, targetTop - window.innerHeight * 0.28),
+    behavior: 'auto',
+  })
+}
+const activateTarget = (target, event) => {
+  const hash = `#${target}`
+  if (window.location.hash !== hash) return
+
+  // 相同锚点不会触发 hashchange；仍需恢复展开状态并重新定位。
+  event.preventDefault()
+  activeHash.value = hash
+  syncHashTarget()
+}
+onMounted(() => {
+  window.addEventListener('hashchange', syncHashTarget)
+  syncHashTarget()
+})
+onBeforeUnmount(() => window.removeEventListener('hashchange', syncHashTarget))
 const cleanDeliverableText = (value) => String(value)
   .replace(/[（(]阶段成果\s*[①②③④⑤1-5]+\s*[，,]?\s*计入考核[）)]/g, '')
   .replace(/[；;]\s*阶段成果\s*[①②③④⑤1-5]+\s*[。.]?/g, '')

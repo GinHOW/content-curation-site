@@ -59,7 +59,7 @@
 </template>
 
 <script setup>
-import HomeSiteNav from './HomeSiteNav.vue'
+import HomeSiteNav from '../navigation/HomeSiteNav.vue'
 
 defineProps({
   team: {

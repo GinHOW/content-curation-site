@@ -1,0 +1,8 @@
+/Curator2026/controller2.0.webp /assets/spatial/controller/controller2.0.webp 301
+/Curator2026/controller2.0.png /assets/spatial/controller/controller2.0.png 301
+/img/货架图.webp /assets/shelf/货架图.webp 301
+/Curator2026/topics/* /assets/spatial/topics/:splat 301
+/course-references/webp/* /assets/syllabus/references/:splat 301
+/img/objects/* /assets/shelf/objects/:splat 301
+/img/热区/* /assets/shelf/hotspots/:splat 301
+/logo/* /assets/brand/:splat 301

@@ -71,10 +71,10 @@
 </template>
 
 <script setup>
-import CalendarDetailPanel from './calendar/CalendarDetailPanel.vue'
-import CalendarAgendaView from './calendar/CalendarAgendaView.vue'
-import BackToTop from './BackToTop.vue'
-import { useCalendarSchedule } from '../composables/useCalendarSchedule.js'
+import CalendarDetailPanel from './CalendarDetailPanel.vue'
+import CalendarAgendaView from './CalendarAgendaView.vue'
+import BackToTop from '../common/BackToTop.vue'
+import { useCalendarSchedule } from '../../composables/useCalendarSchedule.js'
 
 const props = defineProps({
   events: {

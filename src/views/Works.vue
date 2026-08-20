@@ -117,8 +117,8 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import HomeSiteNav from '../components/home/HomeSiteNav.vue'
-import ExhibitionDetail from './ExhibitionDetail.vue'
+import HomeSiteNav from '../components/navigation/HomeSiteNav.vue'
+import ExhibitionDetail from '../components/exhibition/ExhibitionDetail.vue'
 import { getOutcomesForYear, outcomeYears } from '../data/outcomes.js'
 
 const route = useRoute()

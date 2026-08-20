@@ -7,7 +7,7 @@
     @pointerleave="handlePointerLeave"
   >
     <div class="shelf-inner">
-      <img src="/img/货架图.webp" alt="陈列九件物体的货架" class="shelf-bg" />
+      <img src="/assets/shelf/货架图.webp" alt="陈列九件物体的货架" class="shelf-bg" />
 
       <!--
         热区 SVG 和新版底图共用 2450 × 1536 坐标系。这样替换底图时不再需要
@@ -36,7 +36,7 @@
           @keydown.space.prevent="handleClick(item)"
         >
           <image
-            :href="`/img/objects/${item.name}.png`"
+            :href="`/assets/shelf/objects/${item.name}.png`"
             :x="item.x"
             :y="item.y"
             :width="item.width"
@@ -45,7 +45,7 @@
             class="item-image"
             pointer-events="none"
           />
-          <use :href="`/img/热区/${item.name}.svg#_${item.name}`" class="item-hotspot" />
+            <use :href="`/assets/shelf/hotspots/${item.name}.svg#_${item.name}`" class="item-hotspot" />
           <g class="item-index" aria-hidden="true" :transform="`translate(${item.labelX} ${item.labelY})`">
             <rect width="58" height="35" />
             <text x="29" y="23">{{ String(i + 1).padStart(2, '0') }}</text>

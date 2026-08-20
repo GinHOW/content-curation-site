@@ -20,10 +20,10 @@
     <div class="controller-stage-viewport">
     <div ref="stageElement" class="controller-stage">
       <picture>
-        <source srcset="/Curator2026/controller2.0.webp" type="image/webp" />
+          <source srcset="/assets/spatial/controller/controller2.0.webp" type="image/webp" />
         <img
           class="controller-base"
-          src="/Curator2026/controller2.0.png"
+          src="/assets/spatial/controller/controller2.0.png"
           alt=""
           aria-hidden="true"
           loading="lazy"
@@ -114,7 +114,7 @@ const props = defineProps({
   },
 })
 
-// The generated zones are calibrated from public/Curator2026/screen/*.svg.
+// The generated zones are calibrated from source-assets/spatial-controller/screens/*.svg.
 // The polygon remains the visual aperture; its normalized four corners also
 // drive the content homography so images, text, and static all share it.
 const screenZones = controllerScreenZones.map((zone) => ({

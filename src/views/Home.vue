@@ -16,6 +16,7 @@
           :rooms="rooms"
           :topic-colors="topicColors"
           :loading="loading"
+          :is-local-fallback="isLocalFallback"
           :state-error="error"
           @retry="refresh"
         />
@@ -47,17 +48,17 @@ import {
 import { useHomeSections } from '../composables/useHomeSections.js'
 import { useCourseState } from '../composables/useCourseState.js'
 import { buildCourseEvents } from '../utils/buildCourseEvents.js'
-import HomeEdgeNav from '../components/home/HomeEdgeNav.vue'
+import HomeEdgeNav from '../components/navigation/HomeEdgeNav.vue'
 import OverviewSection from '../components/home/OverviewSection.vue'
 import RetrospectiveSection from '../components/home/RetrospectiveSection.vue'
 import MainSection from '../components/home/MainSection.vue'
 import RulesSection from '../components/home/RulesSection.vue'
 import CalendarSection from '../components/home/CalendarSection.vue'
-import ExhibitionDetail from './ExhibitionDetail.vue'
+import ExhibitionDetail from '../components/exhibition/ExhibitionDetail.vue'
 
 const sectionIds = homeNavItems.map((item) => item.id)
 const { activeSection, navigateTo } = useHomeSections(sectionIds)
-const { rooms, topicColors, loading, error, refresh } = useCourseState()
+const { rooms, topicColors, loading, error, isLocalFallback, refresh } = useCourseState()
 
 const activeExhibition = ref(null)
 const openExhibition = (id) => { activeExhibition.value = id }

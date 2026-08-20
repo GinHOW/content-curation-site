@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import ShelfShowcase from '../ShelfShowcase.vue'
+import ShelfShowcase from './ShelfShowcase.vue'
 
 defineEmits(['open-exhibition'])
 </script>

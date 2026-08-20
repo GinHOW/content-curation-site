@@ -54,8 +54,8 @@
 
 <script setup>
 import { ref, computed, watch, watchEffect } from 'vue'
-import { exhibitions } from '../data/exhibitions.js'
-import ExhibitionGallery from '../components/exhibition/ExhibitionGallery.vue'
+import { exhibitions } from '../../data/exhibitions.js'
+import ExhibitionGallery from './ExhibitionGallery.vue'
 
 const props = defineProps({
   exhibitionId: {

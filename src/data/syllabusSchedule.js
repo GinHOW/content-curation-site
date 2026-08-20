@@ -30,7 +30,7 @@ const referenceFiles = [
 const referencesBySession = referenceFiles.reduce((map, filename) => {
   const session = Number(filename.split('-')[0])
   if (!map[session]) map[session] = []
-  map[session].push(`/course-references/webp/${filename}`)
+  map[session].push(`/assets/syllabus/references/${filename}`)
   return map
 }, {})
 

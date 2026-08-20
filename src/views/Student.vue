@@ -128,7 +128,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import HomeSiteNav from '../components/home/HomeSiteNav.vue'
+import HomeSiteNav from '../components/navigation/HomeSiteNav.vue'
 import { useCourseState } from '../composables/useCourseState.js'
 import {
   studentAssignTopic,

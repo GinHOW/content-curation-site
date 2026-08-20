@@ -2,6 +2,20 @@
 
 本网站的选题库、空间归属和 16 组选词由 Cloudflare D1 统一提供。课程表 JSON 只保存静态教学内容。
 
+## 目录约定
+
+这是一个标准的 Vue/Vite 前端结构：
+
+- `src/views` 存放带路由的完整页面。
+- `src/components` 按使用范围存放通用、导航、首页、课程、日历和展览组件。
+- `src/data` 存放课程内容与静态数据，`src/composables` 存放 Vue 组合式逻辑。
+- `src/services` 存放接口访问，`src/router` 存放页面路由，`src/styles` 存放全局和页面样式。
+- `public/assets` 存放随网站发布的静态素材；`course-gifs` 保持原路径以对应 R2 对象。
+- `source-assets` 存放不直接发布的原图、设计源文件和控制器热区源 SVG。
+
+控制器热区由 `scripts/generate-controller-screen-zones.mjs` 根据
+`source-assets/spatial-controller/screens` 中的 SVG 生成，修改源图后重新运行生成脚本即可。
+
 ## 本地开发
 
 ```bash

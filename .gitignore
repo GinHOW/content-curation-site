@@ -11,8 +11,7 @@ dist-ssr
 !.env.example
 
 # Course reference source archives; the website uses the WebP copies in public.
-src/assets/course-references-originals/
-public/course-references/._*
+source-assets/course-references/originals/
 
 # Logs
 logs
@@ -39,7 +38,7 @@ lerna-debug.log*
 # 大资源文件（托管在 Cloudflare R2）；目录缩略图随前端代码发布。
 public/course-gifs/*
 !public/course-gifs/*-thumb.webp
+
+# Design source files are retained locally but are not published with the site.
+source-assets/design/*.ai
 agent.md
-public/货架.ai
-public/Curator2026/controller.ai
-public/Curator2026/controller2.0.ai

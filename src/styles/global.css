@@ -7,6 +7,34 @@
 
 html { font-size: 16px; scroll-behavior: smooth; }
 
+html.preview-is-open,
+html.preview-is-open body {
+  overflow: hidden;
+}
+
+/* 全站滚动条：细、低对比度，避免抢过内容本身的视觉层级。 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #b8b8b8 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #b8b8b8;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
 :root {
   --color-surface: #ffffff;
   --color-text: #111111;
@@ -28,6 +56,182 @@ html { font-size: 16px; scroll-behavior: smooth; }
   --accent-blue: var(--color-blue); --accent-yellow: var(--color-yellow); --accent-orange: var(--color-orange);
   --accent-green: var(--color-green); --accent-magenta: var(--color-magenta);
   --blue-light: var(--color-blue); --red-stamp: var(--color-orange); --gray-text: var(--color-text-muted);
+}
+
+/* 首页视觉令牌也被课程、学生和管理页复用；保留在全站基础层，避免路由切换后令牌消失。 */
+.home-page {
+  --home-paper: var(--color-surface);
+  --home-white: var(--color-surface);
+  --home-ink: var(--color-text);
+  --home-muted: var(--color-text-muted);
+  --home-rule: var(--color-rule);
+  --home-blue: var(--color-blue);
+  --home-orange: var(--color-orange);
+  --home-yellow: var(--color-yellow);
+  --home-green: var(--color-green);
+  --home-magenta: var(--color-magenta);
+  --home-spot-01: #2d63d6;
+  --home-spot-02: #c4ad18;
+  --home-spot-03: #f05a2a;
+  --home-spot-04: #2f9b79;
+  --home-spot-05: #c84f91;
+  --home-spot-06: #657fdb;
+  --home-spot-07: #b57d1f;
+  --home-spot-08: #5550a8;
+  --home-spot-09: #168fa0;
+  --home-spot-10: #c9672f;
+  --home-spot-11: #708f2d;
+  --home-spot-12: #b44d57;
+  --home-spot-13: #8059a4;
+  --home-spot-14: #287766;
+  --home-spot-15: #a77f43;
+  --home-spot-16: #4c718f;
+  --home-spot-17: #cb7186;
+  --home-spot-18: #566770;
+  --home-column-gap: clamp(3rem, 5vw, 5rem);
+  --home-mobile-gap: 2rem;
+  --section-anchor-offset: clamp(2rem, 10vh, 8rem);
+
+  min-height: 100vh;
+  background: var(--home-paper);
+  color: var(--home-ink);
+  font-family: var(--font-body);
+}
+
+.home-page :is(h1, h2, h3, p, dl, dd, dt, ol) { margin: 0; }
+.home-page a { color: inherit; }
+
+.home-page .home-shell {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  min-height: 100vh;
+  background: var(--home-paper);
+}
+
+.home-page .home-main { min-width: 0; background: var(--home-paper); }
+
+.home-page .home-section {
+  position: relative;
+  padding: clamp(5rem, 10vw, 10rem) clamp(3.5rem, 4vw, 4.5rem);
+  background: var(--home-paper);
+  scroll-margin-top: var(--section-anchor-offset);
+}
+
+.home-page .section-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: var(--home-column-gap);
+}
+
+.home-page .section-grid > *,
+.home-page .section-title-column,
+.home-page .section-copy-column { min-width: 0; }
+
+.home-page .section-title-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.home-page .overview-grid,
+.home-page .section-intro-grid,
+.home-page .rules-header-grid,
+.home-page .calendar-header-grid {
+  padding-top: clamp(2.75rem, 5vw, 5rem);
+}
+
+.home-page .section-copy-column { min-width: 0; }
+
+.home-page .eyebrow,
+.home-page .panel-label,
+.home-page .micro-copy,
+.home-page .title-note { font-family: var(--font-body); }
+
+.home-page .eyebrow,
+.home-page .panel-label {
+  color: var(--home-muted);
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.home-page .eyebrow { margin-bottom: 1.25rem; }
+
+.home-page .micro-copy,
+.home-page .title-note {
+  color: var(--home-muted);
+  font-size: 0.7rem;
+  line-height: 1.35;
+  letter-spacing: 0.07em;
+}
+
+.home-page h1,
+.home-page h2 {
+  margin: 0;
+  font-family: var(--font-heavy);
+  font-weight: 700;
+}
+
+.home-page h1 {
+  font-size: clamp(4.2rem, 9vw, 9rem);
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+}
+
+.home-page h2 {
+  font-size: clamp(3.4rem, 7vw, 7rem);
+  line-height: 1.08;
+  letter-spacing: 0.01em;
+}
+
+.home-page .title-note {
+  max-width: 12rem;
+  margin-top: 2rem;
+  font-size: 0.7rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.home-page .lead-copy {
+  max-width: 44rem;
+  font-family: var(--font-heavy);
+  font-size: clamp(1.05rem, 1.45vw, 1.3rem);
+  line-height: 1.78;
+  letter-spacing: 0.015em;
+  line-break: strict;
+  text-wrap: pretty;
+}
+
+.home-page .section-title-lockup {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(0.7rem, 1.6vw, 1.25rem);
+}
+
+@media (min-width: 768px) {
+  .home-page .overview-grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+  .home-page .overview-section { padding-top: clamp(1.5rem, 4vh, 3rem); }
+}
+
+@media (max-width: 1023px) and (min-width: 768px) {
+  .home-page .home-shell { grid-template-columns: 28px minmax(0, 1fr); }
+  .home-page .section-grid { gap: 3.5rem; }
+}
+
+@media (max-width: 767px) {
+  .home-page .home-shell { display: block; }
+  .home-page .home-section { padding: clamp(4rem, 14vw, 6rem) 1rem; scroll-margin-top: 0; }
+  .home-page .overview-section { padding-top: 2.5rem; }
+  .home-page .section-grid { grid-template-columns: 1fr; gap: 3rem; }
+  .home-page .overview-grid,
+  .home-page .section-intro-grid,
+  .home-page .rules-header-grid,
+  .home-page .calendar-header-grid,
+  .home-page .rules-body-grid { padding-top: 2.25rem; }
+  .home-page h1 { font-size: clamp(3.8rem, 19vw, 6.5rem); }
+  .home-page h2 { font-size: clamp(3.2rem, 16vw, 5.5rem); }
 }
 
 body {

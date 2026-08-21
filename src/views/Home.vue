@@ -67,3 +67,9 @@ const startDate = new Date(2026, 8, 7)
 const courseStartDate = '2026/09/07'
 const courseEvents = computed(() => buildCourseEvents(2026))
 </script>
+
+<style>
+.home-page .full-span {
+  grid-column: 1 / -1;
+}
+</style>

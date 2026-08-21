@@ -9,20 +9,37 @@ export const homeNavItems = [
 export const teachingTeam = [
   {
     role: '授课导师',
-    names: ['A班｜刘益红 · 顾文浩', 'B班｜顾文佳 · 任越'],
+    names: [{ label: 'A班｜刘益红 · 顾文浩' }, { label: 'B班｜顾文佳 · 任越' }],
   },
   {
     role: '课程联合',
-    names: ['冯炳莨'],
+    names: [{ label: '冯炳莨' }],
   },
 
   {
     role: '课程助理',
-    names: ['贾晓旭 · 华宏梁 · 左佑 · 王岚 · 周黄宇 · 方钰杭'],
+    names: [{ label: '贾晓旭 · 华宏梁 · 左佑 · 王岚 · 周黄宇 · 方钰杭' }],
   },
   {
     role: '课程支持',
-    names: ['KIMI', 'Parti'],
+    names: [
+      {
+        label: 'KIMI',
+        preview: {
+          cardLabel: 'KIMI Websites',
+          description: 'KIMI 是作为本次课程面向创作与研究的核心 AI 工具。课程提供 KIMI Allegretto 一个月会员权益。',
+          url: 'https://www.kimi.com/features/websites',
+        },
+      },
+      {
+        label: 'Edgeware',
+        preview: {
+          cardLabel: 'Edgeware',
+          description: 'Edgeware 下的 Parit系统是一套模块化型材框架搭建体系，本次作为课程空间与展具落地的物质材料。',
+          url: 'https://edgewarex.com/',
+        },
+      },
+    ],
   },
 ]
 
@@ -39,11 +56,20 @@ export const gradingOverview = [
   { item: '内容档案与展览内容网站', weight: '15%', desc: '第 2 周提交' },
   { item: '策展逻辑与提案', weight: '15%', desc: '第 3 周提交' },
   { item: '展览设计方案初步提案', weight: '15%', desc: '第 5 周中期汇报' },
-  { item: '深化设计与商业计划书', weight: '15%', desc: '第 7 周提交' },
+  { item: '深化设计与深化展览策划', weight: '15%', desc: '第 7 周确认' },
   { item: '期末综合汇报', weight: '30%', desc: '第 8 周汇报' },
 ]
 
-export const methodSteps = ['采集', '筛选', '诠释', '组织', '呈现']
+export const gradingPalette = [
+  'var(--home-blue)',
+  'var(--home-yellow)',
+  'var(--home-orange)',
+  'var(--home-green)',
+  'var(--home-magenta)',
+  'var(--home-ink)',
+]
+
+export const methodSteps = ['选题', '建库', '结构', '网站', '展具', '视觉', '事件', '商业']
 
 // 18 个专色为选题库预留；词条名称与颜色一一对应，后续替换词条时只需更新这里。
 export const spatialKeywordColors = {

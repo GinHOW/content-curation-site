@@ -16,9 +16,9 @@
       </div>
       <div class="section-copy-column city-copy">
         <p class="lead-copy">
-          “策展超市 2.0”把研究从日常物件延伸到城市现场，关注公共空间、地方记忆与人与物的关系，将个人观察组织为可访问的策展项目。
+          “策展超市 2.0”将选题从物拓展到空间：每组选择一个兼具观念包容度与空间类型性的“词”，以此编织艺术档案、文学意象、社会素材与形式灵感的内容数据库；再通过网站、空间与视觉系统，把研究转化为可浏览、可讨论、可实施的展览方案。
         </p>
-        <p class="micro-copy">从对象出发，进入城市；从城市出发，重新组织内容。</p>
+        <p class="micro-copy">从词与空间出发，建立内容关系；从数据库出发，形成展览。</p>
       </div>
     </div>
 
@@ -51,6 +51,13 @@ defineEmits(['retry'])
 </script>
 
 <style scoped>
+.city-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--home-column-gap);
+}
+
 .city-title-name,
 .city-title-version {
   white-space: nowrap;

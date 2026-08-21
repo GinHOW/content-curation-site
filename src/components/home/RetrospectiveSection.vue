@@ -31,3 +31,27 @@ import ShelfShowcase from './ShelfShowcase.vue'
 
 defineEmits(['open-exhibition'])
 </script>
+
+<style scoped>
+.retrospective-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--home-column-gap);
+}
+
+.showcase-frame {
+  margin-top: clamp(4rem, 8vw, 8rem);
+}
+
+.showcase-frame :deep(.shelf-showcase) {
+  border: 0 !important;
+  background: var(--home-paper) !important;
+}
+
+@media (max-width: 767px) {
+  .showcase-frame {
+    margin-top: 4rem;
+  }
+}
+</style>

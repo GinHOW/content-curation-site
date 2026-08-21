@@ -18,6 +18,11 @@ const referenceFiles = [
   '2-1.webp', '2-2.webp',
   '3-1.webp', '3-2.webp',
   '4-1.webp', '4-2.webp', '4-3.webp', '4-4.webp', '4-5.webp', '4-6.webp', '4-7.webp',
+  {
+    filename: '4-8.webp',
+    url: 'https://www.archivalconsciousness.org',
+    title: 'Archival Consciousness',
+  },
   '6-1.webp', '6-2.webp',
   '7-1.webp',
   '10-1.webp', '10-2.webp', '10-3.webp',
@@ -28,9 +33,14 @@ const referenceFiles = [
 ]
 
 const referencesBySession = referenceFiles.reduce((map, filename) => {
-  const session = Number(filename.split('-')[0])
+  const item = typeof filename === 'string' ? { filename } : filename
+  const session = Number(item.filename.split('-')[0])
   if (!map[session]) map[session] = []
-  map[session].push(`/assets/syllabus/references/${filename}`)
+  map[session].push({
+    src: '/assets/syllabus/references/' + item.filename,
+    url: item.url || '',
+    title: item.title || '',
+  })
   return map
 }, {})
 

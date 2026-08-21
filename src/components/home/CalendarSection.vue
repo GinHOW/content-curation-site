@@ -45,3 +45,37 @@ defineProps({
 })
 
 </script>
+
+<style scoped>
+.calendar-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--home-column-gap);
+}
+
+.calendar-frame {
+  margin-top: clamp(4rem, 8vw, 8rem);
+}
+
+.calendar-frame :deep(.calendar-container) {
+  border: 0 !important;
+  background: var(--home-paper) !important;
+  box-shadow: none !important;
+}
+
+.calendar-frame :deep(.calendar-nav) {
+  border-bottom-color: var(--home-rule);
+  background: var(--home-paper);
+}
+
+.calendar-frame :deep(.calendar-cell.empty) {
+  background: var(--home-paper);
+}
+
+@media (max-width: 767px) {
+  .calendar-frame {
+    margin-top: 4rem;
+  }
+}
+</style>

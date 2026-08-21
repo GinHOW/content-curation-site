@@ -5,14 +5,14 @@
   >
     <figure
       v-for="(reference, index) in references"
-      :key="reference"
+      :key="reference.src"
       tabindex="0"
-      :aria-label="`${sessionLabel} 课程参考图 ${index + 1}；点击查看彩色放大图像`"
+      :aria-label="`${sessionLabel} 课程参考图 ${index + 1}${reference.url ? '；点击预览原网页' : '；点击查看彩色放大图像'}`"
       @click.stop="openPreview(reference, $event)"
       @keydown.enter.prevent="openPreview(reference, $event)"
       @keydown.space.prevent="openPreview(reference, $event)"
     >
-      <img :src="reference" :alt="`${sessionLabel} 课程参考图 ${index + 1}`" loading="lazy" />
+      <img :src="reference.src" :alt="`${sessionLabel} 课程参考图 ${index + 1}`" loading="lazy" />
     </figure>
   </section>
 
@@ -43,7 +43,13 @@
             <path d="m14.5 5.5-6.5 6.5 6.5 6.5" />
           </svg>
         </button>
-        <img :src="activeReference" alt="" draggable="false" @click.stop />
+        <div v-if="activeReference.url" class="reference-web-frame" @click.stop>
+          <iframe
+            :src="activeReference.url"
+            :title="activeReference.title || `${sessionLabel} 原网页预览`"
+          ></iframe>
+        </div>
+        <img v-else :src="activeReference.src" alt="" draggable="false" @click.stop />
         <button
           v-if="references.length > 1"
           type="button"
@@ -82,7 +88,7 @@ const showPreview = (reference, event) => {
 }
 
 const openPreview = (reference, event) => {
-  activeIndex.value = references.indexOf(reference)
+  activeIndex.value = references.findIndex((item) => item.src === reference.src)
   showPreview(reference, event)
 }
 const showReference = (index) => {
@@ -167,6 +173,19 @@ const references = props.references
   height: auto;
   border: 1px solid var(--syllabus-ink, #111111);
   box-shadow: 0 1.5rem 3.5rem rgb(0 0 0 / 0.16);
+}
+.reference-web-frame {
+  width: min(78vw, 72rem);
+  height: min(78vh, 48rem);
+  border: 1px solid var(--syllabus-ink, #111111);
+  background: #fff;
+  box-shadow: 0 1.5rem 3.5rem rgb(0 0 0 / 0.16);
+}
+.reference-web-frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
 }
 .reference-nav {
   display: none;

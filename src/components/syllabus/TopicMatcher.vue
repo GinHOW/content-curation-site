@@ -144,6 +144,7 @@ const matchGroup = (group) => {
 .topic-word:focus-visible, .group-slot:focus-visible { outline: 2px solid var(--syllabus-ink); outline-offset: 3px; }
 .topic-state-message { margin: 0.8rem 0 0; color: var(--syllabus-muted); font-size: 0.75rem; }
 .topic-state-message.is-error { color: var(--syllabus-ink); }
+.topic-state-message.is-fallback { color: var(--syllabus-muted); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 @media (max-width: 767px) { .topic-matcher { padding: 1.1rem; } .topic-matcher-header { align-items: start; } .topic-matcher-hint { max-width: none; } .topic-word { min-height: 2.75rem; } .custom-topic-input { grid-template-columns: 1fr; max-width: none; } .custom-topic-input input { min-height: 2.75rem; } .group-list { grid-template-columns: repeat(4, minmax(0, 1fr)); } .group-slot { min-height: 4.8rem; } }
 @media (prefers-reduced-motion: reduce) { .topic-word, .group-slot { transition: none; } }

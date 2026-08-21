@@ -26,16 +26,16 @@ export function useCourseState({ immediate = true } = {}) {
       groups.value = payload.groups || []
       loaded.value = true
     } catch (cause) {
-      if (import.meta.env.DEV) {
-        const fallback = getLocalCourseState()
-        rooms.value = fallback.rooms
-        topics.value = fallback.topics
-        groups.value = fallback.groups
-        loaded.value = true
-        isLocalFallback.value = true
-        return
-      }
-      error.value = cause.message || '课程数据暂时无法读取'
+      // The static snapshot keeps public pages usable when the API host is
+      // unavailable (for example, when the frontend is served by EdgeOne).
+      // It is read-only; D1 remains the source of truth for synchronized data.
+      const fallback = getLocalCourseState()
+      rooms.value = fallback.rooms
+      topics.value = fallback.topics
+      groups.value = fallback.groups
+      loaded.value = true
+      isLocalFallback.value = true
+      error.value = ''
     } finally {
       loading.value = false
     }

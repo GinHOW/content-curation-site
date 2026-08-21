@@ -16,7 +16,6 @@
           :rooms="rooms"
           :topic-colors="topicColors"
           :loading="loading"
-          :is-local-fallback="isLocalFallback"
           :state-error="error"
           @retry="refresh"
         />
@@ -58,7 +57,7 @@ import ExhibitionDetail from '../components/exhibition/ExhibitionDetail.vue'
 
 const sectionIds = homeNavItems.map((item) => item.id)
 const { activeSection, navigateTo } = useHomeSections(sectionIds)
-const { rooms, topicColors, loading, error, isLocalFallback, refresh } = useCourseState()
+const { rooms, topicColors, loading, error, refresh } = useCourseState()
 
 const activeExhibition = ref(null)
 const openExhibition = (id) => { activeExhibition.value = id }

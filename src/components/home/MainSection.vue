@@ -28,9 +28,6 @@
       <button type="button" @click="$emit('retry')">重试</button>
     </div>
     <template v-else>
-      <p v-if="isLocalFallback" class="city-data-status is-fallback" aria-live="polite">
-        本地预览模式：当前显示内置选题库；连接课程服务后会自动同步共享数据。
-      </p>
       <ControllerSpatialMap
         :rooms="rooms"
         :topic-colors="topicColors"
@@ -48,7 +45,6 @@ defineProps({
   rooms: { type: Array, default: () => [] },
   topicColors: { type: Object, default: () => ({}) },
   loading: { type: Boolean, default: false },
-  isLocalFallback: { type: Boolean, default: false },
   stateError: { type: String, default: '' },
 })
 defineEmits(['retry'])

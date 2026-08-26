@@ -322,7 +322,7 @@ onMounted(async () => {
 .student-message.is-error { color: var(--home-ink); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 @media (max-width: 767px) {
-  .student-page > .site-nav { margin-inline: 1rem; }
+  .student-page > .site-nav { width: auto; margin-inline: 1rem; padding-top: 2.5rem; }
   .student-main { padding-inline: 1rem; }
   .student-form, .password-form { grid-template-columns: 1fr; }
   .student-form > button, .password-form > button { grid-column: auto; }

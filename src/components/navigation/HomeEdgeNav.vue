@@ -168,56 +168,5 @@ const handleClick = (event, id) => {
   :global(.home-page .home-index) {
     display: none;
   }
-
-  :global(.home-page .home-index.is-mobile-toolbar) {
-    display: block;
-    width: 100%;
-    min-height: 0;
-    padding: 0 1rem 1.25rem;
-  }
-
-  :global(.home-page .home-index.is-mobile-toolbar .index-nav) {
-    position: static;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.35rem 1rem;
-    width: 100%;
-    height: auto;
-  }
-
-  :global(.home-page .home-index.is-mobile-toolbar .index-link) {
-    display: inline-flex;
-    flex: 0 0 auto;
-    width: auto;
-    min-height: 44px;
-    padding: 0.45rem 0.1rem;
-    color: var(--home-muted);
-    background: transparent;
-    border-bottom: 2px solid var(--tab-color);
-  }
-
-  :global(.home-page .home-index.is-mobile-toolbar .index-link.is-active),
-  :global(.home-page .home-index.is-mobile-toolbar .index-link:hover),
-  :global(.home-page .home-index.is-mobile-toolbar .index-link:focus-visible) {
-    width: auto;
-    color: var(--home-ink);
-    background: transparent;
-    filter: none;
-  }
-
-  :global(.home-page .home-index.is-mobile-toolbar .index-copy) {
-    position: static;
-    display: inline-flex;
-    width: auto;
-    color: inherit;
-    pointer-events: auto;
-    transform: none;
-  }
-
-  :global(.home-page .home-index.is-mobile-toolbar .index-label) {
-    font-size: 0.78rem;
-    letter-spacing: 0.04em;
-  }
 }
 </style>

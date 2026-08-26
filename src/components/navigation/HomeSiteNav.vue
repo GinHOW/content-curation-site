@@ -108,39 +108,37 @@ const isResourceRoute = computed(() => route.path === '/resources' || route.path
 
 @media (max-width: 767px) {
   :global(.home-page .site-nav) {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0;
-    row-gap: 0.45rem;
-    width: 100%;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: auto;
   }
 
   :global(.home-page .site-nav a) {
-    width: 100%;
+    width: auto;
+    flex: 0 0 auto;
+    justify-self: auto;
+    align-items: center;
+    text-align: center;
   }
 
   :global(.home-page .site-nav a:nth-child(1)) {
-    grid-area: auto;
-    justify-self: start;
     align-items: flex-start;
     text-align: left;
   }
 
   :global(.home-page .site-nav a:nth-child(2)) {
-    grid-area: auto;
-    justify-self: center;
     align-items: center;
     text-align: center;
   }
 
   :global(.home-page .site-nav a:nth-child(3)) {
-    grid-area: auto;
-    justify-self: center;
     align-items: center;
     text-align: center;
   }
 
   :global(.home-page .site-nav a:nth-child(4)) {
-    justify-self: end;
     align-items: flex-end;
     text-align: right;
   }
@@ -154,4 +152,3 @@ const isResourceRoute = computed(() => route.path === '/resources' || route.path
   }
 }
 </style>
-

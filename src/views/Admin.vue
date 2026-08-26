@@ -424,5 +424,5 @@ onMounted(async () => {
 .admin-message { margin-top: 1rem; color: var(--home-muted); font-size: 0.78rem; }
 .admin-message.is-error { color: var(--home-ink); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-@media (max-width: 767px) { .admin-page > .site-nav { margin-inline: 1rem; } .admin-main { padding-inline: 1rem; } .admin-toolbar, .admin-block-heading { align-items: start; flex-direction: column; } .inline-form { width: 100%; } .inline-form input { flex: 1; min-width: 0; } .admin-group-grid, .admin-invite-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .admin-student-row { grid-template-columns: 1fr 1fr; } .admin-student-name { grid-column: 1 / -1; } }
+@media (max-width: 767px) { .admin-page > .site-nav { width: auto; margin-inline: 1rem; padding-top: 2.5rem; } .admin-main { padding-inline: 1rem; } .admin-toolbar, .admin-block-heading { align-items: start; flex-direction: column; } .inline-form { width: 100%; } .inline-form input { flex: 1; min-width: 0; } .admin-group-grid, .admin-invite-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .admin-student-row { grid-template-columns: 1fr 1fr; } .admin-student-name { grid-column: 1 / -1; } }
 </style>

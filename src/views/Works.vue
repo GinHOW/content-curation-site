@@ -683,7 +683,7 @@ watch(
 @media (max-width: 767px) {
   .works-main {
     width: 100%;
-    padding: 1rem 1rem clamp(4rem, 9vw, 8rem);
+    padding: 2.5rem 1rem clamp(4rem, 9vw, 8rem);
   }
 
   .works-main > .site-nav {

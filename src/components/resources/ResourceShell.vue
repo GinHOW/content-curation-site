@@ -251,7 +251,7 @@ defineEmits(['filter'])
 @media (max-width: 767px) {
   .resources-main {
     width: 100%;
-    padding: 1rem 1rem 5rem;
+    padding: 2.5rem 1rem 5rem;
   }
 
   .resources-main > .site-nav {

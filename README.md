@@ -1,42 +1,85 @@
 # 内容与策展 · 课程总网站
 
-本网站的选题库、空间归属和 16 组选词由 Cloudflare D1 统一提供。课程表 JSON 只保存静态教学内容。
+本项目为《内容与策展》课程官方网站，基于 Vue 3、Vite 与 Cloudflare 全栈架构（Pages + Functions + D1 数据库）构建。网站整合了课程大纲、选题库、空间归属、资源中心及师生权限管理。
+
+---
+
+## 核心功能模块
+
+- **课程大纲 (Syllabus)**：提供完整的 16 周教学排期、参考画廊、交互式展开视图与素材链接。
+- **资源中心 (Resources)**：包含推荐文献、工具软件、教学视频与互动网站推荐，支持分类筛选及图片灯箱预览（Image Lightbox）。
+- **师生验证与分组管理 (`/manage` & `/student`)**：
+  - 基于 Cloudflare D1 数据库与 Cloudflare Functions 接口 (`/api/auth/`) 实现轻量化身份校验与密码管理。
+  - 支持教师批量导入学员、自动/手动分组及共享邀请码逻辑。
+- **空间选题与选词库**：结合 16 组选题词汇与空间载体模型，数据由 Cloudflare D1 实时提供与同步。
+
+---
 
 ## 目录约定
 
-这是一个标准的 Vue/Vite 前端结构：
+标准的 Vue 3 全栈项目架构：
 
-- `src/views` 存放带路由的完整页面。
-- `src/components` 按使用范围存放通用、导航、首页、课程、日历和展览组件。
-- `src/data` 存放课程内容与静态数据，`src/composables` 存放 Vue 组合式逻辑。
-- `src/services` 存放接口访问，`src/router` 存放页面路由，`src/styles` 存放全局和页面样式。
-- `public/assets` 存放随网站发布的静态素材；`course-gifs` 保持原路径以对应 R2 对象。
-- `source-assets` 存放不直接发布的原图、设计源文件和控制器热区源 SVG。
+```text
+课程总网站/
+├── functions/             # Cloudflare Pages Functions 后端 API 接口 (API & Auth)
+├── migrations/            # Cloudflare D1 数据库迁移脚本
+├── public/                # 随网站发布的静态公开资源 (含 WebP 图片与 Icon)
+├── source-assets/         # 源文件（设计源稿、高清大图、控制器 SVG 模板等）
+├── src/
+│   ├── components/        # UI 组件 (按 scope 划分: common, navigation, syllabus, resources 等)
+│   ├── composables/       # Vue 3 组合式 API (权限 session、资源过滤、响应式状态)
+│   ├── data/              # 课程内容、资源数据与静态数据配置
+│   ├── router/            # 页面路由规划 (Syllabus, Resources, Manage, Student, Works 等)
+│   ├── services/          # API 接口访问与状态管理 (courseState)
+│   ├── views/             # 路由顶层视图页面
+│   └── styles/            # 全局及页面 CSS 样式
+├── scripts/               # 自动化构建辅助脚本
+└── wrangler.jsonc         # Cloudflare Pages & D1 配置文件
+```
 
-控制器热区由 `scripts/generate-controller-screen-zones.mjs` 根据
-`source-assets/spatial-controller/screens` 中的 SVG 生成，修改源图后重新运行生成脚本即可。
+---
 
-## 本地开发
+## 本地开发与数据库配置
+
+### 1. 安装依赖与启动本地开发
 
 ```bash
+# 1. 安装依赖
 npm install
+
+# 2. 启动前端 Vite 本地开发服务器
+npm run dev
+
+# 3. 构建前端产物
 npm run build
+```
+
+### 2. 数据库迁移 (Cloudflare D1)
+
+```bash
+# 本地 D1 数据库迁移测试
 npm run d1:migrate:local
-npx wrangler pages dev dist --d1 DB=REPLACE_WITH_D1_DATABASE_ID --binding ADMIN_PASSWORD=本地教师口令 --binding STUDENT_PASSWORD_PEPPER=本地测试密钥
-```
 
-首次部署时先创建数据库，并将返回的 ID 写入 `wrangler.jsonc`：
-
-```bash
-npx wrangler d1 create content-curation-site
-```
-
-数据库 ID 已写入 `wrangler.jsonc`，然后执行远程迁移：
-
-```bash
+# 生产环境远程 D1 数据库迁移
 npm run d1:migrate:remote
 ```
 
-生产 Pages 项目需要绑定名为 `DB` 的 D1 数据库，并在 Variables/Secrets 中设置 `ADMIN_PASSWORD` 与 `STUDENT_PASSWORD_PEPPER`。教师管理入口为 `/manage`，学生入口为 `/student`；公开页面只读，主页和课程详情都读取 `/api/course-state`。
+### 3. 使用 Wrangler 进行全栈本地调试
 
-教师在管理入口粘贴 Excel 的“学号、姓名”两列，确认后创建学生账号。新账号初始密码为学号后六位，学生首次登录会提示修改密码，也可以先跳过，之后随时修改。教师可以直接分组，也可以为小组生成共享邀请码；邀请码在小组达到 3 人或教师撤销后失效。学生可以退出当前小组，重新加入时需要新的有效邀请码。
+```bash
+npx wrangler pages dev dist --d1 DB=REPLACE_WITH_D1_DATABASE_ID --binding ADMIN_PASSWORD=本地教师口令 --binding STUDENT_PASSWORD_PEPPER=本地测试密钥
+```
+
+> **注意**：首次部署时需创建 D1 数据库并将 ID 写入 `wrangler.jsonc`：
+> ```bash
+> npx wrangler d1 create content-curation-site
+> ```
+
+---
+
+## Git 版本控制与 CI/CD
+
+- **主分支**：`main` 对应线上生产环境。
+- **自动部署**：当推送到 GitHub 远程仓库 (`git push origin main`) 时，Cloudflare Pages 将监听到 Webhook 自动触发在线构建与发布。
+- **Commit 规范**：使用 `feat:`, `fix:`, `docs:`, `refactor:`, `style:`, `chore:` 等语义化前缀。
+

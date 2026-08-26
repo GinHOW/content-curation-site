@@ -2,11 +2,12 @@
   <ResourceShell
     title="视频"
     eyebrow="02 / Moving Image"
-    intro="从内容采集、数据库关联到展览路径与观看节奏，这里收录课程演示与案例分析的视频材料。"
+    intro="从内容采集、数据库关联、AI 编程工具到展览路径与观看节奏，这里收录课程演示与精选案例的视频材料。"
     :count="filteredVideos.length"
     active-section="video"
     :nav-items="resourceNavigationItems"
     :filter-options="filterOptions"
+    :filter-groups="filterGroups"
     surface-color="var(--home-orange)"
     filter-accent="var(--home-ink)"
     :active-filter="activeFilter"
@@ -18,12 +19,22 @@
           v-for="video in filteredVideos"
           :key="video.id"
           :video="video"
-          :source-type-labels="sourceTypeLabels"
-        />
+        >
+          <template #tags>
+            <button
+              v-for="tag in video.tags"
+              :key="tag"
+              class="video-tag video-tag-button"
+              type="button"
+              :aria-label="`按标签筛选 ${tag}`"
+              @click="setFilter(tag)"
+            >{{ tag }}</button>
+          </template>
+        </VideoCard>
       </div>
 
       <div v-else class="resource-empty-state" role="status">
-        <p>没有符合当前来源类型的视频。</p>
+        <p>没有符合当前筛选条件的视频。</p>
         <button type="button" @click="setFilter('all')">清除筛选</button>
       </div>
     </section>
@@ -39,14 +50,11 @@ import { resourceNavigationItems, resourceVideos } from '../../data/resources.js
 
 const route = useRoute()
 const router = useRouter()
-const sourceTypeLabels = {
-  local: '本地视频',
-  external: '外部嵌入',
-}
 
 const {
   activeFilter,
   filterOptions,
+  filterGroups,
   filteredItems: filteredVideos,
   setFilter,
 } = useResourceFilter({
@@ -54,8 +62,26 @@ const {
   router,
   routeName: 'ResourceVideos',
   items: resourceVideos,
-  getValues: (video) => [video.sourceType],
-  labels: sourceTypeLabels,
+  getValues: (video) => video.tags || [],
+  getFilterGroups: ({ filterValues }) => [
+    {
+      id: 'category',
+      label: '分类',
+      options: [
+        { value: 'all', label: '全部' },
+        { value: 'ai-coding', label: 'AI Coding' },
+        { value: 'course', label: '课程示范' },
+      ],
+    },
+    {
+      id: 'tag',
+      label: '标签',
+      options: filterValues.map((value) => ({ value, label: value })),
+    },
+  ],
+  filterPredicate: (video, filter) => ['ai-coding', 'course'].includes(filter)
+    ? video.videoCategory === filter
+    : (video.tags && video.tags.includes(filter)),
 })
 </script>
 

@@ -1,0 +1,31 @@
+{
+  "id": "art-museums-ritual-citizenship",
+  "chapter": "Chapter 6",
+  "sections": [
+    {
+      "id": "intro",
+      "title": "Introduction",
+      "label": "导言与背景"
+    },
+    {
+      "id": "the-museum-as-ritual",
+      "title": "THE MUSEUM AS RITUAL",
+      "label": "作为仪式的博物馆"
+    },
+    {
+      "id": "the-politics-of-public-art-museums",
+      "title": "THE POLITICS OF PUBLIC ART MUSEUMS",
+      "label": "公共美术馆的政治学"
+    },
+    {
+      "id": "civilization-on-the-wane",
+      "title": "CIVILIZATION ON THE WANE",
+      "label": "衰落中的文明叙事"
+    },
+    {
+      "id": "notes",
+      "title": "NOTES",
+      "label": "学术注释与文献"
+    }
+  ]
+}

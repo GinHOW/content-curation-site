@@ -72,6 +72,13 @@ const routes = [
     meta: { title: '文章资源 · 内容与策展 2026' },
   },
   {
+    path: '/resources/articles/:id',
+    name: 'ResourceArticleDetail',
+    component: () => import('../views/resources/ArticleDetail.vue'),
+    props: true,
+    meta: { title: '文献阅读 · 内容与策展 2026' },
+  },
+  {
     path: '/resources/videos',
     name: 'ResourceVideos',
     component: () => import('../views/resources/ResourceVideos.vue'),

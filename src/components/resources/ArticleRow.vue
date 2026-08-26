@@ -16,14 +16,21 @@
         </slot>
       </div>
     </div>
-    <a
-      v-if="article.url"
-      class="resource-action"
-      :href="article.url"
-      target="_blank"
-      rel="noopener noreferrer"
-    >阅读 <span aria-hidden="true">↗</span></a>
-    <span v-else class="resource-action is-disabled" aria-disabled="true">待补充</span>
+    <div class="article-actions">
+      <router-link
+        v-if="article.readerPath"
+        class="resource-action"
+        :to="article.readerPath"
+      >阅读全文 <span aria-hidden="true">→</span></router-link>
+      <a
+        v-else-if="article.url"
+        class="resource-action"
+        :href="article.url"
+        target="_blank"
+        rel="noopener noreferrer"
+      >阅读 <span aria-hidden="true">↗</span></a>
+      <span v-else class="resource-action is-disabled" aria-disabled="true">待补充</span>
+    </div>
   </article>
 </template>
 

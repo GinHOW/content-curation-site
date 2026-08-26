@@ -21,22 +21,22 @@
 
 ```mermaid
 graph TB
-    subgraph 公开教学与策展呈现区 (Public & Curation)
-        Home["首页 /<br>(概览·往期回顾·空间选题库·规则·日历)"]
-        Syllabus["教学大纲 /syllabus<br>(16周排期·参考画廊·课程导览)"]
-        Resources["资源中心 /resources<br>(文章·视频·沉浸式网页·工具)"]
-        Works["学生成果库 /works<br>(成果展示·作品详情 /works/:id)"]
+    subgraph PublicGroup ["公开教学与策展呈现区"]
+        Home["首页 /<br>概览·往期回顾·空间选题库·规则·日历"]
+        Syllabus["教学大纲 /syllabus<br>16周排期·参考画廊·课程导览"]
+        Resources["资源中心 /resources<br>文章·视频·沉浸式网页·工具"]
+        Works["学生成果库 /works<br>成果展示·作品详情"]
     end
 
-    subgraph 师生交互与身份管理区 (Auth & Collaboration)
-        Student["学生中心 /student<br>(学号登录·初始改密·小组认领)"]
-        Manage["教师控制台 /manage<br>(批量导入·排组编排·邀请码分发)"]
+    subgraph AuthGroup ["师生交互与身份管理区"]
+        Student["学生中心 /student<br>学号登录·初始改密·小组认领"]
+        Manage["教师控制台 /manage<br>批量导入·排组编排·邀请码分发"]
     end
 
-    subgraph 基础设施层 (Cloudflare Fullstack)
-        API["Cloudflare Pages Functions (/api/auth & /api/course-state)"]
-        D1["Cloudflare D1 关系型数据库 (学生/选题/分组状态)"]
-        R2["Cloudflare R2 对象存储 (动态GIF与高精媒体)"]
+    subgraph InfraGroup ["基础设施层 (Cloudflare Fullstack)"]
+        API["Cloudflare Pages Functions<br>/api/auth & /api/course-state"]
+        D1[("Cloudflare D1 关系型数据库<br>学生/选题/分组状态")]
+        R2[("Cloudflare R2 对象存储<br>动态GIF与高精媒体")]
     end
 
     Home --> API

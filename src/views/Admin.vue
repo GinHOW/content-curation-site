@@ -6,7 +6,7 @@
         <div class="section-grid admin-heading">
           <div class="section-title-column">
             <p class="eyebrow">Teacher Access</p>
-            <h1 id="admin-title">选题库<br />管理入口</h1>
+            <h1 id="admin-title">管理员<br />入口</h1>
           </div>
           <div class="section-copy-column">
             <p class="lead-copy">统一维护词条、空间归属与 16 个小组选词。公共页面只读，保存结果会立即同步到主页和课程详情。</p>

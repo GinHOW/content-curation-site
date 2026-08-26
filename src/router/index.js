@@ -125,7 +125,7 @@ const routes = [
     path: '/manage',
     name: 'Admin',
     component: () => import('../views/Admin.vue'),
-    meta: { title: '选题库管理 · 内容与策展 2026' },
+    meta: { title: '管理员入口 · 内容与策展 2026' },
   },
   {
     path: '/student',

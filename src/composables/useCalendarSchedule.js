@@ -11,11 +11,11 @@ export const parseEventDate = (value) => {
   return new Date(year, month - 1, day)
 }
 
-export const formatDateKey = (date) => {
+const formatDateKey = (date) => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
 
-export const parseDateKey = (key) => {
+const parseDateKey = (key) => {
   if (!key) return null
   const [year, month, day] = key.split('-').map(Number)
   return new Date(year, month - 1, day)
@@ -38,7 +38,7 @@ export const formatEventType = (event) => {
   return event.courseSchedule?.method || event.session?.type || 'COURSE'
 }
 
-export const getWeekTheme = (event) => event?.courseSchedule?.weekTheme || ''
+const getWeekTheme = (event) => event?.courseSchedule?.weekTheme || ''
 
 export const getTeachingPoints = (event) => {
   if (!event || event.type === 'deadline') return []

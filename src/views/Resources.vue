@@ -25,7 +25,6 @@
               <p class="resources-intro-note">沿侧边分类导航进入对应章节；使用每类入口查看该类完整列表。</p>
             </div>
           </div>
-
         </header>
 
         <div class="resources-sections">
@@ -41,30 +40,12 @@
             </header>
 
             <div class="article-list">
-              <article v-for="(article, index) in featuredArticles" :key="article.id" class="article-row">
-                <span class="article-index">{{ String(index + 1).padStart(2, '0') }}</span>
-                <div class="article-copy">
-                  <div class="article-title-line">
-                    <h3>{{ article.title }}</h3>
-                    <span v-if="article.titleEn" class="article-title-en">{{ article.titleEn }}</span>
-                  </div>
-                  <p class="article-summary">{{ article.summary }}</p>
-                  <div class="article-meta">
-                    <span>{{ article.author }}</span>
-                    <span>{{ article.source }}</span>
-                    <span>{{ article.year }}</span>
-                    <span v-for="tag in article.tags" :key="tag" class="resource-tag">{{ tag }}</span>
-                  </div>
-                </div>
-                <a
-                  v-if="article.url"
-                  class="resource-action"
-                  :href="article.url"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >阅读 <span aria-hidden="true">↗</span></a>
-                <span v-else class="resource-action is-disabled" aria-disabled="true">待补充</span>
-              </article>
+              <ArticleRow
+                v-for="(article, index) in featuredArticles"
+                :key="article.id"
+                :article="article"
+                :index="index"
+              />
             </div>
           </section>
 
@@ -80,47 +61,12 @@
             </header>
 
             <div class="video-grid">
-              <article v-for="video in featuredVideos" :key="video.id" class="video-card">
-                <div class="video-frame">
-                  <video
-                    v-if="video.sourceType === 'local' && video.src"
-                    controls
-                    preload="metadata"
-                    :poster="video.poster"
-                    :aria-label="video.title"
-                  >
-                    <source :src="video.src" />
-                  </video>
-                  <iframe
-                    v-else-if="video.sourceType === 'external' && video.embedUrl"
-                    :src="video.embedUrl"
-                    :title="video.title"
-                    loading="lazy"
-                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowfullscreen
-                  ></iframe>
-                  <div v-else class="video-placeholder">
-                    <img :src="video.poster" :alt="`${video.title} 海报`" width="960" height="540" loading="lazy" />
-                    <span class="video-placeholder-label">视频待补充</span>
-                  </div>
-                </div>
-                <div class="video-copy">
-                  <div>
-                    <p class="video-kicker">{{ video.duration }} · {{ sourceTypeLabels[video.sourceType] }}</p>
-                    <h3>{{ video.title }}</h3>
-                    <p class="video-title-en">{{ video.titleEn }}</p>
-                  </div>
-                  <p>{{ video.summary }}</p>
-                  <a
-                    v-if="video.fallbackUrl"
-                    class="resource-text-link"
-                    :href="video.fallbackUrl"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >打开备用链接 <span aria-hidden="true">↗</span></a>
-                  <span v-else class="resource-text-link is-disabled" aria-disabled="true">备用链接待补充</span>
-                </div>
-              </article>
+              <VideoCard
+                v-for="video in featuredVideos"
+                :key="video.id"
+                :video="video"
+                :source-type-labels="sourceTypeLabels"
+              />
             </div>
           </section>
 
@@ -156,35 +102,16 @@
             </header>
 
             <div class="tool-grid">
-              <article v-for="tool in featuredTools" :key="tool.id" class="tool-card">
-                <div class="tool-card-frame">
-                  <img :src="tool.image" :alt="tool.alt" width="960" height="640" loading="lazy" />
-                </div>
-                <div class="tool-card-copy">
-                  <div class="tool-card-heading">
-                    <div>
-                      <p class="tool-card-kicker">{{ tool.platform }}</p>
-                      <h3>{{ tool.title }}</h3>
-                    </div>
-                    <span class="tool-card-format">{{ tool.format }}</span>
-                  </div>
-                  <p>{{ tool.summary }}</p>
-                  <a
-                    v-if="tool.downloadUrl"
-                    class="resource-action resource-action-button"
-                    :href="tool.downloadUrl"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >下载 <span aria-hidden="true">↗</span></a>
-                  <button v-else class="resource-action resource-action-button is-disabled" type="button" disabled>待开放</button>
-                </div>
-              </article>
+              <ToolCard
+                v-for="tool in featuredTools"
+                :key="tool.id"
+                :tool="tool"
+              />
             </div>
           </section>
         </div>
       </main>
     </div>
-
   </div>
 </template>
 
@@ -192,6 +119,9 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import HomeEdgeNav from '../components/navigation/HomeEdgeNav.vue'
 import HomeSiteNav from '../components/navigation/HomeSiteNav.vue'
+import ArticleRow from '../components/resources/ArticleRow.vue'
+import ToolCard from '../components/resources/ToolCard.vue'
+import VideoCard from '../components/resources/VideoCard.vue'
 import WebResourceCard from '../components/resources/WebResourceCard.vue'
 import {
   getFeaturedResources,
@@ -286,9 +216,7 @@ onBeforeUnmount(() => {
 }
 
 .resources-eyebrow,
-.resource-section-index,
-.video-kicker,
-.tool-card-kicker {
+.resource-section-index {
   color: var(--resources-muted);
   font-size: 0.68rem;
   font-weight: 700;
@@ -370,58 +298,19 @@ onBeforeUnmount(() => {
   display: grid;
 }
 
-.article-row {
+.video-grid,
+.tool-grid {
   display: grid;
-  grid-template-columns: 3rem minmax(0, 1fr) auto;
-  gap: 1.25rem;
-  align-items: start;
-  padding: 1.4rem 0;
-  border-bottom: 1px solid var(--resources-rule);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  padding-top: 1.5rem;
 }
 
-.article-index {
-  color: var(--resources-muted);
-  font-size: 0.72rem;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
-}
-
-.article-title-line {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.7rem 1rem;
-}
-
-.article-title-line h3 {
-  font-size: clamp(1.15rem, 2vw, 1.55rem);
-  line-height: 1.3;
-}
-
-.article-title-en {
-  color: var(--resources-muted);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.article-summary {
-  max-width: 52rem;
-  margin-top: 0.55rem;
-  color: var(--resources-muted);
-  font-size: 0.9rem;
-  line-height: 1.7;
-}
-
-.article-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  align-items: center;
-  margin-top: 0.8rem;
-  color: var(--resources-muted);
-  font-size: 0.72rem;
-  line-height: 1.4;
+.web-resource-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  padding-top: clamp(2rem, 4vw, 3.5rem);
 }
 
 .resource-tag {
@@ -433,173 +322,6 @@ onBeforeUnmount(() => {
   color: var(--resources-muted);
   font-size: 0.68rem;
   line-height: 1.2;
-}
-
-.resource-action,
-.resource-text-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  min-height: 44px;
-  color: var(--resources-ink);
-  font-size: 0.78rem;
-  font-weight: 700;
-  line-height: 1.2;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.resource-action:not(.is-disabled):hover,
-.resource-action:not(.is-disabled):focus-visible,
-.resource-text-link:not(.is-disabled):hover,
-.resource-text-link:not(.is-disabled):focus-visible {
-  color: var(--accent-orange);
-}
-
-.resource-action.is-disabled,
-.resource-text-link.is-disabled {
-  color: var(--resources-muted);
-  cursor: not-allowed;
-  opacity: 0.65;
-}
-
-.video-grid,
-.tool-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(1.25rem, 3vw, 2.5rem);
-  padding-top: 1.5rem;
-}
-
-.video-card,
-.tool-card {
-  min-width: 0;
-  border: 1px solid var(--resources-ink);
-}
-
-.video-frame,
-.tool-card-frame {
-  position: relative;
-  overflow: hidden;
-  background: #f2f2ee;
-  aspect-ratio: 16 / 9;
-}
-
-.video-frame video,
-.video-frame iframe,
-.video-placeholder,
-.video-placeholder img {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.video-frame video,
-.video-frame iframe {
-  border: 0;
-  object-fit: cover;
-}
-
-.video-placeholder {
-  position: relative;
-}
-
-.video-placeholder img {
-  object-fit: cover;
-  filter: grayscale(1);
-  opacity: 0.72;
-}
-
-.video-placeholder-label {
-  position: absolute;
-  left: 1rem;
-  bottom: 1rem;
-  padding: 0.38rem 0.55rem;
-  color: var(--resources-ink);
-  background: var(--home-yellow);
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.video-copy,
-.tool-card-copy {
-  display: grid;
-  gap: 1rem;
-  padding: 1.1rem 1.15rem 1.25rem;
-}
-
-.video-copy h3,
-.tool-card-heading h3 {
-  margin-top: 0.45rem;
-  font-size: clamp(1.05rem, 1.7vw, 1.35rem);
-  line-height: 1.35;
-}
-
-.video-title-en {
-  margin-top: 0.25rem;
-  color: var(--resources-muted);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.video-copy > p:last-of-type,
-.tool-card-copy > p {
-  color: var(--resources-muted);
-  font-size: 0.84rem;
-  line-height: 1.65;
-}
-
-.web-resource-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(1.25rem, 3vw, 2.5rem);
-  padding-top: clamp(2rem, 4vw, 3.5rem);
-}
-
-.tool-card-frame {
-  aspect-ratio: 3 / 2;
-}
-
-.tool-card-frame img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.tool-card-heading {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: start;
-}
-
-.tool-card-format {
-  flex: 0 0 auto;
-  color: var(--resources-muted);
-  font-size: 0.68rem;
-  line-height: 1.3;
-  text-align: right;
-}
-
-.resource-action-button {
-  justify-content: center;
-  width: 100%;
-  padding: 0.65rem 0.75rem;
-  border: 1px solid var(--resources-ink);
-  background: transparent;
-  cursor: pointer;
-}
-
-.resource-action-button:not(.is-disabled):hover,
-.resource-action-button:not(.is-disabled):focus-visible {
-  color: var(--home-paper);
-  background: var(--resources-ink);
-}
-
-.resource-action-button.is-disabled {
-  border-color: var(--resources-rule);
-  background: transparent;
 }
 
 @media (max-width: 1023px) {
@@ -649,17 +371,6 @@ onBeforeUnmount(() => {
     font-size: clamp(2.8rem, 15vw, 5rem);
   }
 
-  .article-row {
-    grid-template-columns: 2rem minmax(0, 1fr);
-    gap: 0.7rem;
-  }
-
-  .article-row > .resource-action {
-    grid-column: 2;
-    justify-self: start;
-    min-height: 40px;
-  }
-
   .video-grid,
   .tool-grid {
     grid-template-columns: 1fr;
@@ -667,14 +378,6 @@ onBeforeUnmount(() => {
 
   .web-resource-grid {
     grid-template-columns: 1fr;
-  }
-
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .resource-action,
-  .resource-text-link {
-    transition: none;
   }
 }
 </style>

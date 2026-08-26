@@ -68,8 +68,8 @@ const {
 
 .web-resource-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(1.25rem, 3vw, 2.5rem);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 2rem);
   padding-top: clamp(2rem, 4vw, 3.5rem);
 }
 
@@ -129,6 +129,18 @@ const {
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
+}
+
+@media (max-width: 1439px) {
+  .web-resource-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1023px) {
+  .web-resource-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 767px) {

@@ -105,9 +105,9 @@ const domainFor = (url) => {
 
 .web-resource-primary {
   display: grid;
-  gap: 1.1rem;
-  min-height: 18rem;
-  padding: 1.15rem 1.2rem 1.25rem;
+  gap: 0.9rem;
+  min-height: auto;
+  padding: clamp(1rem, 1.5vw, 1.25rem);
   color: var(--web-card-ink);
   background: transparent;
   text-decoration: none;
@@ -191,15 +191,15 @@ const domainFor = (url) => {
 }
 
 .web-resource-heading strong {
-  font-size: clamp(1.15rem, 2vw, 1.55rem);
+  font-size: clamp(1.05rem, 1.4vw, 1.35rem);
   line-height: 1.25;
 }
 
 .web-resource-summary {
   max-width: 34rem;
   color: var(--web-card-muted);
-  font-size: 0.88rem;
-  line-height: 1.7;
+  font-size: clamp(0.8rem, 1vw, 0.88rem);
+  line-height: 1.6;
 }
 
 .web-resource-footer {
@@ -223,7 +223,7 @@ const domainFor = (url) => {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
-  margin: 0 1.2rem 1.15rem;
+  margin: 0 clamp(1rem, 1.5vw, 1.2rem) 1rem;
   padding-top: 0.75rem;
   border-top: 1px solid var(--web-card-rule);
   transition: border-color 160ms ease;

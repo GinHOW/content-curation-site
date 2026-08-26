@@ -1,6 +1,6 @@
 import { syllabusWebReferences } from './syllabusSchedule.js'
 
-export const resourceCategories = [
+const resourceCategories = [
   { id: 'all', label: '全部' },
   { id: 'article', label: '文章' },
   { id: 'video', label: '视频' },
@@ -329,7 +329,7 @@ export const resources = [
   ...resourceTools,
 ]
 
-export const resourcesByType = {
+const resourcesByType = {
   article: resourceArticles,
   video: resourceVideos,
   website: resourceWebsites,

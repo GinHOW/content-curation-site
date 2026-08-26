@@ -26,7 +26,6 @@ async function request(path, options = {}) {
 export const getCourseState = () => request('/api/course-state')
 export const adminLogin = (password) => request('/api/admin/login', { method: 'POST', body: JSON.stringify({ password }) })
 export const adminLogout = () => request('/api/admin/logout', { method: 'POST' })
-export const adminMe = () => request('/api/admin/me')
 export const getAuthSession = () => request('/api/auth/session')
 export const createTopic = (label) => request('/api/admin/topics', { method: 'POST', body: JSON.stringify({ label }) })
 export const updateTopicRoom = (topicId, roomId) => request(`/api/admin/topics/${topicId}`, { method: 'PATCH', body: JSON.stringify({ roomId }) })

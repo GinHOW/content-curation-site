@@ -48,7 +48,7 @@ export const outcomeYears = [
   { id: '2026', label: '2026', note: '内容与策展2026 · 进行中' },
 ]
 
-export const outcomesByYear = {
+const outcomesByYear = {
   2025: exhibitionOutcomes,
   2026: workOutcomes,
 }

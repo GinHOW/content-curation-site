@@ -301,7 +301,7 @@ onBeforeUnmount(() => {
 .video-grid,
 .tool-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(1.25rem, 3vw, 2.5rem);
   padding-top: 1.5rem;
 }
@@ -329,6 +329,8 @@ onBeforeUnmount(() => {
     width: 100%;
   }
 
+  .video-grid,
+  .tool-grid,
   .web-resource-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

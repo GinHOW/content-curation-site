@@ -9,6 +9,7 @@ dist-ssr
 .env
 .env.*
 !.env.example
+.dev.vars
 
 # Course reference source archives; the website uses the WebP copies in public.
 source-assets/course-references/originals/

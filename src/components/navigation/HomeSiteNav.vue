@@ -134,9 +134,9 @@ const isResourceRoute = computed(() => route.path === '/resources' || route.path
 
   :global(.home-page .site-nav a:nth-child(3)) {
     grid-area: auto;
-    justify-self: end;
-    align-items: flex-end;
-    text-align: right;
+    justify-self: center;
+    align-items: center;
+    text-align: center;
   }
 
   :global(.home-page .site-nav a:nth-child(4)) {
@@ -154,3 +154,4 @@ const isResourceRoute = computed(() => route.path === '/resources' || route.path
   }
 }
 </style>
+

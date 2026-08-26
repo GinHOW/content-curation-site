@@ -100,12 +100,18 @@
               <span class="micro-copy">从 Excel 复制“学号、姓名”两列</span>
             </header>
             <div class="admin-roster-import">
-              <textarea v-model="rosterText" rows="5" placeholder="学号\t姓名\n20260001\t张三\n20260002\t李四" aria-label="粘贴学生名单"></textarea>
+              <textarea
+                v-model="rosterText"
+                rows="5"
+                placeholder="学号\t姓名\n20260001\t张三\n20260002\t李四"
+                aria-label="粘贴学生名单"
+                @keydown="handleRosterKeydown"
+              ></textarea>
               <div class="admin-roster-actions">
                 <button type="button" @click="parseRoster">预览名单</button>
                 <button type="button" :disabled="busy || !rosterPreview.length" @click="importRoster">确认导入</button>
               </div>
-              <p class="micro-copy">已有账号只更新姓名，不会重置密码或改变分组。</p>
+              <p class="micro-copy">按 Tab 插入列间隔；已有账号只更新姓名，不会重置密码或改变分组。</p>
               <p v-if="rosterError" class="admin-message is-error" role="alert">{{ rosterError }}</p>
             </div>
 
@@ -144,13 +150,13 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 import HomeSiteNav from '../components/navigation/HomeSiteNav.vue'
+import { useAuthSession } from '../composables/useAuthSession.js'
 import { useCourseState } from '../composables/useCourseState.js'
 import {
   adminLogin,
   adminLogout,
-  adminMe,
   assignGroupTopic,
   clearGroupTopic,
   createGroupInvite,
@@ -166,9 +172,14 @@ import {
 } from '../services/courseState.js'
 
 const { rooms, topics, groups, refresh } = useCourseState({ immediate: false })
+const {
+  isTeacher: authenticated,
+  initialize: initializeAuth,
+  refresh: refreshAuth,
+  clearTeacher,
+} = useAuthSession()
 const students = ref([])
 const adminGroups = ref([])
-const authenticated = ref(false)
 const password = ref('')
 const newTopic = ref('')
 const rosterText = ref('')
@@ -207,7 +218,7 @@ const login = async () => {
   authError.value = ''
   try {
     await adminLogin(password.value)
-    authenticated.value = true
+    await refreshAuth()
     password.value = ''
     await refreshState()
   } catch (cause) {
@@ -219,7 +230,7 @@ const login = async () => {
 
 const logout = async () => {
   await adminLogout().catch(() => {})
-  authenticated.value = false
+  clearTeacher()
 }
 
 const refreshData = () => runAction(refreshState, '数据已刷新')
@@ -232,6 +243,21 @@ const setGroupTopic = (group, topicId) => runAction(
   () => topicId ? assignGroupTopic(group.id, Number(topicId)) : clearGroupTopic(group.id),
   `${group.code} 的选词已更新`,
 )
+
+const handleRosterKeydown = async (event) => {
+  if (event.key !== 'Tab' || event.shiftKey) return
+
+  event.preventDefault()
+  const textarea = event.currentTarget
+  const value = rosterText.value
+  const start = Number.isInteger(textarea.selectionStart) ? textarea.selectionStart : value.length
+  const end = Number.isInteger(textarea.selectionEnd) ? textarea.selectionEnd : start
+  rosterText.value = `${value.slice(0, start)}\t${value.slice(end)}`
+
+  await nextTick()
+  textarea.selectionStart = start + 1
+  textarea.selectionEnd = start + 1
+}
 
 const parseRoster = () => {
   rosterError.value = ''
@@ -342,13 +368,8 @@ const copyInvite = async (group) => {
 }
 
 onMounted(async () => {
-  try {
-    await adminMe()
-    authenticated.value = true
-    await refreshState()
-  } catch {
-    // 未登录状态由表单承接，不需要额外提示。
-  }
+  await initializeAuth()
+  if (authenticated.value) await refreshState()
 })
 </script>
 

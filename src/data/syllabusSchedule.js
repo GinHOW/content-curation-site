@@ -17,20 +17,76 @@ const normalizeDeliverables = (items = []) => items.map((item) => {
 const referenceFiles = [
   '2-1.webp', '2-2.webp',
   '3-1.webp', '3-2.webp',
-  '4-1.webp', '4-2.webp', '4-3.webp', '4-4.webp', '4-5.webp', '4-6.webp', '4-7.webp',
+  {
+    filename: '4-1.webp',
+    url: 'https://euro-vision.net/',
+    title: 'Euro-Vision',
+  },
+  // {
+  //   filename: '4-2.webp',
+  //   url: 'https://euro-vision.net/',
+  //   title: 'Euro-Vision',
+  // },
+  {
+    filename: '4-3.webp',
+    url: 'https://cyberfeminismindex.com/',
+    title: 'Cyberfeminism Index',
+    embed: false,
+  },
+  {
+    filename: '4-4.webp',
+    url: 'https://www.thetechnate.net/',
+    title: 'The Technate',
+  },
+  {
+    filename: '4-5.webp',
+    url: 'http://intergraphicview.com/',
+    title: 'InterGraphicView',
+  },
+  // {
+  //   filename: '4-6.webp',
+  //   url: 'http://intergraphicview.com/',
+  //   title: 'InterGraphicView',
+  // },
+  {
+    filename: '4-7.webp',
+    url: 'https://helmhaus.org/en/',
+    title: 'Helmhaus',
+  },
   {
     filename: '4-8.webp',
     url: 'https://www.archivalconsciousness.org',
     title: 'Archival Consciousness',
   },
+  {
+    filename: '4-9.webp',
+    url: 'https://www.polecat.agency/',
+    title: 'Polecat Agency',
+  },
+  {
+    filename: '4-10.webp',
+    url: 'https://pudding.cool/2025/07/street-view/',
+    title: 'The Pudding · Street View',
+  },
   '6-1.webp', '6-2.webp',
-  '7-1.webp',
+  '5-1.webp',
   '10-1.webp', '10-2.webp', '10-3.webp',
   '11-1.webp', '11-2.webp', '11-3.webp', '11-4.webp', '11-5.webp', '11-6.webp', '11-7.webp',
   '12-1.webp', '12-2.webp',
   '13-1.webp', '13-2.webp', '13-3.webp',
   '14-1.webp', '14-2.webp', '14-3.webp', '14-4.webp',
 ]
+
+// 课程中已确认网址的参考项同时作为资源页的网页入口；本地截图仍只服务课程页预览。
+export const syllabusWebReferences = referenceFiles
+  .filter((item) => typeof item !== 'string' && item.url)
+  .map((item) => ({
+    filename: item.filename,
+    session: Number(item.filename.split('-')[0]),
+    url: item.url,
+    title: item.title,
+    embed: item.embed !== false,
+  }))
 
 const referencesBySession = referenceFiles.reduce((map, filename) => {
   const item = typeof filename === 'string' ? { filename } : filename
@@ -40,6 +96,7 @@ const referencesBySession = referenceFiles.reduce((map, filename) => {
     src: '/assets/syllabus/references/' + item.filename,
     url: item.url || '',
     title: item.title || '',
+    embed: item.embed !== false,
   })
   return map
 }, {})

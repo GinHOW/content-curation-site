@@ -1,26 +1,41 @@
 <template>
-  <aside class="home-index" aria-label="主页章节索引">
+  <aside class="home-index" :class="{ 'is-mobile-toolbar': mobileMode === 'toolbar' }" :aria-label="ariaLabel">
     <nav class="index-nav" aria-label="章节导航">
-      <a
-        v-for="item in items"
-        :key="item.id"
-        class="index-link"
-        :class="{ 'is-active': activeSection === item.id }"
-        :style="item.color ? { '--tab-color': item.color, '--tab-ink': '#111111' } : undefined"
-        :href="`#${item.id}`"
-        :aria-current="activeSection === item.id ? 'location' : undefined"
-        @click="handleClick($event, item.id)"
-      >
-        <span class="index-copy" aria-hidden="true">
-          <span class="index-label">{{ item.label }}</span>
-        </span>
-        <span class="sr-only">{{ item.label }}</span>
-      </a>
+      <template v-for="item in items" :key="item.id">
+        <RouterLink
+          v-if="item.to"
+          :to="item.to"
+          :class="['index-link', { 'is-active': activeSection === item.id }]"
+          :style="item.color ? { '--tab-color': item.color, '--tab-ink': '#111111' } : undefined"
+          :aria-current="activeSection === item.id ? 'page' : undefined"
+        >
+          <span class="index-copy" aria-hidden="true">
+            <span class="index-label">{{ item.label }}</span>
+          </span>
+          <span class="sr-only">{{ item.label }}</span>
+        </RouterLink>
+        <a
+          v-else
+          class="index-link"
+          :class="{ 'is-active': activeSection === item.id }"
+          :style="item.color ? { '--tab-color': item.color, '--tab-ink': '#111111' } : undefined"
+          :href="`#${item.id}`"
+          :aria-current="activeSection === item.id ? 'location' : undefined"
+          @click="handleClick($event, item.id)"
+        >
+          <span class="index-copy" aria-hidden="true">
+            <span class="index-label">{{ item.label }}</span>
+          </span>
+          <span class="sr-only">{{ item.label }}</span>
+        </a>
+      </template>
     </nav>
   </aside>
 </template>
 
 <script setup>
+import { RouterLink } from 'vue-router'
+
 defineProps({
   items: {
     type: Array,
@@ -29,6 +44,14 @@ defineProps({
   activeSection: {
     type: String,
     default: '',
+  },
+  mobileMode: {
+    type: String,
+    default: 'hidden',
+  },
+  ariaLabel: {
+    type: String,
+    default: '主页章节索引',
   },
 })
 
@@ -144,6 +167,57 @@ const handleClick = (event, id) => {
 @media (max-width: 767px) {
   :global(.home-page .home-index) {
     display: none;
+  }
+
+  :global(.home-page .home-index.is-mobile-toolbar) {
+    display: block;
+    width: 100%;
+    min-height: 0;
+    padding: 0 1rem 1.25rem;
+  }
+
+  :global(.home-page .home-index.is-mobile-toolbar .index-nav) {
+    position: static;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
+    width: 100%;
+    height: auto;
+  }
+
+  :global(.home-page .home-index.is-mobile-toolbar .index-link) {
+    display: inline-flex;
+    flex: 0 0 auto;
+    width: auto;
+    min-height: 44px;
+    padding: 0.45rem 0.1rem;
+    color: var(--home-muted);
+    background: transparent;
+    border-bottom: 2px solid var(--tab-color);
+  }
+
+  :global(.home-page .home-index.is-mobile-toolbar .index-link.is-active),
+  :global(.home-page .home-index.is-mobile-toolbar .index-link:hover),
+  :global(.home-page .home-index.is-mobile-toolbar .index-link:focus-visible) {
+    width: auto;
+    color: var(--home-ink);
+    background: transparent;
+    filter: none;
+  }
+
+  :global(.home-page .home-index.is-mobile-toolbar .index-copy) {
+    position: static;
+    display: inline-flex;
+    width: auto;
+    color: inherit;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  :global(.home-page .home-index.is-mobile-toolbar .index-label) {
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
   }
 }
 </style>

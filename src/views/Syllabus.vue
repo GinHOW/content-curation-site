@@ -29,6 +29,7 @@
                 <div><dt>4</dt><dd>加课</dd></div>
                 <div><dt>5</dt><dd>阶段成果</dd></div>
               </dl>
+              <ProtectedResourceLink v-if="authReady && authenticated" />
             </div>
             <div class="section-copy-column schedule-summary">
               <p>从内容数据库搭建、策展结构与空间阅读，推进至网站汇报、展具制作、现场测试及综合评审。</p>
@@ -203,9 +204,13 @@ import CourseReferenceGallery from '../components/syllabus/CourseReferenceGaller
 import TopicMatcher from '../components/syllabus/TopicMatcher.vue'
 import LivingRoomArchive from '../components/syllabus/LivingRoomArchive.vue'
 import StudentEntryLink from '../components/syllabus/StudentEntryLink.vue'
+import ProtectedResourceLink from '../components/syllabus/ProtectedResourceLink.vue'
+import { useAuthSession } from '../composables/useAuthSession.js'
 import { useHomeSections } from '../composables/useHomeSections.js'
 import { useCourseState } from '../composables/useCourseState.js'
 import { assessmentItems, syllabusWeeks } from '../data/syllabusSchedule.js'
+
+const { ready: authReady, authenticated } = useAuthSession()
 
 const weekSectionId = (week) => `week-${week.toLowerCase()}`
 const milestoneLabel = (milestone) => ['①', '②', '③', '④', '⑤'][milestone - 1] || milestone

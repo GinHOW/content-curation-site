@@ -194,9 +194,9 @@ watch(
 }
 
 .works-main {
-  width: min(100% - clamp(2rem, 8vw, 8rem), 100rem);
-  margin: 0 auto;
-  padding: clamp(1.5rem, 3vw, 2.75rem) 0 clamp(4rem, 9vw, 8rem);
+  width: 100%;
+  margin: 0;
+  padding: clamp(1.5rem, 3vw, 2.75rem) clamp(3.5rem, 4vw, 4.5rem) clamp(4rem, 9vw, 8rem);
 }
 
 .works-main > .site-nav {
@@ -609,7 +609,8 @@ watch(
 
 @media (max-width: 1023px) {
   .works-main {
-    width: min(100% - 3rem, 48rem);
+    width: 100%;
+    padding-inline: clamp(3.5rem, 4vw, 4.5rem);
   }
 
   .works-intro-grid {
@@ -681,8 +682,8 @@ watch(
 
 @media (max-width: 767px) {
   .works-main {
-    width: min(100% - 2rem, 40rem);
-    padding-top: 1rem;
+    width: 100%;
+    padding: 1rem 1rem clamp(4rem, 9vw, 8rem);
   }
 
   .works-main > .site-nav {

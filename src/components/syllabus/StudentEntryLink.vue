@@ -1,27 +1,100 @@
 <template>
-  <router-link to="/student" class="student-entry-link" aria-label="学生入口 Log in">
-    <span class="student-entry-icon" aria-hidden="true">
-      <svg viewBox="0 0 32 32" focusable="false">
-        <circle cx="12" cy="11" r="3.25" />
-        <path d="M6.5 23c.75-3.85 2.8-5.8 5.5-5.8s4.75 1.95 5.5 5.8" />
-        <path d="M19.5 16h7m-3.2-3.2 3.2 3.2-3.2 3.2" />
-      </svg>
-    </span>
-    <span class="student-entry-copy">
-      <span class="student-entry-kicker">Student Access</span>
-      <span class="student-entry-title">学生入口 <span>Log in</span></span>
-    </span>
-    <span class="student-entry-arrow" aria-hidden="true">↗</span>
-  </router-link>
+  <div class="student-entry-actions">
+    <router-link :to="entryTarget" class="student-entry-link" :aria-label="entryAriaLabel">
+      <span class="student-entry-icon" aria-hidden="true">
+        <svg viewBox="0 0 32 32" focusable="false">
+          <circle cx="12" cy="11" r="3.25" />
+          <path d="M6.5 23c.75-3.85 2.8-5.8 5.5-5.8s4.75 1.95 5.5 5.8" />
+          <path v-if="!isLoggedIn" d="M19.5 16h7m-3.2-3.2 3.2 3.2-3.2 3.2" />
+        </svg>
+      </span>
+      <span class="student-entry-copy">
+        <span class="student-entry-kicker">{{ entryKicker }}</span>
+        <span class="student-entry-title">{{ entryTitle }} <span>{{ entryMeta }}</span></span>
+      </span>
+      <span class="student-entry-arrow" aria-hidden="true">↗</span>
+    </router-link>
+    <button
+      v-if="isLoggedIn"
+      type="button"
+      class="student-entry-logout"
+      :disabled="logoutBusy"
+      aria-label="退出当前账号"
+      @click="logout"
+    >
+      {{ logoutBusy ? '退出中…' : '退出' }}
+    </button>
+  </div>
 </template>
 
+<script setup>
+import { computed, ref } from 'vue'
+import { useAuthSession } from '../../composables/useAuthSession.js'
+import { adminLogout, studentLogout } from '../../services/courseState.js'
+
+const {
+  ready: authReady,
+  isStudent,
+  isTeacher,
+  student,
+  clearStudent,
+  clearTeacher,
+} = useAuthSession()
+
+const logoutBusy = ref(false)
+const isLoggedIn = computed(() => authReady.value && (isStudent.value || isTeacher.value))
+const entryTarget = computed(() => isTeacher.value && !isStudent.value ? '/manage' : '/student')
+const entryKicker = computed(() => {
+  if (!isLoggedIn.value) return 'Student Access'
+  return isStudent.value ? 'Student Account' : 'Teacher Access'
+})
+const entryTitle = computed(() => {
+  if (!isLoggedIn.value) return '学生入口'
+  if (isStudent.value) return student.value?.displayName || '学生账号'
+  return '教师管理'
+})
+const entryMeta = computed(() => {
+  if (!isLoggedIn.value) return 'Log in'
+  if (isStudent.value) return student.value?.studentNumber || '已登录'
+  return '已登录'
+})
+const entryAriaLabel = computed(() => {
+  if (!isLoggedIn.value) return '学生入口 Log in'
+  return isStudent.value
+    ? `学生账号 ${entryTitle.value}，学号 ${entryMeta.value}`
+    : '教师管理，已登录'
+})
+
+const logout = async () => {
+  if (logoutBusy.value) return
+  logoutBusy.value = true
+  try {
+    if (isStudent.value) {
+      await studentLogout().catch(() => {})
+      clearStudent()
+    } else if (isTeacher.value) {
+      await adminLogout().catch(() => {})
+      clearTeacher()
+    }
+  } finally {
+    logoutBusy.value = false
+  }
+}
+</script>
+
 <style scoped>
+.student-entry-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: clamp(2.2rem, 4vw, 4.25rem);
+}
 .student-entry-link {
   display: inline-flex;
   align-items: center;
   gap: 0.7rem;
   width: max-content;
-  margin-bottom: clamp(2.2rem, 4vw, 4.25rem);
   color: var(--syllabus-muted);
   text-decoration: none;
   transition: color 180ms ease, transform 180ms ease;
@@ -89,4 +162,19 @@
 .student-entry-link:focus-visible .student-entry-title span { color: var(--syllabus-orange); }
 .student-entry-link:hover .student-entry-arrow,
 .student-entry-link:focus-visible .student-entry-arrow { color: var(--syllabus-orange); transform: translate(0.12rem, -0.12rem); }
+.student-entry-logout {
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--syllabus-muted);
+  padding: 0.35rem 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.72rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.student-entry-logout:hover,
+.student-entry-logout:focus-visible { color: var(--syllabus-orange); }
+.student-entry-logout:disabled { cursor: wait; opacity: 0.55; }
 </style>

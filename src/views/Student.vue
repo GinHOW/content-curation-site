@@ -129,6 +129,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import HomeSiteNav from '../components/navigation/HomeSiteNav.vue'
+import { useAuthSession } from '../composables/useAuthSession.js'
 import { useCourseState } from '../composables/useCourseState.js'
 import {
   studentAssignTopic,
@@ -142,7 +143,12 @@ import {
 } from '../services/courseState.js'
 
 const { topics, groups, error: courseError } = useCourseState()
-const authenticated = ref(false)
+const {
+  isStudent: authenticated,
+  initialize: initializeAuth,
+  refresh: refreshAuth,
+  clearStudent,
+} = useAuthSession()
 const student = ref(null)
 const group = ref(null)
 const showPasswordForm = ref(false)
@@ -164,7 +170,6 @@ const isTopicTakenByOtherGroup = (topicId) => takenTopicIds.value.has(topicId)
 
 const refreshStudent = async () => {
   const payload = await studentMe()
-  authenticated.value = true
   student.value = payload.student
   group.value = payload.group
 }
@@ -175,6 +180,7 @@ const login = async () => {
   try {
     await studentLogin(loginForm.value.studentNumber, loginForm.value.password)
     loginForm.value.password = ''
+    await refreshAuth()
     await refreshStudent()
     showPasswordForm.value = Boolean(student.value?.mustChangePassword)
   } catch (cause) {
@@ -186,7 +192,7 @@ const login = async () => {
 
 const logout = async () => {
   await studentLogout().catch(() => {})
-  authenticated.value = false
+  clearStudent()
   student.value = null
   group.value = null
   showPasswordForm.value = false
@@ -268,6 +274,8 @@ const setTopic = async (value) => {
 }
 
 onMounted(async () => {
+  await initializeAuth()
+  if (!authenticated.value) return
   try {
     await refreshStudent()
     showPasswordForm.value = Boolean(student.value?.mustChangePassword)

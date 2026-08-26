@@ -30,18 +30,36 @@
             aria-label="关闭网页预览"
             @click="emit('close')"
           >×</button>
+        <a
+          class="external-site-preview-external-link"
+          :href="preview.url"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="在新窗口打开原网页"
+          @click.stop
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M14 4h6v6M20 4l-9 9" />
+            <path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" />
+          </svg>
+        </a>
         <iframe
           class="external-site-preview-modal-frame"
           :src="preview.url"
           :title="`${label} 网站放大预览`"
+          @load="isFrameLoading = false"
         ></iframe>
+        <div v-if="isFrameLoading && preview.cover" class="external-site-preview-loading" role="status" aria-label="网页正在加载" aria-live="polite">
+          <img :src="preview.cover" :alt="`${label} 网站封面`" />
+          <span class="external-site-preview-loading-progress" aria-hidden="true"><span></span></span>
+        </div>
       </div>
     </div>
   </Teleport>
 </template>
 
 <script setup>
-import { onBeforeUnmount, useId, watch } from 'vue'
+import { onBeforeUnmount, ref, useId, watch } from 'vue'
 
 const { label, preview, isOpen } = defineProps({
   label: {
@@ -61,6 +79,7 @@ const { label, preview, isOpen } = defineProps({
 const emit = defineEmits(['open', 'close'])
 
 const previewId = `external-site-preview-${useId()}`
+const isFrameLoading = ref(false)
 
 
 const setPageScrollLock = (locked) => {
@@ -68,6 +87,12 @@ const setPageScrollLock = (locked) => {
 }
 
 watch(() => isOpen, setPageScrollLock, { immediate: true })
+watch(() => isOpen, (open) => {
+  isFrameLoading.value = open
+})
+watch(() => preview.url, () => {
+  if (isOpen) isFrameLoading.value = true
+})
 onBeforeUnmount(() => setPageScrollLock(false))
 </script>
 
@@ -185,6 +210,43 @@ onBeforeUnmount(() => setPageScrollLock(false))
   cursor: pointer;
 }
 
+.external-site-preview-close:hover,
+.external-site-preview-close:focus-visible {
+  color: #fff;
+  background: var(--home-ink, #111);
+}
+
+.external-site-preview-external-link {
+  position: absolute;
+  z-index: 5;
+  top: 2.2rem;
+  right: -2.2rem;
+  display: grid;
+  width: 2.2rem;
+  height: 2.2rem;
+  place-items: center;
+  border: 1px solid var(--home-ink, #111);
+  color: inherit;
+  background: #fff;
+  box-shadow: 0 0.35rem 1rem rgb(0 0 0 / 12%);
+}
+
+.external-site-preview-external-link:hover,
+.external-site-preview-external-link:focus-visible {
+  color: #fff;
+  background: var(--home-ink, #111);
+}
+
+.external-site-preview-external-link svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
 .external-site-preview-modal-frame {
   display: block;
   width: 100%;
@@ -192,6 +254,46 @@ onBeforeUnmount(() => setPageScrollLock(false))
   height: 100%;
   border: 1px solid var(--home-rule, #d6d6d6);
   background: #f4f4f4;
+}
+
+.external-site-preview-loading {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  overflow: hidden;
+  background: #fff;
+}
+
+.external-site-preview-loading img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.external-site-preview-loading-progress {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  height: 2px;
+  overflow: hidden;
+  background: rgb(17 17 17 / 12%);
+}
+
+.external-site-preview-loading-progress span {
+  display: block;
+  width: 32%;
+  height: 100%;
+  background: var(--home-ink, #111111);
+  animation: external-site-preview-loading-progress 1.35s ease-in-out infinite;
+}
+
+@keyframes external-site-preview-loading-progress {
+  0% { transform: translateX(-110%); }
+  55% { transform: translateX(210%); }
+  100% { transform: translateX(310%); }
 }
 
 @media (max-width: 767px) {

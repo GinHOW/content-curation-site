@@ -4,6 +4,10 @@
       <span class="site-nav-en">Home</span>
       <span class="site-nav-zh">首页</span>
     </router-link>
+    <router-link to="/resources" :class="{ 'is-current': isResourceRoute }">
+      <span class="site-nav-en">Resource</span>
+      <span class="site-nav-zh">课程资源</span>
+    </router-link>
     <router-link to="/syllabus" exact-active-class="is-current">
       <span class="site-nav-en site-nav-en-full">Course</span>
       <span class="site-nav-en site-nav-en-short" aria-hidden="true">Course</span>
@@ -17,11 +21,19 @@
   </nav>
 </template>
 
+<script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const isResourceRoute = computed(() => route.path === '/resources' || route.path.startsWith('/resources/'))
+</script>
+
 <style scoped>
 :global(.home-page .site-nav) {
   display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  column-gap: var(--home-column-gap);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: clamp(1rem, 2.5vw, 2.5rem);
   row-gap: 0.4rem;
   align-items: center;
   min-height: 44px;
@@ -47,18 +59,21 @@
 }
 
 :global(.home-page .site-nav a:nth-child(1)) {
-  grid-area: 1 / 1 / 2 / 2;
   justify-self: start;
 }
 
 :global(.home-page .site-nav a:nth-child(2)) {
-  grid-area: 1 / 2 / 2 / 3;
-  justify-self: start;
+  justify-self: center;
 }
 
 :global(.home-page .site-nav a:nth-child(3)) {
-  grid-area: 1 / 2 / 2 / 3;
+  justify-self: center;
+}
+
+:global(.home-page .site-nav a:nth-child(4)) {
   justify-self: end;
+  align-items: flex-end;
+  text-align: right;
 }
 
 :global(.home-page .site-nav-en),
@@ -93,7 +108,7 @@
 
 @media (max-width: 767px) {
   :global(.home-page .site-nav) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0;
     row-gap: 0.45rem;
     width: 100%;
@@ -119,6 +134,12 @@
 
   :global(.home-page .site-nav a:nth-child(3)) {
     grid-area: auto;
+    justify-self: end;
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  :global(.home-page .site-nav a:nth-child(4)) {
     justify-self: end;
     align-items: flex-end;
     text-align: right;

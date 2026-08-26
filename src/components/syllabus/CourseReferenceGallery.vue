@@ -44,10 +44,40 @@
           </svg>
         </button>
         <div v-if="activeReference.url" class="reference-web-frame" @click.stop>
+          <a
+            class="reference-external-link"
+            :href="activeReference.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="在新窗口打开原网页"
+            @click.stop
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14 4h6v6M20 4l-9 9" />
+              <path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" />
+            </svg>
+          </a>
           <iframe
-            :src="activeReference.url"
+            :src="activeReference.embed === false ? 'about:blank' : activeReference.url"
             :title="activeReference.title || `${sessionLabel} 原网页预览`"
+            @load="handleFrameLoad"
           ></iframe>
+          <template v-if="activeReference.embed === false">
+            <div class="reference-static-preview">
+              <img
+                :src="activeReference.src"
+                :alt="activeReference.title || `${sessionLabel} 参考图`"
+                draggable="false"
+              />
+              <span class="reference-static-label">网站不支持内嵌预览</span>
+            </div>
+          </template>
+          <template v-else>
+            <div v-if="isWebLoading" class="reference-web-loading" role="status" aria-label="网页正在加载" aria-live="polite">
+              <img :src="activeReference.src" alt="" draggable="false" />
+              <span class="reference-web-loading-progress" aria-hidden="true"><span></span></span>
+            </div>
+          </template>
         </div>
         <img v-else :src="activeReference.src" alt="" draggable="false" @click.stop />
         <button
@@ -73,6 +103,11 @@ const activeReference = ref(null)
 const activeIndex = ref(-1)
 const previewStyle = ref({})
 const swipeStart = ref(null)
+const isWebLoading = ref(false)
+
+const handleFrameLoad = () => {
+  if (activeReference.value?.embed !== false) isWebLoading.value = false
+}
 
 const showPreview = (reference, event) => {
   const rect = event.currentTarget.getBoundingClientRect()
@@ -84,6 +119,7 @@ const showPreview = (reference, event) => {
     '--preview-origin-y': `${rect.top + rect.height / 2 - viewportHeight / 2}px`,
     '--preview-origin-scale': `${Math.max(0.1, Math.min(0.28, rect.width / (viewportWidth * 0.78)))}`,
   }
+  isWebLoading.value = Boolean(reference.url && reference.embed !== false)
   activeReference.value = reference
 }
 
@@ -95,11 +131,13 @@ const showReference = (index) => {
   if (references.length < 2) return
   const nextIndex = (index + references.length) % references.length
   activeIndex.value = nextIndex
+  isWebLoading.value = Boolean(references[nextIndex].url && references[nextIndex].embed !== false)
   activeReference.value = references[nextIndex]
 }
 const closePreview = () => {
   activeReference.value = null
   activeIndex.value = -1
+  isWebLoading.value = false
 }
 const startSwipe = (event) => {
   const touch = event.touches[0]
@@ -149,6 +187,10 @@ const references = props.references
   transform-origin: center;
   transition: filter 220ms ease, transform 220ms ease;
 }
+.course-reference-gallery figure:hover img,
+.course-reference-gallery figure:focus-visible img {
+  filter: grayscale(0);
+}
 .course-reference-gallery figure:focus-visible {
   outline: 2px solid var(--syllabus-ink, #111111);
   outline-offset: 4px;
@@ -175,11 +217,41 @@ const references = props.references
   box-shadow: 0 1.5rem 3.5rem rgb(0 0 0 / 0.16);
 }
 .reference-web-frame {
+  position: relative;
   width: min(78vw, 72rem);
   height: min(78vh, 48rem);
   border: 1px solid var(--syllabus-ink, #111111);
   background: #fff;
   box-shadow: 0 1.5rem 3.5rem rgb(0 0 0 / 0.16);
+}
+.reference-external-link {
+  position: absolute;
+  z-index: 2;
+  /* 挂在网页框右上角外侧，避免遮挡 iframe 内的网页内容。 */
+  top: -1px;
+  right: -2.25rem;
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border: 1px solid var(--syllabus-ink, #111111);
+  color: var(--syllabus-ink, #111111);
+  background: rgb(255 255 255 / 0.92);
+  box-shadow: 0 0.25rem 0.7rem rgb(0 0 0 / 0.12);
+}
+.reference-external-link:hover,
+.reference-external-link:focus-visible {
+  color: #fff;
+  background: var(--syllabus-ink, #111111);
+}
+.reference-external-link svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
 }
 .reference-web-frame iframe {
   display: block;
@@ -187,8 +259,82 @@ const references = props.references
   height: 100%;
   border: 0;
 }
+.reference-static-preview {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #fff;
+}
+.reference-static-preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border: 0;
+  box-shadow: none;
+  object-fit: contain;
+  filter: none;
+}
+.reference-static-label {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 2;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--syllabus-ink, #111111);
+  color: var(--syllabus-ink, #111111);
+  background: rgb(255 255 255 / 92%);
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+.reference-web-loading {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #fff;
+}
+.reference-web-loading img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border: 0;
+  box-shadow: none;
+  object-fit: contain;
+  filter: none;
+}
+.reference-web-loading-progress {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  height: 2px;
+  overflow: hidden;
+  background: rgb(17 17 17 / 12%);
+}
+.reference-web-loading-progress span {
+  display: block;
+  width: 32%;
+  height: 100%;
+  background: var(--syllabus-ink, #111111);
+  animation: reference-web-loading-progress 1.35s ease-in-out infinite;
+}
+@keyframes reference-web-loading-progress {
+  0% { transform: translateX(-110%); }
+  55% { transform: translateX(210%); }
+  100% { transform: translateX(310%); }
+}
 .reference-nav {
-  display: none;
+  display: inline-flex;
   position: fixed;
   top: 50%;
   z-index: 2;

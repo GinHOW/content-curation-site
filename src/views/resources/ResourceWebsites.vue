@@ -2,11 +2,12 @@
   <ResourceShell
     title="网页"
     eyebrow="03 / Web"
-    intro="从视觉文化、数字女性主义到图形编辑与展览机构，这里收录课程研究中持续访问的网页与在线项目。"
+    intro="从视觉文化与数字媒介案例，到展览工作室和空间项目档案，这里收录课程研究中持续访问的网页与在线项目。"
     :count="filteredResources.length"
     active-section="website"
     :nav-items="resourceNavigationItems"
     :filter-options="filterOptions"
+    :filter-groups="filterGroups"
     surface-color="var(--home-green)"
     muted-color="var(--home-ink)"
     filter-accent="var(--home-ink)"
@@ -50,6 +51,7 @@ const router = useRouter()
 const {
   activeFilter,
   filterOptions,
+  filterGroups,
   filteredItems: filteredResources,
   setFilter,
 } = useResourceFilter({
@@ -58,6 +60,25 @@ const {
   routeName: 'ResourceWebsites',
   items: resourceWebsites,
   getValues: (resource) => resource.tags,
+  getFilterGroups: ({ filterValues }) => [
+    {
+      id: 'type',
+      label: '类型',
+      options: [
+        { value: 'all', label: '全部' },
+        { value: 'case', label: '案例网站' },
+        { value: 'exhibition', label: '展览网站' },
+      ],
+    },
+    {
+      id: 'tag',
+      label: '标签',
+      options: filterValues.map((value) => ({ value, label: value })),
+    },
+  ],
+  filterPredicate: (resource, filter) => ['case', 'exhibition'].includes(filter)
+    ? resource.websiteCategory === filter
+    : resource.tags.includes(filter),
 })
 </script>
 

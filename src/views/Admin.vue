@@ -27,6 +27,8 @@
           <div class="admin-toolbar">
             <span>已登录教师管理</span>
             <div>
+              <router-link class="admin-toolbar-link" to="/manage/resources">资源管理 →</router-link>
+              <router-link class="admin-toolbar-link" to="/manage/media">媒体库 →</router-link>
               <button type="button" @click="refreshData">刷新数据</button>
               <button type="button" @click="logout">退出</button>
             </div>
@@ -387,6 +389,20 @@ onMounted(async () => {
 .admin-toolbar, .admin-block-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; }
 .admin-toolbar { padding: 0.8rem 0; border-top: 1px solid var(--home-rule); border-bottom: 1px solid var(--home-rule); font-size: 0.8rem; }
 .admin-toolbar div { display: flex; gap: 0.4rem; }
+.admin-toolbar-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  color: var(--home-ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.admin-toolbar-link:hover,
+.admin-toolbar-link:focus-visible {
+  color: var(--accent-orange);
+}
 .admin-toolbar button { min-height: 2rem; background: transparent; color: var(--home-ink); }
 .admin-block { margin-top: 3rem; }
 .admin-block-heading { margin-bottom: 1rem; }

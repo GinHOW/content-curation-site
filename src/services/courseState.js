@@ -1,9 +1,10 @@
 async function request(path, options = {}) {
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData
   const response = await fetch(path, {
     credentials: 'same-origin',
     headers: {
       Accept: 'application/json',
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(options.body && !isFormData ? { 'Content-Type': 'application/json' } : {}),
       ...(options.headers || {}),
     },
     ...options,
@@ -21,6 +22,28 @@ async function request(path, options = {}) {
     throw error
   }
   return payload
+}
+
+const resourceFormData = (payload = {}) => {
+  if (typeof FormData === 'undefined') return JSON.stringify(payload)
+  const form = new FormData()
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === undefined || value === null || key === 'tagsText' || key === 'imagePreview' || key === 'imageMeta' || key === 'imageProcessing') continue
+    if (key === 'imageFile') {
+      if (typeof Blob !== 'undefined' && value instanceof Blob) form.append('image', value, value.name || 'resource-image')
+      continue
+    }
+    if (key === 'tags' && Array.isArray(value)) {
+      form.append(key, value.join('，'))
+      continue
+    }
+    if (key === 'isFeatured' || key === 'removeImage') {
+      form.append(key, value ? 'true' : 'false')
+      continue
+    }
+    form.append(key, String(value))
+  }
+  return form
 }
 
 export const getCourseState = () => request('/api/course-state')
@@ -48,3 +71,14 @@ export const studentJoinGroup = (code) => request('/api/student/join-group', { m
 export const studentLeaveGroup = () => request('/api/student/group', { method: 'DELETE' })
 export const studentAssignTopic = (topicId) => request('/api/student/group/topic', { method: 'PUT', body: JSON.stringify({ topicId }) })
 export const studentClearTopic = () => request('/api/student/group/topic', { method: 'DELETE' })
+
+export const getPublishedResources = (type = '') => request(`/api/resources${type ? `?type=${encodeURIComponent(type)}` : ''}`)
+export const getStaticResourceOverrides = () => request('/api/resource-static-overrides')
+export const submitResource = (payload) => request('/api/resource-submissions', { method: 'POST', body: resourceFormData(payload) })
+export const getAdminResources = (status = 'pending') => request(`/api/admin/resource-submissions?status=${encodeURIComponent(status)}`)
+export const createAdminResource = (payload) => request('/api/admin/resource-submissions', { method: 'POST', body: resourceFormData(payload) })
+export const updateAdminResource = (id, payload) => request(`/api/admin/resource-submissions/${encodeURIComponent(id)}`, { method: 'PATCH', body: resourceFormData(payload) })
+export const getAdminStaticResourceOverrides = () => request('/api/admin/resource-static-overrides')
+export const updateAdminStaticResourceOverride = (id, payload) => request(`/api/admin/resource-static-overrides/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(payload) })
+export const getAdminResourceMedia = () => request('/api/admin/resource-media')
+export const deleteAdminResourceMedia = (key) => request(`/api/admin/resource-media?key=${encodeURIComponent(key)}`, { method: 'DELETE' })

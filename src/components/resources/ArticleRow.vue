@@ -2,15 +2,16 @@
   <article class="article-row">
     <span class="article-index">{{ String(index + 1).padStart(2, '0') }}</span>
     <div class="article-copy">
+      <img v-if="article.image" class="article-image" :src="article.image" :alt="article.alt || `${article.title} 封面`" width="960" height="600" loading="lazy" />
       <div class="article-title-line">
         <h3>{{ article.title }}</h3>
         <span v-if="article.titleEn" class="article-title-en">{{ article.titleEn }}</span>
       </div>
       <p class="article-summary">{{ article.summary }}</p>
       <div class="article-meta">
-        <span>{{ article.author }}</span>
-        <span>{{ article.source }}</span>
-        <span>{{ article.year }}</span>
+        <span v-if="article.author">{{ article.author }}</span>
+        <span v-if="article.source">{{ article.source }}</span>
+        <span v-if="article.year">{{ article.year }}</span>
         <slot name="tags">
           <span v-for="tag in article.tags" :key="tag" class="resource-tag">{{ tag }}</span>
         </slot>
@@ -69,6 +70,16 @@ defineProps({
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.7rem 1rem;
+}
+
+.article-image {
+  display: block;
+  width: min(16rem, 100%);
+  aspect-ratio: 16 / 10;
+  margin-bottom: 1rem;
+  object-fit: cover;
+  border: 1px solid var(--resources-rule);
+  background: #f2f2ee;
 }
 
 .article-title-line h3 {

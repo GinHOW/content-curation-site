@@ -1,4 +1,4 @@
-import { computed, watch } from 'vue'
+import { computed, unref, watch } from 'vue'
 
 const firstQueryValue = (value) => (Array.isArray(value) ? value[0] : value)
 
@@ -12,8 +12,9 @@ export function useResourceFilter({
   getFilterGroups,
   filterPredicate,
 }) {
+  const sourceItems = computed(() => unref(items) || [])
   const filterValues = computed(() => [...new Set(
-    items.flatMap((item) => getValues(item)).filter(Boolean),
+    sourceItems.value.flatMap((item) => getValues(item)).filter(Boolean),
   )])
 
   const defaultFilterOptions = computed(() => [
@@ -44,11 +45,11 @@ export function useResourceFilter({
   })
 
   const filteredItems = computed(() => {
-    if (activeFilter.value === 'all') return items
+    if (activeFilter.value === 'all') return sourceItems.value
     if (typeof filterPredicate === 'function') {
-      return items.filter((item) => filterPredicate(item, activeFilter.value))
+      return sourceItems.value.filter((item) => filterPredicate(item, activeFilter.value))
     }
-    return items.filter((item) => getValues(item).includes(activeFilter.value))
+    return sourceItems.value.filter((item) => getValues(item).includes(activeFilter.value))
   })
 
   const cleanQuery = () => {

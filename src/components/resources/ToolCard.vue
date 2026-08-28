@@ -1,7 +1,8 @@
 <template>
   <article class="tool-card">
     <div class="tool-card-frame">
-      <img :src="tool.image" :alt="tool.alt" width="960" height="640" loading="lazy" />
+      <img v-if="tool.image" :src="tool.image" :alt="tool.alt" width="960" height="640" loading="lazy" />
+      <span v-else class="tool-card-placeholder">外部工具链接</span>
     </div>
     <div class="tool-card-copy">
       <div class="tool-card-heading">
@@ -19,7 +20,7 @@
         :download="isExternal(tool.downloadUrl) ? undefined : tool.title"
         :target="isExternal(tool.downloadUrl) ? '_blank' : undefined"
         :rel="isExternal(tool.downloadUrl) ? 'noopener noreferrer' : undefined"
-      >下载 <span aria-hidden="true">↗</span></a>
+      >{{ isExternal(tool.downloadUrl) ? '打开工具链接' : '下载' }} <span aria-hidden="true">↗</span></a>
       <button v-else class="resource-download-button is-disabled" type="button" disabled>待开放</button>
     </div>
   </article>
@@ -56,6 +57,17 @@ const isExternal = (url) => /^https?:\/\//i.test(url)
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.tool-card-placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--resources-muted, var(--home-muted));
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .tool-card-copy {

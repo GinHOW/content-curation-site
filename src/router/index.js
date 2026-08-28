@@ -128,6 +128,18 @@ const routes = [
     meta: { title: '管理员入口 · 内容与策展 2026' },
   },
   {
+    path: '/manage/resources',
+    name: 'ManageResources',
+    component: () => import('../views/ManageResources.vue'),
+    meta: { title: '资源管理 · 内容与策展 2026' },
+  },
+  {
+    path: '/manage/media',
+    name: 'ManageResourceMedia',
+    component: () => import('../views/ManageResourceMedia.vue'),
+    meta: { title: '资源媒体库 · 内容与策展 2026' },
+  },
+  {
     path: '/student',
     name: 'Student',
     component: () => import('../views/Student.vue'),

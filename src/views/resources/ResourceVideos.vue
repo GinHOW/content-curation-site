@@ -42,14 +42,18 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ResourceShell from '../../components/resources/ResourceShell.vue'
 import VideoCard from '../../components/resources/VideoCard.vue'
 import { useResourceFilter } from '../../composables/useResourceFilter.js'
 import { resourceNavigationItems, resourceVideos } from '../../data/resources.js'
+import { usePublishedResources } from '../../composables/usePublishedResources.js'
 
 const route = useRoute()
 const router = useRouter()
+const { initialize: initializePublishedResources, byType } = usePublishedResources()
+const mergedVideos = byType('video', resourceVideos)
 
 const {
   activeFilter,
@@ -61,7 +65,7 @@ const {
   route,
   router,
   routeName: 'ResourceVideos',
-  items: resourceVideos,
+  items: mergedVideos,
   getValues: (video) => video.tags || [],
   getFilterGroups: ({ filterValues }) => [
     {
@@ -83,6 +87,8 @@ const {
     ? video.videoCategory === filter
     : (video.tags && video.tags.includes(filter)),
 })
+
+onMounted(() => initializePublishedResources())
 </script>
 
 <style scoped>

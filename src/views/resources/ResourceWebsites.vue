@@ -39,14 +39,18 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ResourceShell from '../../components/resources/ResourceShell.vue'
 import WebResourceCard from '../../components/resources/WebResourceCard.vue'
 import { useResourceFilter } from '../../composables/useResourceFilter.js'
 import { resourceNavigationItems, resourceWebsites } from '../../data/resources.js'
+import { usePublishedResources } from '../../composables/usePublishedResources.js'
 
 const route = useRoute()
 const router = useRouter()
+const { initialize: initializePublishedResources, byType } = usePublishedResources()
+const mergedWebsites = byType('website', resourceWebsites)
 
 const {
   activeFilter,
@@ -58,7 +62,7 @@ const {
   route,
   router,
   routeName: 'ResourceWebsites',
-  items: resourceWebsites,
+  items: mergedWebsites,
   getValues: (resource) => resource.tags,
   getFilterGroups: ({ filterValues }) => [
     {
@@ -80,6 +84,8 @@ const {
     ? resource.websiteCategory === filter
     : resource.tags.includes(filter),
 })
+
+onMounted(() => initializePublishedResources())
 </script>
 
 <style scoped>

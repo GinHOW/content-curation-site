@@ -45,6 +45,7 @@
         <slot />
       </main>
     </div>
+    <ResourceSubmitButton :default-type="activeSection" />
   </div>
 </template>
 
@@ -53,6 +54,7 @@ import { computed } from 'vue'
 import HomeEdgeNav from '../navigation/HomeEdgeNav.vue'
 import HomeSiteNav from '../navigation/HomeSiteNav.vue'
 import ResourceFilterBar from './ResourceFilterBar.vue'
+import ResourceSubmitButton from './ResourceSubmitButton.vue'
 
 const props = defineProps({
   eyebrow: {
@@ -277,4 +279,9 @@ defineEmits(['filter'])
     margin-top: 0;
   }
 }
+
+:global(html.resource-submit-is-open) {
+  overflow: hidden;
+}
+
 </style>

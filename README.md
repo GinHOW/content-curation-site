@@ -199,9 +199,24 @@ npx wrangler pages dev dist \
   --binding STUDENT_PASSWORD_PEPPER=本地测试密钥
 ```
 
+如果当前机器无法运行 Wrangler 的文件监听，可使用内置轻量模拟服务检查资源管理流程。它会启动一个内存 D1/R2，不会写入线上数据，重启后内容会清空：
+
+```bash
+npm run build
+npm run simulate
+```
+
+然后访问 `http://localhost:8788/manage/resources`，教师口令默认为 `REDACTED`，也可以通过 `ADMIN_PASSWORD` 环境变量覆盖。
+
 ### 4. Git 工作流与持续部署 (CI/CD)
 
 - **分支模型**：`main` 分支对应线上生产。
 - **自动触发**：推送至 GitHub (`git push origin main`) 将自动触发 Cloudflare Pages 流水线进行编译、优化与全球边缘节点部署。
 
+### 5. 资源投稿与图片存储
 
+资源投稿使用 Cloudflare Turnstile。前端构建变量需要设置 `VITE_TURNSTILE_SITE_KEY`，Pages Functions 需要设置 `TURNSTILE_SECRET_KEY`；生产环境建议另设 `SUBMISSION_RATE_LIMIT_SECRET` 作为投稿限流哈希密钥。教师资源管理页可直接录入并上传快照/封面，图片通过 `RESOURCE_IMAGES` R2 绑定保存，当前绑定的 bucket 名称为 `caa`。
+
+上线前请先执行一次 `npm run d1:migrate:remote`，并确认 Cloudflare Pages 项目已绑定同名 R2 bucket。未配置 Turnstile 或 R2 时，静态资源页面仍可浏览，投稿或图片上传会显示对应配置提示。
+
+本地 `npm run simulate` 会在 `localhost:8788` 使用模拟 Turnstile，便于直接检查投稿流程；正式环境仍必须配置真实的 `VITE_TURNSTILE_SITE_KEY` 与 `TURNSTILE_SECRET_KEY`。

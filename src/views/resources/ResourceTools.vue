@@ -30,14 +30,18 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ResourceShell from '../../components/resources/ResourceShell.vue'
 import ToolCard from '../../components/resources/ToolCard.vue'
 import { useResourceFilter } from '../../composables/useResourceFilter.js'
 import { resourceNavigationItems, resourceTools } from '../../data/resources.js'
+import { usePublishedResources } from '../../composables/usePublishedResources.js'
 
 const route = useRoute()
 const router = useRouter()
+const { initialize: initializePublishedResources, byType } = usePublishedResources()
+const mergedTools = byType('tool', resourceTools)
 
 const {
   activeFilter,
@@ -48,9 +52,11 @@ const {
   route,
   router,
   routeName: 'ResourceTools',
-  items: resourceTools,
+  items: mergedTools,
   getValues: (tool) => [tool.format],
 })
+
+onMounted(() => initializePublishedResources())
 </script>
 
 <style scoped>

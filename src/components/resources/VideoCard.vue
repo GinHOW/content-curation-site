@@ -23,8 +23,8 @@
         allowfullscreen="true"
       ></iframe>
       <div v-else class="video-placeholder">
-        <img :src="video.poster" :alt="`${video.title} 海报`" width="960" height="540" loading="lazy" />
-        <span class="video-placeholder-label">视频待补充</span>
+        <img v-if="video.poster" :src="video.poster" :alt="`${video.title} 海报`" width="960" height="540" loading="lazy" />
+        <span class="video-placeholder-label">{{ video.sourceType === 'external-link' ? '外部视频链接' : '视频待补充' }}</span>
       </div>
     </div>
     <div class="video-copy">
@@ -41,7 +41,7 @@
           :href="video.fallbackUrl"
           target="_blank"
           rel="noopener noreferrer"
-        >打开视频 / Bilibili <span aria-hidden="true">↗</span></a>
+        >打开视频链接 <span aria-hidden="true">↗</span></a>
         <span v-else class="resource-text-link is-disabled" aria-disabled="true">备用链接待补充</span>
       </div>
     </div>

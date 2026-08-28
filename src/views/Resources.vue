@@ -112,6 +112,7 @@
         </div>
       </main>
     </div>
+    <ResourceSubmitButton />
   </div>
 </template>
 
@@ -123,6 +124,8 @@ import ArticleRow from '../components/resources/ArticleRow.vue'
 import ToolCard from '../components/resources/ToolCard.vue'
 import VideoCard from '../components/resources/VideoCard.vue'
 import WebResourceCard from '../components/resources/WebResourceCard.vue'
+import ResourceSubmitButton from '../components/resources/ResourceSubmitButton.vue'
+import { usePublishedResources } from '../composables/usePublishedResources.js'
 import {
   getFeaturedResources,
   resourceArticles,
@@ -147,10 +150,15 @@ const sourceTypeLabels = {
 const activeSection = ref('resources-overview')
 let sectionObserver
 
-const featuredArticles = computed(() => getFeaturedResources(resourceArticles))
-const featuredVideos = computed(() => getFeaturedResources(resourceVideos))
-const featuredWebsites = computed(() => getFeaturedResources(resourceWebsites))
-const featuredTools = computed(() => getFeaturedResources(resourceTools))
+const { initialize: initializePublishedResources, byType } = usePublishedResources()
+const mergedArticles = byType('article', resourceArticles)
+const mergedVideos = byType('video', resourceVideos)
+const mergedWebsites = byType('website', resourceWebsites)
+const mergedTools = byType('tool', resourceTools)
+const featuredArticles = computed(() => getFeaturedResources(mergedArticles.value))
+const featuredVideos = computed(() => getFeaturedResources(mergedVideos.value))
+const featuredWebsites = computed(() => getFeaturedResources(mergedWebsites.value))
+const featuredTools = computed(() => getFeaturedResources(mergedTools.value))
 
 const navigateToSection = async (sectionId) => {
   activeSection.value = sectionId
@@ -159,6 +167,7 @@ const navigateToSection = async (sectionId) => {
 }
 
 onMounted(() => {
+  initializePublishedResources()
   const sections = landingNavItems
     .map((item) => document.getElementById(item.id))
     .filter(Boolean)
@@ -275,6 +284,7 @@ onBeforeUnmount(() => {
   display: grid;
   justify-items: end;
   align-self: end;
+  gap: 0.4rem;
 }
 
 .resource-detail-link {
@@ -382,4 +392,5 @@ onBeforeUnmount(() => {
     grid-template-columns: 1fr;
   }
 }
+
 </style>

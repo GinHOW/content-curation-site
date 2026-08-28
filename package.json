@@ -7,11 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "simulate": "node scripts/local-sim-server.mjs",
     "generate:screen-zones": "node scripts/generate-controller-screen-zones.mjs",
     "d1:migrate:local": "npx wrangler d1 migrations apply content-curation-site --local",
     "d1:migrate:remote": "npx wrangler d1 migrations apply content-curation-site --remote"
   },
   "dependencies": {
+    "three": "^0.185.1",
     "vue": "^3.5.39",
     "vue-router": "^4.6.4"
   },

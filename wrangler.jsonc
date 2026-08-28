@@ -10,5 +10,11 @@
       "database_id": "18b18af9-3846-4265-9725-a1c53609d9cd",
       "migrations_dir": "migrations"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "RESOURCE_IMAGES",
+      "bucket_name": "caa"
+    }
   ]
 }

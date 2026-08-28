@@ -152,6 +152,23 @@ export async function requireStudent(request, env, { allowPasswordChange = true 
   return { user, token, tokenHash }
 }
 
+export async function getOptionalStudent(request, env) {
+  if (!env.DB) return null
+  const token = getCookie(request, STUDENT_SESSION_COOKIE)
+  if (!token) return null
+  const tokenHash = await digestHex(token)
+  return env.DB.prepare(`
+    SELECT u.id, u.username, u.display_name AS displayName
+    FROM sessions s
+    JOIN users u ON u.id = s.user_id
+    WHERE s.token_hash = ?
+      AND s.kind = 'student'
+      AND s.expires_at > datetime('now')
+      AND u.role = 'student'
+      AND u.status = 'active'
+  `).bind(tokenHash).first()
+}
+
 export async function readJson(request) {
   try {
     return await request.json()

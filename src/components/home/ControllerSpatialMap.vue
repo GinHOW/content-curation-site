@@ -32,13 +32,39 @@
         />
       </picture>
 
-      <div class="controller-center-screen" @click.stop>
-        <SpatialMap
+      <div
+        class="controller-center-screen"
+        :class="{
+          'is-3d-active': is3DActive,
+          'is-screen-expanded': isScreenExpanded,
+        }"
+        @click.stop
+      >
+        <SpatialModelExplorer
+          v-show="is3DActive"
           :rooms="rooms"
-          :selected-keyword="activeTopic"
+          :view-mode="viewMode"
+          :active-room-id="activeRoomId"
+          :active-keyword="activeKeyword"
+          :mode-notice="modeNotice"
+          :is-expanded="isScreenExpanded"
+          :show-back-button="true"
+          @activate-space="$emit('activate-space', $event)"
+          @request-overview="$emit('clear-space')"
+          @exit-immersive="handleExitImmersive"
+          @pointer-lock-change="$emit('pointer-lock-change', $event)"
+          @toggle-expand="toggleScreenExpand"
+        />
+        <SpatialMap
+          v-show="!is3DActive"
+          :rooms="rooms"
+          :view-mode="viewMode"
+          :active-room-id="activeRoomId"
+          :active-keyword="activeKeyword"
           :topic-colors="topicColors"
           embedded
-          @select-keyword="selectTopicFromMap"
+          @activate-space="selectTopicFromMap"
+          @clear-space="resetFromController"
         />
       </div>
 
@@ -91,6 +117,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import SpatialMap from './SpatialMap.vue'
+import SpatialModelExplorer from '../spatial-model/SpatialModelExplorer.vue'
 import { spatialKeywordColors } from '../../data/home.js'
 import { livingRoomArchive } from '../../data/demoArchive.js'
 import {
@@ -112,6 +139,47 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  viewMode: {
+    type: String,
+    default: 'overview',
+  },
+  activeRoomId: {
+    type: String,
+    default: '',
+  },
+  activeKeyword: {
+    type: String,
+    default: '',
+  },
+  modeNotice: {
+    type: String,
+    default: '',
+  },
+})
+
+const emit = defineEmits([
+  'activate-space',
+  'clear-space',
+  'exit-immersive',
+  'pointer-lock-change',
+])
+
+const is3DActive = computed(() => props.viewMode === 'immersive' || props.viewMode === 'overview')
+const isScreenExpanded = ref(false)
+
+function toggleScreenExpand() {
+  isScreenExpanded.value = !isScreenExpanded.value
+}
+
+function handleExitImmersive(payload) {
+  isScreenExpanded.value = false
+  emit('exit-immersive', payload)
+}
+
+watch(() => props.viewMode, (mode) => {
+  if (mode !== 'immersive' && mode !== 'overview') {
+    isScreenExpanded.value = false
+  }
 })
 
 // The generated zones are calibrated from source-assets/spatial-controller/screens/*.svg.
@@ -163,13 +231,8 @@ onBeforeUnmount(() => {
 })
 
 const keywords = computed(() => props.rooms.flatMap((room) => room.keywords))
-const activeTopic = ref('')
+const activeTopic = computed(() => props.activeKeyword)
 const liveStatus = ref('')
-watch(keywords, (nextKeywords) => {
-  if (!activeTopic.value) {
-    liveStatus.value = `请选择上方选题标签；静默屏幕正在随机显示 ${new Set(nextKeywords).size} 个空间标签。`
-  }
-}, { immediate: true })
 const archiveTitlesByKeyword = {
   客厅: livingRoomArchive.categories.flatMap((category) =>
     category.items.map(([title]) => title),
@@ -254,25 +317,38 @@ function buildScreenSlots(keyword = '') {
 
 const screenSlots = ref(buildScreenSlots())
 
+watch(
+  [() => props.activeKeyword, () => props.viewMode],
+  ([keyword, mode], previous = []) => {
+    const previousKeyword = previous[0]
+    if (keyword !== previousKeyword) screenSlots.value = buildScreenSlots(keyword)
+
+    if (!keyword) {
+      liveStatus.value = `请选择上方选题标签；静默屏幕正在随机显示 ${new Set(keywords.value).size} 个空间标签。`
+      return
+    }
+
+    const room = props.rooms.find((item) => item.id === props.activeRoomId)
+    const roomLabel = room ? `${room.number} / ${room.keywords.join(' · ')}` : keyword
+    if (mode === 'immersive') {
+      liveStatus.value = `${roomLabel} · 沉浸漫游已准备，点击场景开始移动。`
+    } else if (mode === 'section') {
+      liveStatus.value = `${roomLabel} · 已进入剖面，点击同一标签进入沉浸漫游。`
+    }
+  },
+  { immediate: true },
+)
+
 const colorFor = (keyword) => props.topicColors[keyword] || spatialKeywordColors[keyword] || 'var(--home-ink)'
 
 function selectTopic(keyword) {
-  if (activeTopic.value === keyword) {
-    activeTopic.value = ''
-    screenSlots.value = buildScreenSlots()
-    liveStatus.value = `已取消“${keyword}”的选择，静默屏幕已随机恢复空间标签。`
-    return
-  }
-
-  activeTopic.value = keyword
-  screenSlots.value = buildScreenSlots(keyword)
-
-  const imageCount = Math.min(props.imageLibrary[keyword]?.length || 0, screenZones.length)
-  if (imageCount) {
-    liveStatus.value = `“${keyword}”已随机显示 ${imageCount} 张图片，其余 ${screenZones.length - imageCount} 块屏幕以雪花屏补位。`
-  } else {
-    liveStatus.value = `“${keyword}”暂未配置图片，${screenZones.length} 块屏幕已用电视雪花屏占位。`
-  }
+  const room = props.rooms.find((item) => item.keywords.includes(keyword))
+  if (!room) return
+  emit('activate-space', {
+    roomId: room.id,
+    keyword,
+    source: 'controller',
+  })
 }
 
 function isTopicShortcut(slot) {
@@ -283,20 +359,21 @@ function selectTopicFromScreen(slot) {
   if (isTopicShortcut(slot)) selectTopic(slot.label)
 }
 
-function selectTopicFromMap(keyword) {
-  if (!keyword) {
+function selectTopicFromMap(payload) {
+  if (!payload?.keyword) {
     resetFromController()
     return
   }
-  if (keyword !== activeTopic.value) selectTopic(keyword)
+  emit('activate-space', {
+    roomId: payload.roomId,
+    keyword: payload.keyword,
+    force3D: payload.force3D,
+    source: payload.source || 'map',
+  })
 }
 
 function resetFromController() {
-  if (!activeTopic.value) return
-  const previousTopic = activeTopic.value
-  activeTopic.value = ''
-  screenSlots.value = buildScreenSlots()
-  liveStatus.value = `已退出“${previousTopic}”，静默屏幕已随机恢复空间标签。`
+  emit('clear-space')
 }
 
 function handleImageError(screenIndex) {
@@ -424,6 +501,42 @@ function screenContentStyle(screenIndex) {
   height: 29.95%;
   overflow: hidden;
   background: #f8f8f4;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.controller-center-screen.is-3d-active {
+  z-index: 10;
+  background: var(--home-paper);
+}
+
+.controller-center-screen.is-3d-active.is-screen-expanded {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 50;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.controller-center-screen.is-3d-active::before,
+.controller-center-screen.is-3d-active::after {
+  display: none;
+}
+
+.controller-center-screen.is-3d-active :deep(.spatial-model-explorer) {
+  margin-top: 0;
+  height: 100%;
+}
+
+.controller-center-screen.is-3d-active :deep(.spatial-model-header) {
+  display: none;
+}
+
+.controller-center-screen.is-3d-active :deep(.spatial-model-stage-container),
+.controller-center-screen.is-3d-active :deep(.spatial-model-stage) {
+  height: 100%;
+  border: 0;
 }
 
 .controller-center-screen::before {

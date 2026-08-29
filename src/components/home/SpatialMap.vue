@@ -3,7 +3,8 @@
     class="spatial-map-section"
     :class="{
       'is-embedded': embedded,
-      'has-embedded-focus': embedded && selectedRoom,
+      'has-embedded-focus': embedded && props.activeRoomId,
+      [`is-mode-${viewMode}`]: Boolean(viewMode),
     }"
     aria-label="空间原型图"
   >
@@ -41,7 +42,7 @@
             class="spatial-room"
             :class="{
               'is-active': activeRoomId === room.id,
-              'is-selected': selectedRoomId === room.id,
+              'is-selected': activeRoomId === room.id,
               'is-dimmed': Boolean(activeRoomId && activeRoomId !== room.id),
             }"
             :data-room-id="room.id"
@@ -49,12 +50,14 @@
             role="button"
             tabindex="0"
             :aria-label="roomLabel(room)"
-            :aria-pressed="selectedRoomId === room.id"
+            :aria-pressed="activeRoomId === room.id"
+            :aria-selected="activeRoomId === room.id"
+            :aria-expanded="activeRoomId === room.id"
             @mouseenter="hoveredRoomId = room.id"
             @mouseleave="hoveredRoomId = null"
             @focus="focusedRoomId = room.id"
-            @blur="focusedRoomId = null"
             @click.stop="selectRoom(room.id)"
+            @dblclick.stop="handleRoomDblClick(room.id)"
             @keydown.enter.prevent="selectRoom(room.id)"
             @keydown.space.prevent="selectRoom(room.id)"
           >
@@ -96,10 +99,12 @@
           v-for="keyword in keywordList"
           :key="keyword"
           class="spatial-keyword"
-          :class="{ 'is-active': activeRoom?.keywords.includes(keyword) }"
+          :class="{ 'is-active': activeKeyword === keyword }"
           :style="{ '--spatial-keyword-color': keywordColor(keyword) }"
           type="button"
-          :aria-pressed="selectedRoom?.keywords.includes(keyword) ?? false"
+          :aria-pressed="activeKeyword === keyword"
+          :aria-selected="activeKeyword === keyword"
+          :aria-expanded="activeKeyword === keyword && viewMode === 'immersive'"
           @click.stop="selectKeyword(keyword)"
         >
           {{ keyword }}
@@ -111,7 +116,7 @@
     </div>
 
     <DemoArchive
-      v-if="!embedded && selectedRoom?.keywords.includes('客厅')"
+      v-if="!embedded && activeRoom?.keywords.includes('客厅')"
       :archive="livingRoomArchive"
     />
 
@@ -138,7 +143,15 @@ const props = defineProps({
     type: Array,
     required: true,
   },
-  selectedKeyword: {
+  viewMode: {
+    type: String,
+    default: 'overview',
+  },
+  activeRoomId: {
+    type: String,
+    default: '',
+  },
+  activeKeyword: {
     type: String,
     default: '',
   },
@@ -151,12 +164,10 @@ const props = defineProps({
     default: () => ({}),
   },
 })
-const emit = defineEmits(['select-keyword'])
+const emit = defineEmits(['activate-space', 'clear-space'])
 
 const hoveredRoomId = ref(null)
 const focusedRoomId = ref(null)
-const selectedRoomId = ref(null)
-const selectedKeywordValue = ref('')
 
 const MAP_WIDTH = 2900
 const MAP_HEIGHT = 480
@@ -184,7 +195,7 @@ const keywordList = computed(() => [
 ])
 
 const activeRoomId = computed(
-  () => focusedRoomId.value || hoveredRoomId.value || selectedRoomId.value,
+  () => props.activeRoomId || focusedRoomId.value || hoveredRoomId.value,
 )
 
 const activeRoom = computed(() =>
@@ -192,7 +203,7 @@ const activeRoom = computed(() =>
 )
 
 const selectedRoom = computed(() =>
-  props.rooms.find((room) => room.id === selectedRoomId.value),
+  props.rooms.find((room) => room.id === props.activeRoomId),
 )
 
 const mapViewBox = computed(() => {
@@ -225,69 +236,69 @@ const mapViewBox = computed(() => {
   return `${x} ${y} ${viewWidth} ${viewHeight}`
 })
 
-watch(
-  () => props.selectedKeyword,
-  (keyword) => {
-    selectedKeywordValue.value = keyword
-    if (!keyword) {
-      selectedRoomId.value = null
-      return
-    }
-    const room = props.rooms.find((item) => item.keywords.includes(keyword))
-    if (room) selectedRoomId.value = room.id
-  },
-)
-
 const keywordColor = (keyword) =>
   props.topicColors[keyword] || spatialKeywordColors[keyword] || 'var(--home-orange)'
 
 const roomColor = (room) => {
-  const matchingKeyword = room.keywords.includes(selectedKeywordValue.value)
-    ? selectedKeywordValue.value
+  const matchingKeyword = room.keywords.includes(props.activeKeyword)
+    ? props.activeKeyword
     : room.keywords[0]
   return keywordColor(matchingKeyword)
 }
 
-const roomLabel = (room) =>
-  `空间 ${room.number}：${room.keywords.join('、')}`
+const roomLabel = (room) => {
+  if (props.activeRoomId === room.id) {
+    return `空间 ${room.number}：${room.keywords.join('、')}（已选中，再次点击进入 3D 场景）`
+  }
+  return `空间 ${room.number}：${room.keywords.join('、')}`
+}
 
 const clearSelection = () => {
-  selectedRoomId.value = null
+  emit('clear-space')
 }
 
 const handleMapClick = (event) => {
   if (event.target?.closest?.('.spatial-room')) return
   clearSelection()
-  selectedKeywordValue.value = ''
-  if (props.embedded) emit('select-keyword', '')
 }
 
 const selectRoom = (id) => {
   const room = props.rooms.find((item) => item.id === id)
   if (!room) return
 
-  if (selectedRoomId.value === id) {
-    selectedRoomId.value = null
-    selectedKeywordValue.value = ''
-    if (props.embedded) emit('select-keyword', '')
-    return
-  }
+  const keyword = room.keywords.includes(props.activeKeyword)
+    ? props.activeKeyword
+    : room.keywords[0]
+  emit('activate-space', {
+    roomId: id,
+    keyword,
+    source: 'map-room',
+  })
+}
 
-  selectedRoomId.value = id
-  if (!room.keywords.includes(selectedKeywordValue.value)) {
-    selectedKeywordValue.value = room.keywords[0]
-  }
-  if (props.embedded) emit('select-keyword', selectedKeywordValue.value)
+const handleRoomDblClick = (id) => {
+  const room = props.rooms.find((item) => item.id === id)
+  if (!room) return
+
+  const keyword = room.keywords.includes(props.activeKeyword)
+    ? props.activeKeyword
+    : room.keywords[0]
+  emit('activate-space', {
+    roomId: id,
+    keyword,
+    force3D: true,
+    source: 'map-room-dblclick',
+  })
 }
 
 const selectKeyword = (keyword) => {
   const room = props.rooms.find((item) => item.keywords.includes(keyword))
   if (!room) return
-  const isSameRoom = selectedRoomId.value === room.id
-  const isSameKeyword = selectedKeywordValue.value === keyword
-  selectedKeywordValue.value = keyword
-  if (isSameRoom && !isSameKeyword) return
-  selectRoom(room.id)
+  emit('activate-space', {
+    roomId: room.id,
+    keyword,
+    source: 'map-keyword',
+  })
 }
 </script>
 

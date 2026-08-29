@@ -30,16 +30,99 @@
     <template v-else>
       <ControllerSpatialMap
         :rooms="rooms"
+        :view-mode="viewMode"
+        :active-room-id="activeRoomId"
+        :active-keyword="activeKeyword"
         :topic-colors="topicColors"
         :image-library="spatialTopicImages"
+        :mode-notice="modeNotice"
+        @activate-space="activateSpace"
+        @clear-space="clearSpace"
+        @exit-immersive="exitImmersive"
+        @pointer-lock-change="handlePointerLockChange"
       />
     </template>
   </section>
 </template>
 
 <script setup>
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import ControllerSpatialMap from './ControllerSpatialMap.vue'
 import { spatialTopicImages } from '../../data/spatialTopicImages.js'
+
+const viewMode = ref('section')
+const activeRoomId = ref('')
+const activeKeyword = ref('')
+const pointerLocked = ref(false)
+const modeNotice = ref('')
+
+let mobileQuery
+let mobileQueryHandler
+
+function isMobileViewport() {
+  return mobileQuery?.matches ?? false
+}
+
+function activateSpace(payload) {
+  const roomId = payload?.roomId
+  const keyword = payload?.keyword
+  if (!roomId || !keyword) return
+
+  const sameSpace = activeRoomId.value === roomId
+  const direct3D = Boolean(payload?.force3D || sameSpace)
+  activeRoomId.value = roomId
+  activeKeyword.value = keyword
+  modeNotice.value = ''
+
+  // 如果已经处于 3D 漫游状态，只需同步空间机位
+  if (viewMode.value === 'immersive') {
+    return
+  }
+
+  // 再次点击同一空间 或 双击空间：直接切入 3D 室内沉浸透视漫游
+  if (direct3D) {
+    if (isMobileViewport()) {
+      modeNotice.value = '沉浸漫游仅在桌面端开放，当前保持剖面浏览。'
+      return
+    }
+    viewMode.value = 'immersive'
+    return
+  }
+}
+
+function clearSpace() {
+  viewMode.value = 'section'
+  activeRoomId.value = ''
+  activeKeyword.value = ''
+  pointerLocked.value = false
+  modeNotice.value = ''
+}
+
+function exitImmersive(payload = {}) {
+  viewMode.value = 'section'
+  pointerLocked.value = false
+  if (payload.reason === 'mobile') {
+    modeNotice.value = '沉浸漫游仅在桌面端开放，当前保持剖面浏览。'
+  } else if (payload.reason === 'escape') {
+    modeNotice.value = '已退出三维视图，当前回到空间剖面。'
+  }
+}
+
+function handlePointerLockChange(isLocked) {
+  pointerLocked.value = isLocked
+}
+
+onMounted(() => {
+  mobileQuery = window.matchMedia('(max-width: 767px)')
+  mobileQueryHandler = () => {
+    if (mobileQuery.matches && viewMode.value === 'immersive') exitImmersive({ reason: 'mobile' })
+  }
+  mobileQuery.addEventListener?.('change', mobileQueryHandler)
+})
+
+onBeforeUnmount(() => {
+  mobileQuery?.removeEventListener?.('change', mobileQueryHandler)
+})
 
 defineProps({
   rooms: { type: Array, default: () => [] },

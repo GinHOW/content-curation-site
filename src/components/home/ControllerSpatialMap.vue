@@ -49,6 +49,7 @@
           :mode-notice="modeNotice"
           :is-expanded="isScreenExpanded"
           :show-back-button="true"
+          embedded
           @activate-space="$emit('activate-space', $event)"
           @request-overview="$emit('clear-space')"
           @exit-immersive="handleExitImmersive"

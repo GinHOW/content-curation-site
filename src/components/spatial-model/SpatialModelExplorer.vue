@@ -19,8 +19,9 @@
         <!-- 3D 视口内置 HUD 图标工具栏（微型紧凑版） -->
         <!-- 1. 右上角：竖排功能工具栏 -->
         <nav class="hud-top-right-vertical" aria-label="3D 视图工具栏" @click.stop>
-          <!-- 空间目录按钮（全功能开放） -->
+          <!-- 空间目录按钮（内嵌未放大时隐藏） -->
           <button
+            v-if="showAdvancedTools"
             type="button"
             class="hud-icon-btn hud-btn-spaces has-tooltip tooltip-left"
             :class="{ 'is-active': spacesDrawerOpen }"
@@ -103,8 +104,9 @@
             </svg>
           </button>
 
-          <!-- 图层控制（全功能开放） -->
+          <!-- 图层控制（内嵌未放大时隐藏） -->
           <button
+            v-if="showAdvancedTools"
             type="button"
             class="hud-icon-btn has-tooltip tooltip-left"
             :class="{ 'is-active': layersPanelOpen }"
@@ -120,9 +122,9 @@
             </svg>
           </button>
 
-          <!-- 机位标定（透视漫游下开放） -->
+          <!-- 机位标定（内嵌未放大时隐藏） -->
           <button
-            v-if="internal3DMode === 'immersive'"
+            v-if="showAdvancedTools && internal3DMode === 'immersive'"
             type="button"
             class="hud-icon-btn has-tooltip tooltip-left"
             :class="{ 'is-active': calibrationOpen }"
@@ -211,9 +213,9 @@
           </button>
         </div>
 
-        <!-- 浮层组件：空间清单抽屉（全场景开放） -->
+        <!-- 浮层组件：空间清单抽屉（放大或独立组件模式下可用） -->
         <SpatialModelSpacesDrawer
-          v-if="spacesDrawerOpen"
+          v-if="spacesDrawerOpen && showAdvancedTools"
           :rooms="rooms"
           :active-room-id="effectiveActiveRoomId"
           :active-keyword="effectiveActiveKeyword"
@@ -222,9 +224,9 @@
           @request-overview="requestOverview"
         />
 
-        <!-- 浮层组件：图层调试面板（Rhino父子层级，全场景开放） -->
+        <!-- 浮层组件：图层调试面板（Rhino父子层级，放大或独立组件模式下可用） -->
         <SpatialModelLayerDebug
-          v-if="layersPanelOpen"
+          v-if="layersPanelOpen && showAdvancedTools"
           :groups="debugLayerGroups"
           :visibility-map="debugLayerVisibility"
           @close="layersPanelOpen = false"
@@ -232,9 +234,9 @@
           @reset="resetDebugLayerVisibility"
         />
 
-        <!-- 浮层组件：镜头机位标定面板（全场景开放） -->
+        <!-- 浮层组件：镜头机位标定面板（放大或独立组件模式下可用） -->
         <SpatialModelCalibration
-          v-if="calibrationOpen"
+          v-if="calibrationOpen && showAdvancedTools"
           :active-room-id="effectiveActiveRoomId"
           :selected-room="selectedRoom"
           :calibration-fov="calibrationFov"
@@ -324,6 +326,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  embedded: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits([
@@ -352,6 +358,20 @@ let mobileQueryHandler = null
 const isExpandedState = computed(() => Boolean(props.isExpanded || localExpanded.value))
 const effectiveActiveRoomId = computed(() => props.activeRoomId || localActiveRoomId.value)
 const effectiveActiveKeyword = computed(() => props.activeKeyword || localActiveKeyword.value)
+
+// 内嵌在中央监视器模式下仅在放大时展示空间目录、图层、镜头参数按钮；独立使用时全功能展示
+const showAdvancedTools = computed(() => {
+  if (!props.embedded) return true
+  return isExpandedState.value
+})
+
+watch(showAdvancedTools, (allowed) => {
+  if (!allowed) {
+    spacesDrawerOpen.value = false
+    layersPanelOpen.value = false
+    calibrationOpen.value = false
+  }
+})
 
 function toggleExpandState() {
   localExpanded.value = !localExpanded.value

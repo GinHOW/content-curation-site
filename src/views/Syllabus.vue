@@ -163,7 +163,7 @@
                       </td>
                       <td data-label="教学方式" class="session-method">{{ session.method }}</td>
                     </tr>
-                    <tr v-if="week.week === 'W1' && session.number === '01'" v-show="!isSessionCollapsed(week.week, session)" class="topic-matcher-row">
+                    <tr v-if="week.week === 'W1' && session.number === '01' && !isSessionCollapsed(week.week, session)" class="topic-matcher-row">
                       <td colspan="6" class="topic-matcher-cell">
                         <TopicMatcher
                           :topics="topics"
@@ -174,9 +174,30 @@
                         />
                       </td>
                     </tr>
-                    <tr v-if="week.week === 'W1' && session.number === '02'" v-show="!isSessionCollapsed(week.week, session)" class="archive-demo-row">
+                    <tr v-if="week.week === 'W1' && session.number === '02' && !isSessionCollapsed(week.week, session)" class="archive-demo-row">
                       <td colspan="6" class="archive-demo-cell">
                         <LivingRoomArchive />
+                      </td>
+                    </tr>
+                    <tr v-if="week.week === 'W3' && session.number === '+' && !isSessionCollapsed(week.week, session)" class="spatial-model-syllabus-row">
+                      <td colspan="6" class="spatial-model-syllabus-cell">
+                        <section class="spatial-model-syllabus-card" aria-labelledby="spatial-model-syllabus-title">
+                          <header class="spatial-model-syllabus-header">
+                            <div>
+                              <p class="panel-label">场地模型 / SITE 3D MODEL</p>
+                              <h3 id="spatial-model-syllabus-title">空间勘探与展位规划</h3>
+                            </div>
+                            <div class="spatial-model-syllabus-header-actions">
+                              <p class="spatial-model-syllabus-hint">支持等角轴测、室内透视漫游与图层层级控制；按 F 键可全屏沉浸浏览。</p>
+                            </div>
+                          </header>
+                          <div class="spatial-model-syllabus-viewport">
+                            <SpatialModelExplorer
+                              :rooms="rooms"
+                              view-mode="overview"
+                            />
+                          </div>
+                        </section>
                       </td>
                     </tr>
                   </template>
@@ -196,19 +217,22 @@
 </template>
 
 <script setup>
-import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import HomeEdgeNav from '../components/navigation/HomeEdgeNav.vue'
 import HomeSiteNav from '../components/navigation/HomeSiteNav.vue'
 import BackToTop from '../components/common/BackToTop.vue'
 import CourseReferenceGallery from '../components/syllabus/CourseReferenceGallery.vue'
-import TopicMatcher from '../components/syllabus/TopicMatcher.vue'
-import LivingRoomArchive from '../components/syllabus/LivingRoomArchive.vue'
 import StudentEntryLink from '../components/syllabus/StudentEntryLink.vue'
 import ProtectedResourceLink from '../components/syllabus/ProtectedResourceLink.vue'
 import { useAuthSession } from '../composables/useAuthSession.js'
 import { useHomeSections } from '../composables/useHomeSections.js'
 import { useCourseState } from '../composables/useCourseState.js'
 import { assessmentItems, syllabusWeeks } from '../data/syllabusSchedule.js'
+
+// 异步按需加载大纲下挂的重型交互组件，避免阻塞大纲首屏打开
+const TopicMatcher = defineAsyncComponent(() => import('../components/syllabus/TopicMatcher.vue'))
+const LivingRoomArchive = defineAsyncComponent(() => import('../components/syllabus/LivingRoomArchive.vue'))
+const SpatialModelExplorer = defineAsyncComponent(() => import('../components/spatial-model/SpatialModelExplorer.vue'))
 
 const { ready: authReady, authenticated } = useAuthSession()
 
@@ -293,7 +317,7 @@ const syllabusNavItems = [
 const { activeSection, navigateTo } = useHomeSections(
   syllabusNavItems.map((item) => item.id),
 )
-const { topics, groups, loading, error } = useCourseState()
+const { rooms, topics, groups, loading, error } = useCourseState()
 </script>
 
 <style scoped>
@@ -575,9 +599,76 @@ const { topics, groups, loading, error } = useCourseState()
   border: 0;
 }
 
-.syllabus-page :is(a, button):focus-visible { outline: 2px solid var(--syllabus-ink); outline-offset: 3px; }
 .assessment-list a { color: inherit; text-decoration: none; text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
 .assessment-list a:hover { text-decoration: underline; }
+
+/* 第三周 W3+ 空间三维视口卡片（对齐 TopicMatcher 卡片视觉规范） */
+.spatial-model-syllabus-row {
+  background: transparent;
+}
+
+.spatial-model-syllabus-cell {
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+.spatial-model-syllabus-card {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  border: 1px solid color-mix(in srgb, var(--week-color) 66%, #ffffff);
+  background: color-mix(in srgb, var(--week-color) 8%, #ffffff);
+}
+
+.spatial-model-syllabus-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 2rem;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.spatial-model-syllabus-card .panel-label {
+  margin: 0;
+  color: var(--syllabus-muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.spatial-model-syllabus-card h3 {
+  margin: 0.35rem 0 0;
+  font-size: 1.2rem;
+  line-height: 1.2;
+  color: var(--syllabus-ink);
+}
+
+.spatial-model-syllabus-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: flex-end;
+  gap: 0.75rem 1rem;
+}
+
+.spatial-model-syllabus-hint {
+  max-width: 28rem;
+  margin: 0;
+  color: var(--syllabus-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.spatial-model-syllabus-viewport {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  min-height: 440px;
+  background: #f1efe9;
+  border: 1px solid color-mix(in srgb, var(--week-color) 45%, #ffffff);
+  overflow: hidden;
+}
 @media (max-width: 1023px) {
   .syllabus-main > .site-nav { margin-inline: clamp(3.5rem, 4vw, 4.5rem); }
   .schedule-heading { padding-top: 3rem; }
@@ -665,6 +756,8 @@ const { topics, groups, loading, error } = useCourseState()
   .schedule-table .topic-matcher-cell::before { content: none; }
   .schedule-table .archive-demo-cell { display: block; padding: 0; border: 0; }
   .schedule-table .archive-demo-cell::before { content: none; }
+  .schedule-table .spatial-model-syllabus-cell { display: block; padding: 0; border: 0; }
+  .schedule-table .spatial-model-syllabus-cell::before { content: none; }
   .schedule-table td::before { content: attr(data-label); color: var(--syllabus-muted); font-size: 0.68rem; font-weight: 500; line-height: 1.4; letter-spacing: 0.05em; }
   .schedule-table .session-number { font-size: 1.4rem; }
   .session-method { font-size: 0.85rem !important; }

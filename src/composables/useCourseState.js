@@ -3,13 +3,14 @@ import { getCourseState } from '../services/courseState.js'
 import { getLocalCourseState } from '../data/localCourseState.js'
 
 export function useCourseState({ immediate = true } = {}) {
-  const rooms = ref([])
-  const topics = ref([])
-  const groups = ref([])
+  const initialData = getLocalCourseState()
+  const rooms = ref(initialData.rooms || [])
+  const topics = ref(initialData.topics || [])
+  const groups = ref(initialData.groups || [])
   const loading = ref(false)
   const error = ref('')
-  const loaded = ref(false)
-  const isLocalFallback = ref(false)
+  const loaded = ref(true)
+  const isLocalFallback = ref(true)
 
   const topicColors = computed(() => Object.fromEntries(
     topics.value.filter((topic) => topic.colorToken).map((topic) => [topic.label, topic.colorToken]),

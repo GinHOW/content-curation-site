@@ -11,4 +11,22 @@ export default defineConfig({
   preview: {
     host: true,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('three')) {
+              return 'vendor-three'
+            }
+            if (id.includes('vue') || id.includes('vue-router') || id.includes('@vue')) {
+              return 'vendor-vue'
+            }
+            return 'vendor-misc'
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+  },
 })

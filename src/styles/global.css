@@ -45,8 +45,8 @@ html.preview-is-open body {
   --color-yellow: #efe373;
   --color-green: #2faf87;
   --color-magenta: #de67b5;
-  --font-heavy: "AlibabaPuHuiTi-3", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-body: "AlibabaPuHuiTi-3", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-heavy: "AlibabaPuHuiTi-3", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif;
+  --font-body: "AlibabaPuHuiTi-3", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif;
   --space: clamp(1.5rem, 4vw, 3rem);
   --max-w: 1200px;
 

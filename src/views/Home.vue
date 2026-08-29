@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import {
   courseCycle,
   homeNavItems,
@@ -47,6 +47,7 @@ import {
 import { useHomeSections } from '../composables/useHomeSections.js'
 import { useCourseState } from '../composables/useCourseState.js'
 import { buildCourseEvents } from '../utils/buildCourseEvents.js'
+import { prefetchCoreRoutes } from '../utils/prefetch.js'
 import HomeEdgeNav from '../components/navigation/HomeEdgeNav.vue'
 import OverviewSection from '../components/home/OverviewSection.vue'
 import RetrospectiveSection from '../components/home/RetrospectiveSection.vue'
@@ -66,6 +67,10 @@ const closeExhibition = () => { activeExhibition.value = null }
 const startDate = new Date(2026, 8, 7)
 const courseStartDate = '2026/09/07'
 const courseEvents = computed(() => buildCourseEvents(2026))
+
+onMounted(() => {
+  prefetchCoreRoutes()
+})
 </script>
 
 <style>

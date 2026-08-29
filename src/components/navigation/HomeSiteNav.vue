@@ -4,16 +4,31 @@
       <span class="site-nav-en">Home</span>
       <span class="site-nav-zh">首页</span>
     </router-link>
-    <router-link to="/resources" :class="{ 'is-current': isResourceRoute }">
+    <router-link
+      to="/resources"
+      :class="{ 'is-current': isResourceRoute }"
+      @mouseenter="handlePrefetch('Resources')"
+      @touchstart.passive="handlePrefetch('Resources')"
+    >
       <span class="site-nav-en">Resource</span>
       <span class="site-nav-zh">课程资源</span>
     </router-link>
-    <router-link to="/syllabus" exact-active-class="is-current">
+    <router-link
+      to="/syllabus"
+      exact-active-class="is-current"
+      @mouseenter="handlePrefetch('Syllabus')"
+      @touchstart.passive="handlePrefetch('Syllabus')"
+    >
       <span class="site-nav-en site-nav-en-full">Course</span>
       <span class="site-nav-en site-nav-en-short" aria-hidden="true">Course</span>
       <span class="site-nav-zh">课程详细</span>
     </router-link>
-    <router-link to="/works" exact-active-class="is-current">
+    <router-link
+      to="/works"
+      exact-active-class="is-current"
+      @mouseenter="handlePrefetch('Works')"
+      @touchstart.passive="handlePrefetch('Works')"
+    >
       <span class="site-nav-en site-nav-en-full">Works</span>
       <span class="site-nav-en site-nav-en-short" aria-hidden="true">Works</span>
       <span class="site-nav-zh">成果展示</span>
@@ -24,9 +39,14 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { prefetchRoute } from '../../utils/prefetch.js'
 
 const route = useRoute()
 const isResourceRoute = computed(() => route.path === '/resources' || route.path.startsWith('/resources/'))
+
+const handlePrefetch = (name) => {
+  prefetchRoute(name)
+}
 </script>
 
 <style scoped>

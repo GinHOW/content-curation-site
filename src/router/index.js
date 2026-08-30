@@ -161,4 +161,32 @@ router.afterEach((to) => {
   }
 })
 
+// 处理部署发版后旧动态 chunk 丢失（Failed to fetch dynamically imported module）导致的路由跳转卡住
+router.onError((error, to) => {
+  const message = error?.message || ''
+  const isChunkLoadFailed =
+    message.includes('Failed to fetch dynamically imported module') ||
+    message.includes('error loading dynamically imported module') ||
+    message.includes('Importing a module script failed') ||
+    message.includes('Unable to preload CSS') ||
+    error?.name === 'ChunkLoadError'
+
+  if (isChunkLoadFailed) {
+    const targetPath = to?.fullPath || window.location.pathname
+    const reloadKey = `chunk_reload_${targetPath}`
+    const lastReload = sessionStorage.getItem(reloadKey)
+    const now = Date.now()
+
+    // 10 秒内只允许一次自动重载，避免完全离线时陷入死循环
+    if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+      sessionStorage.setItem(reloadKey, String(now))
+      window.location.assign(targetPath)
+      return
+    }
+  }
+
+  console.error('Router navigation error:', error)
+})
+
 export default router
+

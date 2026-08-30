@@ -9,7 +9,7 @@ export const homeNavItems = [
 export const teachingTeam = [
   {
     role: '授课导师',
-    names: [{ label: 'A班｜刘益红 · 顾文浩' }, { label: 'B班｜顾文佳 · 任越' }],
+    names: [{ label: 'A班｜刘益红 · 顾文浩' }, { label: 'B班｜顾文佳 · 任　越' }],
   },
   {
     role: '课程联合',
@@ -18,7 +18,9 @@ export const teachingTeam = [
 
   {
     role: '课程助理',
-    names: [{ label: '贾晓旭 · 华宏梁 · 左佑 · 王岚 · 周黄宇 · 方钰杭' }],
+    names: [
+      { label: '贾晓旭 · 华宏梁 · 左佑 · 王岚 · 周黄宇 · 方钰杭' },
+    ],
   },
   {
     role: '课程支持',

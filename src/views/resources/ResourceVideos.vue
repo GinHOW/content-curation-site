@@ -74,7 +74,7 @@ const {
       options: [
         { value: 'all', label: '全部' },
         { value: 'ai-coding', label: 'AI Coding' },
-        { value: 'course', label: '课程示范' },
+        { value: 'course', label: '课程讲座' },
       ],
     },
     {

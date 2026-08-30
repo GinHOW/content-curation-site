@@ -70,8 +70,9 @@ const {
       label: '类型',
       options: [
         { value: 'all', label: '全部' },
-        { value: 'case', label: '案例网站' },
+        { value: 'case', label: '网站案例' },
         { value: 'exhibition', label: '展览网站' },
+        { value: 'news', label: '资讯网站' },
       ],
     },
     {
@@ -80,7 +81,7 @@ const {
       options: filterValues.map((value) => ({ value, label: value })),
     },
   ],
-  filterPredicate: (resource, filter) => ['case', 'exhibition'].includes(filter)
+  filterPredicate: (resource, filter) => ['case', 'exhibition', 'news'].includes(filter)
     ? resource.websiteCategory === filter
     : resource.tags.includes(filter),
 })

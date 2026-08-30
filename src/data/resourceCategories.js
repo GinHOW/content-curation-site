@@ -5,11 +5,12 @@ export const resourceCategoryOptions = {
   ],
   video: [
     { value: 'ai-coding', label: 'AI Coding' },
-    { value: 'course', label: '课程示范' },
+    { value: 'course', label: '课程讲座' },
   ],
   website: [
-    { value: 'case', label: '案例网站' },
+    { value: 'case', label: '网站案例' },
     { value: 'exhibition', label: '展览网站' },
+    { value: 'news', label: '资讯网站' },
   ],
   tool: [
     { value: 'skill', label: '技能文件' },

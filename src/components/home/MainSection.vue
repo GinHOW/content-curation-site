@@ -68,8 +68,9 @@ function activateSpace(payload) {
   const keyword = payload?.keyword
   if (!roomId || !keyword) return
 
-  const sameSpace = activeRoomId.value === roomId
-  const direct3D = Boolean(payload?.force3D || sameSpace)
+  // 只有再次点击完全相同的标签，或者显式指定 force3D（如双击房间）时，才直接切入 3D 漫游
+  const isSameTarget = activeRoomId.value === roomId && activeKeyword.value === keyword
+  const direct3D = Boolean(payload?.force3D || isSameTarget)
   activeRoomId.value = roomId
   activeKeyword.value = keyword
   modeNotice.value = ''
@@ -79,7 +80,7 @@ function activateSpace(payload) {
     return
   }
 
-  // 再次点击同一空间 或 双击空间：直接切入 3D 室内沉浸透视漫游
+  // 再次点击同一标签 或 双击空间：直接切入 3D 室内沉浸透视漫游
   if (direct3D) {
     if (isMobileViewport()) {
       modeNotice.value = '沉浸漫游仅在桌面端开放，当前保持剖面浏览。'

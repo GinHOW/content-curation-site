@@ -8,7 +8,7 @@ export const resourceCategoryOptions = {
     { value: 'course', label: '课程讲座' },
   ],
   website: [
-    { value: 'case', label: '网站案例' },
+    { value: 'case', label: '案例网站' },
     { value: 'exhibition', label: '展览网站' },
     { value: 'news', label: '资讯网站' },
   ],
@@ -19,4 +19,3 @@ export const resourceCategoryOptions = {
 }
 
 export const getResourceCategoryOptions = (type) => resourceCategoryOptions[type] || []
-

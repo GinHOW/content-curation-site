@@ -70,4 +70,7 @@ export const spatialTopicImages = {
     { src: '/assets/spatial/topics/monitor-room/monitor-32.webp', alt: '雷达站——看不见世界的监控室' },
   ],
   隧道: [],
+  码头: [],
+  影院: [],
+  工厂: [],
 }

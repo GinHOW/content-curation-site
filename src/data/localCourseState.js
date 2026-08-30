@@ -6,7 +6,7 @@ const topicDefinitions = [
   ['隧道', 'room2'],
   ['桌面', 'room3'],
   ['暗房', 'room4'],
-  ['蓄水池', 'room5'],
+  ['蓄水池', 'room3'],
   ['田', 'room6'],
   ['黄页', 'room7'],
   ['晒场', 'room8'],
@@ -15,6 +15,9 @@ const topicDefinitions = [
   ['谷仓', 'room11'],
   ['楼梯间', 'room11'],
   ['监控室', 'room12'],
+  ['码头', 'room1'],
+  ['影院', 'room2'],
+  ['工厂', 'room3'],
 ]
 
 const roomKeywords = topicDefinitions.reduce((map, [label, roomId]) => {

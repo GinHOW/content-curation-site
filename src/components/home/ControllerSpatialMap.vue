@@ -12,7 +12,7 @@
           :aria-label="`${activeTopic === keyword ? '取消显示' : '显示'}${keyword}的图片`"
           @click.stop="selectTopic(keyword)"
         >
-          <span>{{ keyword }}</span>
+          <span>{{ keyword.length === 2 ? `${keyword[0]}　${keyword[1]}` : keyword }}</span>
         </button>
       </div>
     </section>
@@ -711,9 +711,8 @@ function screenContentStyle(screenIndex) {
 
 .controller-topic-grid {
   display: grid;
-  grid-template-columns: repeat(14, minmax(0, 1fr));
-  border-top: 1px solid var(--home-rule);
-  border-left: 1px solid var(--home-rule);
+  grid-template-columns: repeat(17, minmax(0, 1fr));
+  gap: clamp(0.35rem, 0.8vw, 0.7rem);
 }
 
 .controller-topic-grid button {
@@ -721,12 +720,14 @@ function screenContentStyle(screenIndex) {
   display: flex;
   align-items: center;
   justify-content: center;
+  justify-self: center;
   min-width: 0;
-  min-height: clamp(4.5rem, 8vw, 7rem);
+  width: clamp(2.8rem, 3.8vw, 3.5rem);
+  max-width: calc(100% - 0.25rem);
+  min-height: clamp(4.25rem, 7.2vw, 6.5rem);
   padding: 0.65rem 0.3rem;
-  border: 0;
-  border-right: 1px solid var(--home-rule);
-  border-bottom: 1px solid var(--home-rule);
+  border: 1px solid var(--home-rule);
+  border-radius: 999px;
   color: var(--topic-color);
   background: var(--home-paper);
   font: inherit;
@@ -735,16 +736,6 @@ function screenContentStyle(screenIndex) {
   line-height: 1;
   cursor: pointer;
   transition: color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
-}
-
-.controller-topic-grid button::before {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: 4px;
-  background: var(--topic-color);
-  content: '';
 }
 
 .controller-topic-grid button span {
@@ -829,7 +820,7 @@ function screenContentStyle(screenIndex) {
     grid-template-columns: repeat(5, minmax(0, 1fr));
     width: 100%;
     min-width: 0;
-    border-right: 1px solid var(--home-rule);
+    gap: 0.45rem;
   }
 
   .controller-topic-library {
@@ -843,18 +834,12 @@ function screenContentStyle(screenIndex) {
 
   .controller-topic-grid button {
     min-width: 0;
+    width: 100%;
+    justify-self: stretch;
     justify-content: center;
     min-height: 3.25rem;
     padding: 0.7rem 0.4rem;
     font-size: 0.86rem;
-  }
-
-  .controller-topic-grid button::before {
-    top: 0;
-    right: auto;
-    bottom: 0;
-    width: 4px;
-    height: auto;
   }
 
   .controller-topic-grid button span {

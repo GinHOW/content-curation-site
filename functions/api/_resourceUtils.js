@@ -76,7 +76,7 @@ export function validateResourcePayload(body, { allowStatus = false } = {}) {
 
   if (!type) return { error: error('请选择资源类型', 400) }
   if (rawCategory && !category) return { error: error('资源分类无效', 400) }
-  if (allowStatus && type === 'website' && !category) return { error: error('请选择网页分类：网站案例、展览网站或资讯网站', 400) }
+  if (allowStatus && type === 'website' && !category) return { error: error('请选择网页分类：案例网站、展览网站或资讯网站', 400) }
   if (!title || title.length > 120) return { error: error('标题需要为 1–120 个字符', 400) }
   if (!normalizedUrl) return { error: error('请输入有效的 HTTP 或 HTTPS 链接', 400) }
   if (!overview || overview.length > 600) return { error: error('内容概述需要为 1–600 个字符', 400) }

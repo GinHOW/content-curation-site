@@ -87,4 +87,7 @@ export const spatialKeywordColors = {
   楼梯间: 'var(--home-spot-12)',
   监控室: 'var(--home-spot-13)',
   隧道: 'var(--home-spot-14)',
+  码头: 'var(--home-spot-15)',
+  影院: 'var(--home-spot-16)',
+  工厂: 'var(--home-spot-17)',
 }

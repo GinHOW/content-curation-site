@@ -70,7 +70,7 @@ const {
       label: '类型',
       options: [
         { value: 'all', label: '全部' },
-        { value: 'case', label: '网站案例' },
+        { value: 'case', label: '案例网站' },
         { value: 'exhibition', label: '展览网站' },
         { value: 'news', label: '资讯网站' },
       ],

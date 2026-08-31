@@ -1,5 +1,5 @@
-// 展览数据，来源于 course-gifs/index.json + 微信文章
-export const exhibitions = [
+// 2025 年作品详情，来源于 course-gifs/index.json + 微信文章
+export const works2025 = [
   {
     id: "jiejie",
     name: "结结结结",

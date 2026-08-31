@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(scriptDirectory, '..')
 const screenDirectory = path.join(projectRoot, 'source-assets/spatial-controller/screens')
-const outputFile = path.join(projectRoot, 'src/data/controllerScreenZones.js')
+const outputFile = path.join(projectRoot, 'src/data/spatial/controllerScreenZones.js')
 
 // screen-main.svg and the individual screen SVGs share the same Illustrator
 // coordinate system, but their exported artboard is translated. Calibrate that

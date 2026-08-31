@@ -72,24 +72,3 @@ export const gradingPalette = [
 ]
 
 export const methodSteps = ['选题', '建库', '结构', '网站', '展具', '视觉', '事件', '商业']
-
-// 18 个专色为选题库预留；词条名称与颜色一一对应，后续替换词条时只需更新这里。
-export const spatialKeywordColors = {
-  桌面: 'var(--home-spot-01)',
-  橱窗: 'var(--home-spot-02)',
-  客厅: 'var(--home-spot-03)',
-  暗房: 'var(--home-spot-04)',
-  蓄水池: 'var(--home-spot-05)',
-  黄页: 'var(--home-spot-06)',
-  田: 'var(--home-spot-07)',
-  晒场: 'var(--home-spot-08)',
-  阳台: 'var(--home-spot-09)',
-  宴席: 'var(--home-spot-10)',
-  谷仓: 'var(--home-spot-11)',
-  楼梯间: 'var(--home-spot-12)',
-  监控室: 'var(--home-spot-13)',
-  隧道: 'var(--home-spot-14)',
-  码头: 'var(--home-spot-15)',
-  影院: 'var(--home-spot-16)',
-  工厂: 'var(--home-spot-17)',
-}

@@ -1,7 +1,7 @@
 // 每个选题可填写任意数量的本地图片。
 // 支持字符串路径，或 { src: '/路径/图片.jpg', alt: '图片说明' }。
 // 组件每次会随机抽取最多 7 张；不足 7 张的屏幕自动用电视雪花屏补齐。
-export const spatialTopicImages = {
+export const topicImages = {
   桌面: [],
   橱窗: [],
   客厅: [

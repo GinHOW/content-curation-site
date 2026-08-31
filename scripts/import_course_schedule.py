@@ -5,7 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / 'outputs/01a009c5/内容与策展_课程进度表 2.1.csv'
-TARGET = Path(__file__).resolve().parents[1] / 'src/data/course_schedule.json'
+TARGET = Path(__file__).resolve().parents[1] / 'src/data/course/schedule.json'
 
 def split_points(value):
     points = []

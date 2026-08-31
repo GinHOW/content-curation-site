@@ -1,16 +1,16 @@
 <template>
   <section class="gallery-panel">
     <img
-      v-if="exhibition"
-      :src="`${assetsBase}/course-gifs/${exhibition.images[currentImage].filename}`"
-      :alt="exhibition.name"
+      v-if="work"
+      :src="`${assetsBase}/course-gifs/${work.images[currentImage].filename}`"
+      :alt="work.name"
       class="gallery-img"
       decoding="async"
     />
 
     <!-- 左右箭头 -->
     <button
-      v-if="exhibition && exhibition.images.length > 1"
+      v-if="work && work.images.length > 1"
       class="nav-arrow nav-arrow--left"
       @click="$emit('prev')"
       aria-label="上一张"
@@ -20,7 +20,7 @@
       </svg>
     </button>
     <button
-      v-if="exhibition && exhibition.images.length > 1"
+      v-if="work && work.images.length > 1"
       class="nav-arrow nav-arrow--right"
       @click="$emit('next')"
       aria-label="下一张"
@@ -32,17 +32,17 @@
 
     <!-- 图片计数 -->
     <span
-      v-if="exhibition && exhibition.images.length > 1"
+      v-if="work && work.images.length > 1"
       class="image-counter"
     >
-      {{ currentImage + 1 }} / {{ exhibition.images.length }}
+      {{ currentImage + 1 }} / {{ work.images.length }}
     </span>
   </section>
 </template>
 
 <script setup>
 defineProps({
-  exhibition: {
+  work: {
     type: Object,
     default: null,
   },

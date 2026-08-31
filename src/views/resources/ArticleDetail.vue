@@ -186,7 +186,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { resourceArticles } from '../../data/resources.js'
+import { resourceArticles } from '../../data/resources/index.js'
 
 const props = defineProps({
   id: {
@@ -213,21 +213,93 @@ const currentSectionLabel = computed(() => {
   return currentLang.value === 'zh' ? currentSec.label : currentSec.title
 })
 
+const linkPreviews = {
+  'pudding.cool': {
+    image: 'https://pudding.cool/common/assets/social/og-facebook.jpg',
+    alt: 'The Pudding 网站预览',
+  },
+}
+
+const getLinkPreview = (url) => {
+  try {
+    const hostname = new URL(url).hostname.replace(/^www\./, '')
+    return linkPreviews[hostname]
+  } catch {
+    return null
+  }
+}
+
+const getVideoEmbed = (url) => {
+  try {
+    const parsed = new URL(url)
+    const hostname = parsed.hostname.replace(/^www\./, '')
+    let youtubeId = ''
+
+    if (hostname === 'youtu.be') youtubeId = parsed.pathname.slice(1)
+    if (hostname === 'youtube.com' || hostname === 'm.youtube.com') {
+      youtubeId = parsed.searchParams.get('v') || parsed.pathname.match(/^\/(?:shorts|embed)\/([^/?]+)/)?.[1] || ''
+    }
+    if (youtubeId) {
+      return {
+        platform: 'YouTube',
+        src: `https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=0`,
+      }
+    }
+
+    if (hostname === 'bilibili.com' || hostname === 'm.bilibili.com') {
+      const bvid = parsed.pathname.match(/\/video\/(BV[\w-]+)/i)?.[1]
+      if (bvid) {
+        return {
+          platform: 'Bilibili',
+          src: `https://player.bilibili.com/player.html?bvid=${bvid}&page=1&high_quality=1&danmaku=0&autoplay=0`,
+        }
+      }
+    }
+  } catch {
+    return null
+  }
+  return null
+}
+
+const renderVideoCard = (url, title) => {
+  const video = getVideoEmbed(url)
+  if (!video) return ''
+  return `<section class="article-video-card">
+    <div class="article-video-frame">
+      <iframe src="${video.src}" title="${title} · ${video.platform} 视频播放器" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+    <a href="${url}" target="_blank" rel="noopener noreferrer" class="article-video-link"><span>视频</span><strong>${title}</strong><span aria-hidden="true">↗</span></a>
+  </section>`
+}
+
+const getSectionSlug = (title) => {
+  const cleanTitle = title.trim()
+  const matched = metadata.value.sections?.find(
+    (section) => cleanTitle.includes(section.label) || section.label.includes(cleanTitle) || cleanTitle.toLowerCase().includes(section.title.toLowerCase())
+  )
+  if (matched) return matched.id
+  if (cleanTitle.includes('注释') || cleanTitle.includes('笔记') || cleanTitle.toUpperCase().includes('NOTES')) return 'notes'
+  return cleanTitle.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]+/g, '-')
+}
+
 // 解析 Markdown 并修正相对图片路径与注脚
 const renderMarkdown = (md, articleId) => {
   if (!md) return ''
 
   let text = md
 
+  // 隐藏尚未配置站内跳转地址的 Obsidian 双方括号引用，避免将占位文本显示给读者。
+  text = text.replace(/^\s*\[\[[^\]\n]+\]\]\s*$/gm, '')
+
   // 0. 清理正文开头重复的章节号、一级大标题与作者行（这些已经在 article-head 中规范渲染）
   text = text.replace(/^(?:CHAPTER\s+\d+|第[一二三四五六七八九十\d]+章)\s*\n+/i, '')
-  text = text.replace(/^#\s+[^\n]+\n+/m, '')
+  text = text.replace(/^#\s+[^\n]+\n+/, '')
   text = text.replace(/^(?:\*\*[^\n]+\*\*|\*[^\n]+\*|[A-Z\s]{4,}|(?:作者|Author)[：:][^\n]*)\s*\n+/im, '')
   text = text.replace(/^(?:\*\*[^\n]+\*\*|\*[^\n]+\*)\s*\n+/m, '')
 
   // 1. 识别并转换外部资源与代码库链接为精致的链接卡片网格
   text = text.replace(
-    /(?:(?:网站链接|官网链接|主站链接|GitHub\s*仓库链接|Github\s*链接|开源仓库|参考链接|在线链接)[：:]\s*https?:\/\/[^\s\n]+\s*)+/gi,
+    /(?:(?:网站链接|官网链接|主站链接|GitHub\s*仓库链接|Github\s*链接|开源仓库|参考链接|在线链接|视频链接|YouTube|Bilibili|哔哩哔哩)[：:]\s*https?:\/\/[^\s\n]+\s*)+/gi,
     (match) => {
       const lines = match.trim().split('\n')
       const cardsHtml = lines
@@ -239,14 +311,26 @@ const renderMarkdown = (md, articleId) => {
           const isGithub = url.includes('github.com') || rawLabel.toLowerCase().includes('github')
           const badge = isGithub ? 'GITHUB' : 'WEBSITE'
           const title = isGithub ? 'GitHub 源码仓库' : (rawLabel.includes('网站') || rawLabel.includes('官网') ? '官方主站' : rawLabel)
+          const video = getVideoEmbed(url)
+          if (video) {
+            return renderVideoCard(url, title)
+          }
 
-          return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="article-link-card-item">
-            <div class="link-card-top">
-              <span class="link-card-tag ${isGithub ? 'tag-github' : 'tag-web'}">${badge}</span>
-              <span class="link-card-arrow" aria-hidden="true">↗</span>
+          const preview = getLinkPreview(url)
+          const previewHtml = preview
+            ? `<figure class="link-card-preview"><img src="${preview.image}" alt="${preview.alt}" loading="lazy" referrerpolicy="no-referrer" /></figure>`
+            : ''
+
+          return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="article-link-card-item${preview ? ' has-preview' : ''}">
+            ${previewHtml}
+            <div class="link-card-content">
+              <div class="link-card-top">
+                <span class="link-card-tag ${isGithub ? 'tag-github' : 'tag-web'}">${badge}</span>
+                <span class="link-card-arrow" aria-hidden="true">↗</span>
+              </div>
+              <div class="link-card-title">${title}</div>
+              <div class="link-card-url">${url.replace(/^https?:\/\//, '')}</div>
             </div>
-            <div class="link-card-title">${title}</div>
-            <div class="link-card-url">${url.replace(/^https?:\/\//, '')}</div>
           </a>`
         })
         .filter(Boolean)
@@ -255,6 +339,17 @@ const renderMarkdown = (md, articleId) => {
       return `<div class="article-link-cards-grid">${cardsHtml}</div>\n\n`
     }
   )
+
+  // 1.5 识别单独一行的 YouTube / Bilibili 地址，无须额外添加“视频链接”标签
+  text = text.replace(/^https?:\/\/[^\s\n]+$/gm, (url) => {
+    const video = getVideoEmbed(url)
+    return video ? renderVideoCard(url, `${video.platform} 视频`) : url
+  })
+
+  // 1.6 识别 Markdown 格式的视频链接，例如：[课程视频](https://www.youtube.com/watch?v=...)
+  text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (match, label, url) => {
+    return getVideoEmbed(url) ? renderVideoCard(url, label) : match
+  })
 
   // 2. 替换相对图片路径：images/xxx.jpg -> /articles/:id/images/xxx.jpg
   let html = text.replace(
@@ -268,25 +363,7 @@ const renderMarkdown = (md, articleId) => {
   // 3. 转换二级标题为带有 ID 的 H2 锚点
   html = html.replace(/^##\s+(.+)$/gm, (match, title) => {
     const cleanTitle = title.trim()
-    let slug = ''
-
-    // 优先从 metadata sections 中精准匹配 ID
-    if (metadata.value.sections) {
-      const matched = metadata.value.sections.find(
-        (s) => cleanTitle.includes(s.label) || s.label.includes(cleanTitle) || cleanTitle.toLowerCase().includes(s.title.toLowerCase())
-      )
-      if (matched) slug = matched.id
-    }
-
-    if (!slug) {
-      if (cleanTitle.includes('注释') || cleanTitle.includes('笔记') || cleanTitle.toUpperCase().includes('NOTES')) {
-        slug = 'notes'
-      } else {
-        slug = cleanTitle.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]+/g, '-')
-      }
-    }
-
-    return `<h2 id="${slug}" class="section-heading">${cleanTitle}</h2>`
+    return `<h2 id="${getSectionSlug(cleanTitle)}" class="section-heading">${cleanTitle}</h2>`
   })
 
   // 3. 处理脚标 (Footnotes): 提取尾注内容以支持悬停预览 (Popover)
@@ -336,17 +413,41 @@ const renderMarkdown = (md, articleId) => {
   })
 
   // 5. 转换一级标题与三级标题
-  html = html.replace(/^#\s+(.+)$/gm, '<h1 class="article-title-internal">$1</h1>')
+  html = html.replace(/^#\s+(.+)$/gm, (match, title) => `<h1 id="${getSectionSlug(title)}" class="article-title-internal section-heading">${title}</h1>`)
   html = html.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>')
 
-  // 6. 行内格式解析：粗体、斜体、链接、代码
+  // 6. 将 Obsidian 风格的提示块与常规列表转换为语义化内容块
+  html = html.replace(/^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING)\]\s*([^\n]*)\n((?:>[^\n]*(?:\n|$))*)/gm, (match, kind, title, body) => {
+    const lines = body
+      .trim()
+      .split('\n')
+      .map((line) => line.replace(/^>\s?/, '').trim())
+      .filter(Boolean)
+    const hasOrderedItems = lines.length > 0 && lines.every((line) => /^\d+[.)]\s+/.test(line))
+    const content = hasOrderedItems
+      ? `<ol>${lines.map((line) => `<li>${line.replace(/^\d+[.)]\s+/, '')}</li>`).join('')}</ol>`
+      : `<p>${lines.join(' ')}</p>`
+    return `<aside class="article-callout article-callout-${kind.toLowerCase()}"><div class="article-callout-label">${title || kind}</div>${content}</aside>`
+  })
+
+  html = html.replace(/(?:^\d+[.)]\s+.+(?:\n|$))+/gm, (match) => {
+    const items = match.trim().split('\n').map((line) => line.replace(/^\d+[.)]\s+/, ''))
+    return `<ol>${items.map((item) => `<li>${item}</li>`).join('')}</ol>`
+  })
+
+  html = html.replace(/(?:^[-*+]\s+.+(?:\n|$))+/gm, (match) => {
+    const items = match.trim().split('\n').map((line) => line.replace(/^[-*+]\s+/, ''))
+    return `<ul>${items.map((item) => `<li>${item}</li>`).join('')}</ul>`
+  })
+
+  // 7. 行内格式解析：粗体、斜体、链接、代码
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
   html = html.replace(/__([^_]+)__/g, '<strong>$1</strong>')
   html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>')
   html = html.replace(/_([^_]+)_/g, '<em>$1</em>')
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
 
-  // 7. 处理段落与换行
+  // 8. 处理段落与换行
   const paragraphs = html.split(/\n\n+/)
   html = paragraphs
     .map((p) => {
@@ -356,6 +457,8 @@ const renderMarkdown = (md, articleId) => {
         trimmed.startsWith('<h') ||
         trimmed.startsWith('<figure') ||
         trimmed.startsWith('<div') ||
+        trimmed.startsWith('<aside') ||
+        trimmed.startsWith('<section') ||
         trimmed.startsWith('<pre') ||
         trimmed.startsWith('<ul') ||
         trimmed.startsWith('<ol')
@@ -737,8 +840,11 @@ onUnmounted(() => {
 
 /* 2. 中间：正文主列 */
 .reader-content-col {
-  max-width: 46rem;
-  margin: 0 auto;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .article-chapter {
@@ -800,6 +906,15 @@ onUnmounted(() => {
   text-align: justify;
 }
 
+:deep(.article-markdown-body .article-title-internal) {
+  margin: 4rem 0 1.6rem;
+  padding-top: 1.4rem;
+  border-top: 2px solid var(--home-ink, #111111);
+  color: var(--home-ink, #111111);
+  font-size: clamp(1.55rem, 3vw, 2rem);
+  line-height: 1.3;
+}
+
 :deep(.article-markdown-body h2.section-heading) {
   margin-top: 3.5rem;
   margin-bottom: 1.5rem;
@@ -817,6 +932,37 @@ onUnmounted(() => {
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--home-ink, #111111);
+}
+
+:deep(.article-markdown-body ol),
+:deep(.article-markdown-body ul) {
+  margin: 0 0 1.8rem;
+  padding-left: 1.5rem;
+}
+
+:deep(.article-markdown-body li + li) {
+  margin-top: 0.45rem;
+}
+
+:deep(.article-callout) {
+  margin: 1.8rem 0 2.5rem;
+  padding: 1.15rem 1.3rem;
+  border: 1px solid #bfd9f5;
+  border-left: 4px solid var(--home-blue, #1976d2);
+  background: #f4f9ff;
+}
+
+:deep(.article-callout-label) {
+  margin-bottom: 0.6rem;
+  color: var(--home-ink, #111111);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+:deep(.article-callout ol),
+:deep(.article-callout ul),
+:deep(.article-callout p) {
+  margin: 0;
 }
 
 :deep(.article-code-block) {
@@ -977,10 +1123,10 @@ onUnmounted(() => {
 :deep(.article-link-card-item) {
   display: flex;
   flex-direction: column;
-  padding: 1rem 1.2rem;
   border: 1px solid var(--resources-rule, #d7d7d1);
   background-color: #fafaf9;
   text-decoration: none;
+  overflow: hidden;
   transition: all 0.18s ease;
 }
 
@@ -995,6 +1141,31 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.5rem;
+}
+
+:deep(.link-card-content) {
+  padding: 0.75rem 1rem;
+}
+
+:deep(.link-card-preview) {
+  width: 100%;
+  height: 9rem;
+  margin: 0;
+  overflow: hidden;
+  border-bottom: 1px solid var(--resources-rule, #d7d7d1);
+  background: #eef2f5;
+}
+
+:deep(.link-card-preview img) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+:deep(.article-link-card-item:hover .link-card-preview img) {
+  transform: scale(1.025);
 }
 
 :deep(.link-card-tag) {
@@ -1040,6 +1211,60 @@ onUnmounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+:deep(.article-video-card) {
+  grid-column: 1 / -1;
+  margin: 1.8rem 0 2.5rem;
+  border: 1px solid var(--resources-rule, #d7d7d1);
+  background: #fafaf9;
+  overflow: hidden;
+}
+
+:deep(.article-video-frame) {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #111111;
+}
+
+:deep(.article-video-frame iframe) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+:deep(.article-video-link) {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.8rem;
+  color: var(--home-ink, #111111);
+  text-decoration: none;
+}
+
+:deep(.article-video-link span:first-child) {
+  padding: 0.12rem 0.36rem;
+  border: 1px solid currentColor;
+  color: var(--home-blue, #1976d2);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+:deep(.article-video-link strong) {
+  overflow: hidden;
+  font-size: 0.84rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:deep(.article-video-link:hover) {
+  background: #ffffff;
 }
 
 /* 5. 右侧：元数据与档案下载 */

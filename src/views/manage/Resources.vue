@@ -72,12 +72,11 @@
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
-import HomeSiteNav from '../components/navigation/HomeSiteNav.vue'
-import { getResourceCategoryOptions } from '../data/resourceCategories.js'
-import { resourceArticles, resourceTools, resourceVideos, resourceWebsites } from '../data/resources.js'
-import { useAuthSession } from '../composables/useAuthSession.js'
-import { adminLogin, adminLogout, createAdminResource, getAdminResources, getAdminStaticResourceOverrides, updateAdminResource, updateAdminStaticResourceOverride } from '../services/courseState.js'
-import { compressResourceImage, formatImageBytes, RESOURCE_IMAGE_MAX_RAW_BYTES } from '../utils/compressResourceImage.js'
+import HomeSiteNav from '../../components/navigation/HomeSiteNav.vue'
+import { getResourceCategoryOptions, resourceArticles, resourceTools, resourceVideos, resourceWebsites } from '../../data/resources/index.js'
+import { useAuthSession } from '../../composables/useAuthSession.js'
+import { adminLogin, adminLogout, createAdminResource, getAdminResources, getAdminStaticResourceOverrides, updateAdminResource, updateAdminStaticResourceOverride } from '../../services/courseState.js'
+import { compressResourceImage, formatImageBytes, RESOURCE_IMAGE_MAX_RAW_BYTES } from '../../utils/compressResourceImage.js'
 
 const typeOptions = [{ value: 'article', label: '文章' }, { value: 'video', label: '视频' }, { value: 'website', label: '网页' }, { value: 'tool', label: '工具' }]
 const categoryOptionsFor = (type) => getResourceCategoryOptions(type)

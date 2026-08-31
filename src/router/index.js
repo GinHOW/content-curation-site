@@ -115,34 +115,27 @@ const routes = [
     meta: { title: '学生作品 · 内容与策展 2026' },
   },
   {
-    path: '/works/:id',
-    name: 'WorkDetail',
-    component: () => import('../views/WorkDetail.vue'),
-    props: true,
-    meta: { title: '作品详情 · 内容与策展 2026' },
-  },
-  {
     path: '/manage',
     name: 'Admin',
-    component: () => import('../views/Admin.vue'),
+    component: () => import('../views/manage/Dashboard.vue'),
     meta: { title: '管理员入口 · 内容与策展 2026' },
   },
   {
     path: '/manage/resources',
     name: 'ManageResources',
-    component: () => import('../views/ManageResources.vue'),
+    component: () => import('../views/manage/Resources.vue'),
     meta: { title: '资源管理 · 内容与策展 2026' },
   },
   {
     path: '/manage/media',
     name: 'ManageResourceMedia',
-    component: () => import('../views/ManageResourceMedia.vue'),
+    component: () => import('../views/manage/ResourceMedia.vue'),
     meta: { title: '资源媒体库 · 内容与策展 2026' },
   },
   {
     path: '/student',
     name: 'Student',
-    component: () => import('../views/Student.vue'),
+    component: () => import('../views/student/Portal.vue'),
     meta: { title: '学生入口 · 内容与策展 2026' },
   },
 ]
@@ -189,4 +182,3 @@ router.onError((error, to) => {
 })
 
 export default router
-

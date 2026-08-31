@@ -51,7 +51,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { livingRoomArchive as archive } from '../../data/demoArchive.js'
+import { livingRoomArchive as archive } from '../../data/topics/livingRoomArchive.js'
 
 const isCollapsed = ref(false)
 </script>

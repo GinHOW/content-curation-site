@@ -132,7 +132,7 @@ import {
   resourceWebsites,
   resourceTools,
   resourceVideos,
-} from '../data/resources.js'
+} from '../data/resources/index.js'
 
 const landingNavItems = [
   { id: 'resources-overview', label: '总览' },

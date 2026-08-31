@@ -48,7 +48,7 @@ import { useRoute, useRouter } from 'vue-router'
 import ArticleRow from '../../components/resources/ArticleRow.vue'
 import ResourceShell from '../../components/resources/ResourceShell.vue'
 import { useResourceFilter } from '../../composables/useResourceFilter.js'
-import { resourceArticles, resourceNavigationItems } from '../../data/resources.js'
+import { resourceArticles, resourceNavigationItems } from '../../data/resources/index.js'
 import { usePublishedResources } from '../../composables/usePublishedResources.js'
 
 const route = useRoute()

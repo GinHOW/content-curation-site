@@ -35,7 +35,7 @@ import { useRoute, useRouter } from 'vue-router'
 import ResourceShell from '../../components/resources/ResourceShell.vue'
 import ToolCard from '../../components/resources/ToolCard.vue'
 import { useResourceFilter } from '../../composables/useResourceFilter.js'
-import { resourceNavigationItems, resourceTools } from '../../data/resources.js'
+import { resourceNavigationItems, resourceTools } from '../../data/resources/index.js'
 import { usePublishedResources } from '../../composables/usePublishedResources.js'
 
 const route = useRoute()

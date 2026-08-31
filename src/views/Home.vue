@@ -11,7 +11,7 @@
 
       <div id="main-content" class="home-main">
         <OverviewSection :team="teachingTeam" :meta="overviewMeta" />
-        <RetrospectiveSection @open-exhibition="openExhibition" />
+        <RetrospectiveSection @open-work="openWork" />
         <MainSection
           :rooms="rooms"
           :topic-colors="topicColors"
@@ -30,9 +30,9 @@
     </div>
   </div>
 
-  <ExhibitionDetail
-    :exhibition-id="activeExhibition"
-    @close="closeExhibition"
+  <WorkDetailModal
+    :work-id="activeWorkId"
+    @close="closeWork"
   />
 </template>
 
@@ -43,7 +43,7 @@ import {
   homeNavItems,
   overviewMeta,
   teachingTeam,
-} from '../data/home.js'
+} from '../data/course/overview.js'
 import { useHomeSections } from '../composables/useHomeSections.js'
 import { useCourseState } from '../composables/useCourseState.js'
 import { buildCourseEvents } from '../utils/buildCourseEvents.js'
@@ -54,15 +54,15 @@ import RetrospectiveSection from '../components/home/RetrospectiveSection.vue'
 import MainSection from '../components/home/MainSection.vue'
 import RulesSection from '../components/home/RulesSection.vue'
 import CalendarSection from '../components/home/CalendarSection.vue'
-import ExhibitionDetail from '../components/exhibition/ExhibitionDetail.vue'
+import WorkDetailModal from '../components/works/WorkDetailModal.vue'
 
 const sectionIds = homeNavItems.map((item) => item.id)
 const { activeSection, navigateTo } = useHomeSections(sectionIds)
 const { rooms, topicColors, loading, error, refresh } = useCourseState()
 
-const activeExhibition = ref(null)
-const openExhibition = (id) => { activeExhibition.value = id }
-const closeExhibition = () => { activeExhibition.value = null }
+const activeWorkId = ref(null)
+const openWork = (id) => { activeWorkId.value = id }
+const closeWork = () => { activeWorkId.value = null }
 
 const startDate = new Date(2026, 8, 7)
 const courseStartDate = '2026/09/07'

@@ -18,10 +18,10 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import HomeSiteNav from '../components/navigation/HomeSiteNav.vue'
-import { useAuthSession } from '../composables/useAuthSession.js'
-import { adminLogin, adminLogout, deleteAdminResourceMedia, getAdminResourceMedia } from '../services/courseState.js'
-import { formatImageBytes } from '../utils/compressResourceImage.js'
+import HomeSiteNav from '../../components/navigation/HomeSiteNav.vue'
+import { useAuthSession } from '../../composables/useAuthSession.js'
+import { adminLogin, adminLogout, deleteAdminResourceMedia, getAdminResourceMedia } from '../../services/courseState.js'
+import { formatImageBytes } from '../../utils/compressResourceImage.js'
 
 const filterOptions = [{ value: 'all', label: '全部' }, { value: 'linked', label: '已关联' }, { value: 'orphan', label: '孤儿对象' }]
 const typeLabels = { article: '文章', video: '视频', website: '网页', tool: '工具' }

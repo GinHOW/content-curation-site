@@ -227,7 +227,7 @@ import ProtectedResourceLink from '../components/syllabus/ProtectedResourceLink.
 import { useAuthSession } from '../composables/useAuthSession.js'
 import { useHomeSections } from '../composables/useHomeSections.js'
 import { useCourseState } from '../composables/useCourseState.js'
-import { assessmentItems, syllabusWeeks } from '../data/syllabusSchedule.js'
+import { assessmentItems, syllabusWeeks } from '../data/course/syllabus.js'
 
 // 异步按需加载大纲下挂的重型交互组件，避免阻塞大纲首屏打开
 const TopicMatcher = defineAsyncComponent(() => import('../components/syllabus/TopicMatcher.vue'))

@@ -6,7 +6,7 @@
       <HomeSiteNav />
 
       <header class="works-intro">
-        <p class="works-eyebrow">Selected Outcomes · Course Archive</p>
+        <p class="works-eyebrow">Selected Works · Course Archive</p>
         <div class="works-intro-grid">
           <h1>成果<br />展示</h1>
           <div class="works-intro-copy">
@@ -19,15 +19,15 @@
       <section id="works-archive" class="works-archive" aria-labelledby="works-archive-title">
         <div class="archive-heading">
           <div>
-            <p class="archive-kicker">Course outcomes / by year</p>
+            <p class="archive-kicker">Course works / by year</p>
             <h2 id="works-archive-title">项目目录</h2>
           </div>
-          <p class="archive-count" aria-live="polite">{{ outcomes.length }} 项</p>
+          <p class="archive-count" aria-live="polite">{{ works.length }} 项</p>
         </div>
 
         <div class="year-tabs" role="tablist" aria-label="选择成果年份">
           <button
-            v-for="year in outcomeYears"
+            v-for="year in workYears"
             :id="`year-tab-${year.id}`"
             :key="year.id"
             class="year-tab"
@@ -49,46 +49,45 @@
           role="tabpanel"
           :aria-labelledby="`year-tab-${activeYear}`"
         >
-          <div v-if="outcomes.length" class="archive-strip">
+          <div v-if="works.length" class="archive-strip">
             <article
-              v-for="(outcome, index) in outcomes"
-              :key="`${activeYear}-${outcome.id}`"
+              v-for="(work, index) in works"
+              :key="`${activeYear}-${work.id}`"
               class="archive-item"
               :class="{ 'is-active': activeIndex === index }"
             >
-              <component
-                :is="outcome.detailType === 'work' ? RouterLink : 'button'"
-                v-bind="outcome.detailType === 'work' ? { to: `/works/${outcome.id}` } : { type: 'button' }"
+              <button
+                type="button"
                 class="archive-item-control"
-                :aria-label="`查看 ${outcome.title}：${outcome.authors.join('、') || '项目详情'}`"
+                :aria-label="`查看 ${work.title}：${work.authors.join('、') || '项目详情'}`"
                 :aria-expanded="activeIndex === index"
                 @focus="activate(index)"
                 @pointerenter="activateFromPointer(index, $event)"
-                @click="openOutcome(outcome)"
+                @click="openWork(work)"
               >
                 <span class="archive-rail" aria-hidden="true">
-                  <span class="archive-number">{{ outcome.number }}</span>
-                  <span class="archive-marker">{{ outcome.marker }}</span>
+                  <span class="archive-number">{{ work.number }}</span>
+                  <span class="archive-marker">{{ work.marker }}</span>
                 </span>
 
                 <span class="archive-compact" aria-hidden="true">
-                  <strong>{{ outcome.title }}</strong>
-                  <small>{{ outcome.topic }}</small>
+                  <strong>{{ work.title }}</strong>
+                  <small>{{ work.topic }}</small>
                 </span>
 
                 <span class="archive-expanded">
                   <span class="archive-copy">
-                    <span class="archive-meta">{{ outcome.number }} · {{ outcome.topic }}</span>
-                    <strong class="archive-title">{{ outcome.title }}</strong>
-                    <small v-if="outcome.titleEn" class="archive-title-en">{{ outcome.titleEn }}</small>
-                    <span class="archive-authors">{{ outcome.authors.join(' / ') }}</span>
-                    <span class="archive-summary">{{ outcome.summary }}</span>
+                    <span class="archive-meta">{{ work.number }} · {{ work.topic }}</span>
+                    <strong class="archive-title">{{ work.title }}</strong>
+                    <small v-if="work.titleEn" class="archive-title-en">{{ work.titleEn }}</small>
+                    <span class="archive-authors">{{ work.authors.join(' / ') }}</span>
+                    <span class="archive-summary">{{ work.summary }}</span>
                     <span class="archive-entry">查看完整项目 <span aria-hidden="true">→</span></span>
                   </span>
-                  <span v-if="outcome.preview" class="archive-preview">
+                  <span v-if="work.preview" class="archive-preview">
                     <img
-                      :src="outcome.preview"
-                      :alt="outcome.previewAlt"
+                      :src="work.preview"
+                      :alt="work.previewAlt"
                       width="720"
                       height="960"
                       loading="lazy"
@@ -96,7 +95,7 @@
                     />
                   </span>
                 </span>
-              </component>
+              </button>
             </article>
           </div>
 
@@ -111,24 +110,24 @@
     </main>
   </div>
 
-  <ExhibitionDetail :exhibition-id="activeExhibition" @close="activeExhibition = null" />
+  <WorkDetailModal :work-id="activeWorkId" @close="activeWorkId = null" />
 </template>
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import HomeSiteNav from '../components/navigation/HomeSiteNav.vue'
-import ExhibitionDetail from '../components/exhibition/ExhibitionDetail.vue'
-import { getOutcomesForYear, outcomeYears } from '../data/outcomes.js'
+import WorkDetailModal from '../components/works/WorkDetailModal.vue'
+import { getWorksForYear, workYears } from '../data/works/index.js'
 
 const route = useRoute()
 const router = useRouter()
 const activeYear = ref('2025')
 const activeIndex = ref(0)
-const activeExhibition = ref(null)
-const validYears = outcomeYears.map((year) => year.id)
+const activeWorkId = ref(null)
+const validYears = workYears.map((year) => year.id)
 
-const outcomes = computed(() => getOutcomesForYear(activeYear.value))
+const works = computed(() => getWorksForYear(activeYear.value))
 
 const normalizedYear = (value) => {
   const year = Array.isArray(value) ? value[0] : value
@@ -156,8 +155,8 @@ const activateFromPointer = (index, event) => {
   if (event.pointerType === 'mouse') activate(index)
 }
 
-const openOutcome = (outcome) => {
-  if (outcome.detailType === 'exhibition') activeExhibition.value = outcome.id
+const openWork = (work) => {
+  activeWorkId.value = work.id
 }
 
 watch(

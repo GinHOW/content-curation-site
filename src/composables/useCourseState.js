@@ -1,6 +1,6 @@
 import { computed, onMounted, ref } from 'vue'
 import { getCourseState } from '../services/courseState.js'
-import { getLocalCourseState } from '../data/localCourseState.js'
+import { getLocalCourseState } from '../data/course/localState.js'
 
 export function useCourseState({ immediate = true } = {}) {
   const initialData = getLocalCourseState()

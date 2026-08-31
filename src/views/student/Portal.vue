@@ -128,9 +128,9 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import HomeSiteNav from '../components/navigation/HomeSiteNav.vue'
-import { useAuthSession } from '../composables/useAuthSession.js'
-import { useCourseState } from '../composables/useCourseState.js'
+import HomeSiteNav from '../../components/navigation/HomeSiteNav.vue'
+import { useAuthSession } from '../../composables/useAuthSession.js'
+import { useCourseState } from '../../composables/useCourseState.js'
 import {
   studentAssignTopic,
   studentChangePassword,
@@ -140,7 +140,7 @@ import {
   studentLogin,
   studentLogout,
   studentMe,
-} from '../services/courseState.js'
+} from '../../services/courseState.js'
 
 const { topics, groups, error: courseError } = useCourseState()
 const {

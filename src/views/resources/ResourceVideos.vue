@@ -47,7 +47,7 @@ import { useRoute, useRouter } from 'vue-router'
 import ResourceShell from '../../components/resources/ResourceShell.vue'
 import VideoCard from '../../components/resources/VideoCard.vue'
 import { useResourceFilter } from '../../composables/useResourceFilter.js'
-import { resourceNavigationItems, resourceVideos } from '../../data/resources.js'
+import { resourceNavigationItems, resourceVideos } from '../../data/resources/index.js'
 import { usePublishedResources } from '../../composables/usePublishedResources.js'
 
 const route = useRoute()

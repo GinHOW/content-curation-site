@@ -1,11 +1,11 @@
 <template>
   <Teleport to="body">
     <Transition name="overlay">
-      <div v-if="visible" class="exhibition-overlay" @click.self="close">
-        <div class="exhibition-detail">
+      <div v-if="visible" class="work-overlay" @click.self="close">
+        <div class="work-detail">
           <!-- 左侧：图片画廊 -->
-          <ExhibitionGallery
-            :exhibition="exhibition"
+          <WorkGallery
+            :work="work"
             :current-image="currentImage"
             :assets-base="assetsBase"
             @prev="prevImage"
@@ -22,17 +22,17 @@
             </button>
 
             <!-- 固定头部：标题 + 标签 + 作者 -->
-            <div class="panel-header" v-if="exhibition">
-              <h1 class="info-title">{{ exhibition.name }}</h1>
-              <p class="info-title-en">{{ exhibition.nameEn }}</p>
-              <div class="info-tag">{{ exhibition.topic }}</div>
+            <div class="panel-header" v-if="work">
+              <h1 class="info-title">{{ work.name }}</h1>
+              <p class="info-title-en">{{ work.nameEn }}</p>
+              <div class="info-tag">{{ work.topic }}</div>
               <div class="info-divider"></div>
-              <p class="authors-names">{{ exhibition.authors.students.join(' / ') }}</p>
+              <p class="authors-names">{{ work.authors.students.join(' / ') }}</p>
               <div class="info-divider"></div>
             </div>
 
             <!-- 可滚动：仅简介 -->
-            <div class="panel-scroll" v-if="exhibition">
+            <div class="panel-scroll" v-if="work">
               <div class="info-desc">
                 <p v-for="(para, i) in currentDesc" :key="i">{{ para }}</p>
               </div>
@@ -54,11 +54,11 @@
 
 <script setup>
 import { ref, computed, watch, watchEffect } from 'vue'
-import { exhibitions } from '../../data/exhibitions.js'
-import ExhibitionGallery from './ExhibitionGallery.vue'
+import { works2025 } from '../../data/works/2025.js'
+import WorkGallery from './WorkGallery.vue'
 
 const props = defineProps({
-  exhibitionId: {
+  workId: {
     type: String,
     default: null
   }
@@ -72,29 +72,29 @@ const assetsBase = import.meta.env.VITE_ASSETS_URL || ''
 const currentImage = ref(0)
 const lang = ref('zh')
 
-const visible = computed(() => !!props.exhibitionId)
+const visible = computed(() => !!props.workId)
 
-const exhibition = computed(() => {
-  if (!props.exhibitionId) return null
-  return exhibitions.find(e => e.id === props.exhibitionId)
+const work = computed(() => {
+  if (!props.workId) return null
+  return works2025.find((candidate) => candidate.id === props.workId)
 })
 
 const currentDesc = computed(() => {
-  if (!exhibition.value) return []
+  if (!work.value) return []
   return lang.value === 'zh'
-    ? exhibition.value.descriptionZh
-    : exhibition.value.descriptionEn
+    ? work.value.descriptionZh
+    : work.value.descriptionEn
 })
 
 const prevImage = () => {
-  if (!exhibition.value) return
-  const len = exhibition.value.images.length
+  if (!work.value) return
+  const len = work.value.images.length
   currentImage.value = (currentImage.value - 1 + len) % len
 }
 
 const nextImage = () => {
-  if (!exhibition.value) return
-  const len = exhibition.value.images.length
+  if (!work.value) return
+  const len = work.value.images.length
   currentImage.value = (currentImage.value + 1) % len
 }
 
@@ -110,8 +110,8 @@ watchEffect(() => {
   document.body.style.overflow = visible.value ? 'hidden' : ''
 })
 
-// 切换展览时重置图片索引
-watch(() => props.exhibitionId, () => {
+// 切换作品时重置图片索引
+watch(() => props.workId, () => {
   currentImage.value = 0
 })
 
@@ -125,7 +125,7 @@ if (typeof window !== 'undefined') {
 
 <style scoped>
 /* 遮罩层 */
-.exhibition-overlay {
+.work-overlay {
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -141,32 +141,32 @@ if (typeof window !== 'undefined') {
 .overlay-enter-active {
   transition: opacity 0.3s ease;
 }
-.overlay-enter-active .exhibition-detail {
+.overlay-enter-active .work-detail {
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
 .overlay-leave-active {
   transition: opacity 0.25s ease;
 }
-.overlay-leave-active .exhibition-detail {
+.overlay-leave-active .work-detail {
   transition: transform 0.25s ease, opacity 0.25s ease;
 }
 .overlay-enter-from {
   opacity: 0;
 }
-.overlay-enter-from .exhibition-detail {
+.overlay-enter-from .work-detail {
   transform: translateY(20px);
   opacity: 0;
 }
 .overlay-leave-to {
   opacity: 0;
 }
-.overlay-leave-to .exhibition-detail {
+.overlay-leave-to .work-detail {
   transform: translateY(10px);
   opacity: 0;
 }
 
 /* 主体布局 */
-.exhibition-detail {
+.work-detail {
   width: min(88vw, 76rem);
   height: min(84dvh, 48rem);
   display: grid;
@@ -343,7 +343,7 @@ if (typeof window !== 'undefined') {
 
 /* ===== 响应式 ===== */
 @media (max-width: 900px) {
-  .exhibition-detail {
+  .work-detail {
     grid-template-columns: 1fr;
     grid-template-rows: minmax(18rem, 42dvh) minmax(0, 1fr);
     width: min(94vw, 42rem);
@@ -353,11 +353,11 @@ if (typeof window !== 'undefined') {
 
 /* 超小屏幕：全屏展示 + 紧凑内边距 */
 @media (max-width: 480px) {
-  .exhibition-overlay {
+  .work-overlay {
     padding: 0;
   }
 
-  .exhibition-detail {
+  .work-detail {
     width: 100%;
     height: 100dvh;
     max-height: 100dvh;

@@ -153,9 +153,9 @@
 
 <script setup>
 import { nextTick, onMounted, ref } from 'vue'
-import HomeSiteNav from '../components/navigation/HomeSiteNav.vue'
-import { useAuthSession } from '../composables/useAuthSession.js'
-import { useCourseState } from '../composables/useCourseState.js'
+import HomeSiteNav from '../../components/navigation/HomeSiteNav.vue'
+import { useAuthSession } from '../../composables/useAuthSession.js'
+import { useCourseState } from '../../composables/useCourseState.js'
 import {
   adminLogin,
   adminLogout,
@@ -171,7 +171,7 @@ import {
   updateStudentGroup,
   updateStudentStatus,
   updateTopicRoom,
-} from '../services/courseState.js'
+} from '../../services/courseState.js'
 
 const { rooms, topics, groups, refresh } = useCourseState({ immediate: false })
 const {

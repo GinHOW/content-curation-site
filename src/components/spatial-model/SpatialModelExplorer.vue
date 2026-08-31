@@ -283,7 +283,7 @@ import {
   DEBUG_LAYER_BY_ID,
   MODEL_ASSETS,
   requiredAssetKeysForMode,
-} from '../../data/spatialModelConfig.js'
+} from '../../data/spatial/modelConfig.js'
 import {
   calculateOverviewCamera,
   calculateSectionCamera,

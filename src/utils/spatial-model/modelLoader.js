@@ -3,7 +3,7 @@
  * 负责静态几何合批 (BufferGeometryUtils)、分层 GLB 节点索引、阴影配置与包围盒度量
  */
 
-import { STATIC_BATCH_ROOTS, DEBUG_LAYER_DEFINITIONS } from '../../data/spatialModelConfig.js'
+import { STATIC_BATCH_ROOTS, DEBUG_LAYER_DEFINITIONS } from '../../data/spatial/modelConfig.js'
 import {
   categoryForMaterial,
   createArchitecturalMaterial,

@@ -3,7 +3,7 @@
  * 负责透视相机的 FOV 动态调节、机位快照计算、数据格式化与剪贴板复制
  */
 import { computed, ref } from 'vue'
-import { MODEL_FILE_LABEL, clampImmersiveFov, vectorSnapshot } from '../../../data/spatialModelConfig.js'
+import { MODEL_FILE_LABEL, clampImmersiveFov, vectorSnapshot } from '../../../data/spatial/modelConfig.js'
 
 export function useSpatialModelCalibration({
   props,

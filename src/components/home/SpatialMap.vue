@@ -127,9 +127,9 @@
 import { computed, ref, watch } from 'vue'
 import mapUrl from '../../assets/spatial-map/map.svg'
 import DemoArchive from './DemoArchive.vue'
-import { livingRoomArchive } from '../../data/demoArchive.js'
-import { spatialKeywordColors } from '../../data/home.js'
-import { spatialRoomGeometries } from '../../data/spatialRoomGeometry.js'
+import { livingRoomArchive } from '../../data/topics/livingRoomArchive.js'
+import { topicColors } from '../../data/topics/catalog.js'
+import { spatialRoomGeometries } from '../../data/spatial/roomGeometry.js'
 
 const getRoomGeometry = (roomId) => spatialRoomGeometries[roomId]
 const getShapeProps = (geometry) => {
@@ -237,7 +237,7 @@ const mapViewBox = computed(() => {
 })
 
 const keywordColor = (keyword) =>
-  props.topicColors[keyword] || spatialKeywordColors[keyword] || 'var(--home-orange)'
+  props.topicColors[keyword] || topicColors[keyword] || 'var(--home-orange)'
 
 const roomColor = (room) => {
   const matchingKeyword = room.keywords.includes(props.activeKeyword)

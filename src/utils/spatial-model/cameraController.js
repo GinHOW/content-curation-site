@@ -6,7 +6,7 @@
 import {
   presetForRoom,
   immersiveFovFor,
-} from '../../data/spatialModelConfig.js'
+} from '../../data/spatial/modelConfig.js'
 import { boxFor } from './modelLoader.js'
 
 export function isReducedMotion() {

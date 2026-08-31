@@ -3,7 +3,7 @@
  * 负责 5 个 GLB 资产的并发加载、缓存、网格合批、材质/白模赋予与图层可见性
  */
 import { ref } from 'vue'
-import { MODEL_BASE_URL, MODEL_ASSETS, requiredAssetKeysForMode } from '../../../data/spatialModelConfig.js'
+import { MODEL_BASE_URL, MODEL_ASSETS, requiredAssetKeysForMode } from '../../../data/spatial/modelConfig.js'
 import {
   applyArchitecturalMaterials,
   applyDisplayStyleToRoot,

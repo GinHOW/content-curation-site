@@ -131,7 +131,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { gradingOverview, gradingPalette, methodSteps } from '../../data/home.js'
+import { gradingOverview, gradingPalette, methodSteps } from '../../data/course/overview.js'
 
 const gradingCircumference = 2 * Math.PI * 42
 const activeGradingIndex = ref(null)

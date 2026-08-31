@@ -8,7 +8,7 @@ import {
   PLAYER_RADIUS,
   MAX_STEP_HEIGHT,
   MAX_DROP_HEIGHT,
-} from '../../data/spatialModelConfig.js'
+} from '../../data/spatial/modelConfig.js'
 import { isNavigationMesh } from './materials.js'
 import { isModelNodeVisible } from './modelLoader.js'
 

@@ -1,4 +1,4 @@
-import courseSchedule from '../data/course_schedule.json'
+import courseSchedule from '../data/course/schedule.json'
 
 const formatEventDate = (value, year) => {
   const [, month, day] = value.split('-')

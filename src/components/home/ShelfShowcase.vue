@@ -68,7 +68,7 @@
 <script setup>
 import { ref } from 'vue'
 
-const emit = defineEmits(['open-exhibition'])
+const emit = defineEmits(['open-work'])
 
 const active = ref(null)
 const cursorVisible = ref(false)
@@ -93,22 +93,22 @@ const handlePointerLeave = () => {
 }
 
 const handleClick = (item) => {
-  if (item.exhibitionId) {
-    emit('open-exhibition', item.exhibitionId)
+  if (item.workId) {
+    emit('open-work', item.workId)
   }
 }
 
 const items = [
   // 透明 PNG 的原始像素尺寸对应新版底图坐标；以热区中心对齐，避免被热区轮廓压缩。
-  { name: '尺子', label: '直尺', exhibitionId: 'northward-river', x: 206, y: 360, width: 777, height: 63, labelX: 306, labelY: 357 },
-  { name: '帽子', label: '礼帽', exhibitionId: 'four-hat-act', x: 1254, y: 279, width: 312, height: 153, labelX: 1262, labelY: 272 },
-  { name: '假发', label: '假发', exhibitionId: 'headline', x: 402, y: 454, width: 489, height: 319, labelX: 426, labelY: 470 },
-  { name: '眼睛', label: '眼睛', exhibitionId: 'why-we-look', x: 1665, y: 483, width: 318, height: 156, labelX: 1665, labelY: 485 },
-  { name: '钥匙', label: '钥匙', exhibitionId: 'threshold', x: 577, y: 987, width: 229, height: 101, labelX: 580, labelY: 990 },
-  { name: '棋子', label: '棋子', exhibitionId: 'chess-box', x: 1332, y: 912, width: 819, height: 196, labelX: 1346, labelY: 925 },
-  { name: '手套', label: '手套', exhibitionId: 'hand-held-drama', x: 401, y: 1187, width: 543, height: 136, labelX: 403, labelY: 1190 },
-  { name: '绳结', label: '绳结', exhibitionId: 'jiejie', x: 1297, y: 1149, width: 504, height: 224, labelX: 1311, labelY: 1163 },
-  { name: '信封', label: '信封', exhibitionId: 'black-chamber', x: 1864, y: 1209, width: 321, height: 107, labelX: 1867, labelY: 1212 },
+  { name: '尺子', label: '直尺', workId: 'northward-river', x: 206, y: 360, width: 777, height: 63, labelX: 306, labelY: 357 },
+  { name: '帽子', label: '礼帽', workId: 'four-hat-act', x: 1254, y: 279, width: 312, height: 153, labelX: 1262, labelY: 272 },
+  { name: '假发', label: '假发', workId: 'headline', x: 402, y: 454, width: 489, height: 319, labelX: 426, labelY: 470 },
+  { name: '眼睛', label: '眼睛', workId: 'why-we-look', x: 1665, y: 483, width: 318, height: 156, labelX: 1665, labelY: 485 },
+  { name: '钥匙', label: '钥匙', workId: 'threshold', x: 577, y: 987, width: 229, height: 101, labelX: 580, labelY: 990 },
+  { name: '棋子', label: '棋子', workId: 'chess-box', x: 1332, y: 912, width: 819, height: 196, labelX: 1346, labelY: 925 },
+  { name: '手套', label: '手套', workId: 'hand-held-drama', x: 401, y: 1187, width: 543, height: 136, labelX: 403, labelY: 1190 },
+  { name: '绳结', label: '绳结', workId: 'jiejie', x: 1297, y: 1149, width: 504, height: 224, labelX: 1311, labelY: 1163 },
+  { name: '信封', label: '信封', workId: 'black-chamber', x: 1864, y: 1209, width: 321, height: 107, labelX: 1867, labelY: 1212 },
 ]
 </script>
 

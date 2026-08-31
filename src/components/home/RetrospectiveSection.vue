@@ -21,7 +21,7 @@
     </div>
 
     <div class="full-span showcase-frame">
-      <ShelfShowcase @open-exhibition="$emit('open-exhibition', $event)" />
+      <ShelfShowcase @open-work="$emit('open-work', $event)" />
     </div>
   </section>
 </template>
@@ -29,7 +29,7 @@
 <script setup>
 import ShelfShowcase from './ShelfShowcase.vue'
 
-defineEmits(['open-exhibition'])
+defineEmits(['open-work'])
 </script>
 
 <style scoped>

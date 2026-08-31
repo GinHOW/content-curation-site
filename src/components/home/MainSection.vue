@@ -34,7 +34,7 @@
         :active-room-id="activeRoomId"
         :active-keyword="activeKeyword"
         :topic-colors="topicColors"
-        :image-library="spatialTopicImages"
+        :image-library="topicImages"
         :mode-notice="modeNotice"
         @activate-space="activateSpace"
         @clear-space="clearSpace"
@@ -48,7 +48,7 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import ControllerSpatialMap from './ControllerSpatialMap.vue'
-import { spatialTopicImages } from '../../data/spatialTopicImages.js'
+import { topicImages } from '../../data/topics/images.js'
 
 const viewMode = ref('section')
 const activeRoomId = ref('')

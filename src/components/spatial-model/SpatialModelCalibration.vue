@@ -79,7 +79,7 @@
 </template>
 
 <script setup>
-import { formatVector } from '../../data/spatialModelConfig.js'
+import { formatVector } from '../../data/spatial/modelConfig.js'
 
 defineProps({
   selectedRoom: {

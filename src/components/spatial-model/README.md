@@ -14,7 +14,7 @@
 整个三维系统采用严格的分层架构设计：
 
 ```
-[配置层]       src/data/spatialModelConfig.js (资产路径/机位预设/物理常量)
+[配置层]       src/data/spatial/modelConfig.js (资产路径/机位预设/物理常量)
                      │
 [算法工具层]   src/utils/spatial-model/
                ├── materials.js        (材质赋予/白模生成/热区外观)
@@ -87,13 +87,13 @@
 
 ### Q1: 如何替换或更新 3D 模型？
 1. 将新的 `.glb` 文件放入 `public/assets/spatial/model/` 目录下；
-2. 若文件名发生变化，打开 `src/data/spatialModelConfig.js`，修改 `MODEL_ASSETS` 中对应的 `file` 字段；
+2. 若文件名发生变化，打开 `src/data/spatial/modelConfig.js`，修改 `MODEL_ASSETS` 中对应的 `file` 字段；
 3. 浏览器强制刷新（`Cmd + Shift + R` 或勾选 DevTools 的 `Disable cache`）即可生效。
 
 ### Q2: 如何微调某个房间漫游的初始视角？
 1. 在网页中进入该房间漫游，按 `F` 放大至全屏，按 `C` 打开标定面板；
 2. 漫游移动至理想机位，调节 FOV，点击「复制机位参数」；
-3. 打开 `src/data/spatialModelConfig.js`，找到 `IMMERSIVE_VIEW_PRESETS` 对应房间 ID，粘贴替换其 `position`, `target`, `fov`。
+3. 打开 `src/data/spatial/modelConfig.js`，找到 `IMMERSIVE_VIEW_PRESETS` 对应房间 ID，粘贴替换其 `position`, `target`, `fov`。
 
 ### Q3: 如何调整极地白模（Arctic Mode）的线框粗细或底色？
 - 线框生成与材质配置位于 `src/utils/spatial-model/materials.js` 中的 `createArcticEdges` 与 `createArcticMaterials`。

@@ -119,12 +119,12 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import SpatialMap from './SpatialMap.vue'
 import SpatialModelExplorer from '../spatial-model/SpatialModelExplorer.vue'
-import { spatialKeywordColors } from '../../data/home.js'
-import { livingRoomArchive } from '../../data/demoArchive.js'
+import { topicColors } from '../../data/topics/catalog.js'
+import { livingRoomArchive } from '../../data/topics/livingRoomArchive.js'
 import {
   controllerScreenBleed,
   controllerScreenZones,
-} from '../../data/controllerScreenZones.js'
+} from '../../data/spatial/controllerScreenZones.js'
 import { perspectiveForZone, polygonToQuad } from '../../utils/homography.js'
 
 const props = defineProps({
@@ -340,7 +340,7 @@ watch(
   { immediate: true },
 )
 
-const colorFor = (keyword) => props.topicColors[keyword] || spatialKeywordColors[keyword] || 'var(--home-ink)'
+const colorFor = (keyword) => props.topicColors[keyword] || topicColors[keyword] || 'var(--home-ink)'
 
 function selectTopic(keyword) {
   const room = props.rooms.find((item) => item.keywords.includes(keyword))

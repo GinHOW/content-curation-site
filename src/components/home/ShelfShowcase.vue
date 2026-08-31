@@ -23,7 +23,7 @@
           v-for="(item, i) in items"
           :key="item.name"
           class="item"
-          :class="{ 'item--active': active === i }"
+          :class="{ 'item--active': active === i, 'item--no-scale': item.name === '棋子' }"
           role="button"
           tabindex="0"
           :aria-label="`查看${item.label}策展项目`"
@@ -175,6 +175,12 @@ const items = [
 .item--active .item-image {
   opacity: 1;
   transform: scale(1.02);
+}
+
+/* 棋子的透明叠图边缘较紧，放大会露出底图，因此仅显示原尺寸叠图。 */
+.item--no-scale:hover .item-image,
+.item--no-scale.item--active .item-image {
+  transform: scale(1);
 }
 
 .item:focus-visible .item-hotspot {

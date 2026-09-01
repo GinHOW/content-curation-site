@@ -9,7 +9,6 @@
     :filter-options="filterOptions"
     :filter-groups="filterGroups"
     surface-color="var(--home-green)"
-    muted-color="var(--home-ink)"
     filter-accent="var(--home-ink)"
     :active-filter="activeFilter"
     @filter="setFilter"

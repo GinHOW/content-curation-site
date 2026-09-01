@@ -297,11 +297,33 @@ onBeforeUnmount(() => {
   font-size: 0.78rem;
   font-weight: 700;
   text-decoration: none;
+  transition: color 180ms ease;
 }
 
-.resource-detail-link:hover,
-.resource-detail-link:focus-visible {
-  color: var(--accent-orange);
+#article .resource-detail-link:hover,
+#article .resource-detail-link:focus-visible {
+  color: var(--home-blue);
+}
+
+#video .resource-detail-link:hover,
+#video .resource-detail-link:focus-visible {
+  color: var(--home-orange);
+}
+
+#website .resource-detail-link:hover,
+#website .resource-detail-link:focus-visible {
+  color: var(--home-green);
+}
+
+#tool .resource-detail-link:hover,
+#tool .resource-detail-link:focus-visible {
+  color: var(--home-magenta);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resource-detail-link {
+    transition: none;
+  }
 }
 
 .article-list {

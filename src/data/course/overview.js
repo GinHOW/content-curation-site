@@ -30,7 +30,7 @@ export const teachingTeam = [
         preview: {
           cardLabel: 'KIMI Websites',
           description: 'KIMI 是作为本次课程面向创作与研究的核心 AI 工具。课程提供 KIMI Allegretto 一个月会员权益。',
-          url: 'https://www.kimi.com/features/websites',
+          url: 'https://k3-showcases.ok.kimi.link/',
         },
       },
       {

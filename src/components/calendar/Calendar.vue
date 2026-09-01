@@ -52,7 +52,15 @@
               :aria-current="isToday(date) ? 'date' : undefined"
               @click="selectDate(date)"
             >
-              <span class="day-circle" aria-hidden="true">{{ hasEvent(date) ? date : '' }}</span>
+              <span class="day-circle" aria-hidden="true">
+                <span v-if="hasEvent(date)">{{ date }}</span>
+                <span v-else-if="isToday(date)" class="today-icon">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.72 5.28l-2.12 2.12M7.4 16.6l-2.12 2.12M18.72 18.72l-2.12-2.12M7.4 7.4L5.28 5.28" />
+                  </svg>
+                </span>
+              </span>
             </button>
             <span v-else class="calendar-day is-placeholder" aria-hidden="true">
               <span class="day-circle"></span>
@@ -252,6 +260,7 @@ const {
 
 .calendar-day {
   display: grid;
+  position: relative;
   place-items: center;
   min-width: 0;
   padding: clamp(0.2rem, 0.5vw, 0.4rem) 0;
@@ -292,8 +301,25 @@ const {
   background: var(--calendar-selected);
 }
 
-.calendar-day.today .day-circle {
-  box-shadow: 0 0 0 2px var(--calendar-today);
+.today-icon {
+  display: grid;
+  width: 1rem;
+  height: 1rem;
+  place-items: center;
+  color: var(--calendar-selected);
+}
+
+.calendar-day.today.selected .today-icon {
+  color: var(--calendar-ink);
+}
+
+.today-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 1.5;
 }
 
 .calendar-day.is-placeholder .day-circle {

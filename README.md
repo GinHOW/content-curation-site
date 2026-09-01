@@ -10,7 +10,7 @@
 - [一、 网站系统全景图](#一-网站系统全景图)
 - [二、 核心页面与功能模块梳理](#二-核心页面与功能模块梳理)
 - [三、 视觉与交互设计规范](#三-视觉与交互设计规范)
-- [四、 全栈技术架构与数据流](#四-全栈技术架构与数据流)
+- [四、 全栈技术架构与数据模型](#四-全栈技术架构与数据模型)
 - [五、 目录结构与代码组织规范](#五-目录结构与代码组织规范)
 - [六、 师生协同与权限管理机制](#六-师生协同与权限管理机制)
 - [七、 本地开发与全栈部署运维](#七-本地开发与全栈部署运维)
@@ -96,7 +96,9 @@ graph TB
 
 ---
 
-## 四、 全栈技术架构与数据流
+## 四、 全栈技术架构与数据模型
+
+### 1. 全栈数据流动拓扑
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -117,6 +119,54 @@ graph TB
 │  - R2 Object Storage  : 高清 GIF 动画与大尺寸多媒体资源       │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+### 2. D1 关系型数据库架构 (ER Diagram)
+
+```mermaid
+erDiagram
+    rooms ||--o{ topics : "包含 (room_id)"
+    course_groups ||--o| topic_assignments : "选词匹配 (group_id)"
+    topics ||--o| topic_assignments : "被选用 (topic_id)"
+    course_groups ||--o{ group_members : "成员归属 (group_id)"
+    users ||--o{ group_members : "加入 (user_id)"
+    course_groups ||--o{ group_invites : "专属邀请码 (group_id)"
+    users ||--o{ sessions : "登录会话 (user_id)"
+    resource_submissions }|..|| users : "投递资源"
+```
+
+### 3. 核心数据表设计
+
+| 表名 | 功能与职责说明 | 关键字段 / 约束 |
+|---|---|---|
+| **`rooms`** | 12 个空间原型节点（19号楼 1F–3F） | `id` (room1~12), `number`, `name`, `sort_order` |
+| **`topics`** | 课程选题词库（系统预设 + 管理员自定义） | `id`, `label`, `room_id`, `color_token`, `sort_order`, `source` |
+| **`course_groups`** | 学生课题小组（A1~A8, B1~B8 共 16 组） | `id` (group-a1~b8), `code`, `sort_order` |
+| **`topic_assignments`** | 小组与选题的 1:1 独占选词绑定 | `group_id` (PK), `topic_id` (Unique, FK) |
+| **`users`** | 教师与学生账号认证与安全凭证 | `id`, `username` (学号), `password_hash`, `role`, `status` |
+| **`group_members`** | 学生账号与小组的归属关联 | `group_id`, `user_id` (PK 复合主键) |
+| **`group_invites`** | 小组专属邀请码（支持轮换与撤销） | `id`, `group_id`, `code`, `is_active` |
+| **`sessions`** | 师生鉴权会话 Token 缓存 | `token_hash`, `kind`, `expires_at` |
+| **`resource_submissions`** | 资源中心外部投递库（文章/视频/网站/工具） | `id`, `type`, `title`, `url`, `status`, `is_featured` |
+| **`resource_static_overrides`** | 内置静态资源的置顶/隐藏动态覆盖 | `static_id` (PK), `featured_override`, `is_hidden` |
+
+### 4. 空间原型与 17 系统选题基准对照表
+
+> 统一作为前端 `src/data/topics/catalog.js` 与 D1 数据库迁移脚本的基准数据源：
+
+| 楼层 | 空间编号 | 空间名称 | 归属选题 (Topics) | 对应色彩 Token | 排序权重 (Sort) |
+|---|---|---|---|---|---|
+| **1F** | `room1` | 空间 01 | **客厅**<br>**码头** | `var(--home-spot-03)`<br>`var(--home-spot-15)` | 1<br>15 |
+| **1F** | `room2` | 空间 02 | **橱窗**<br>**隧道** | `var(--home-spot-02)`<br>`var(--home-spot-14)` | 2<br>3 |
+| **1F** | `room3` | 空间 03 | **桌面**<br>**蓄水池** | `var(--home-spot-01)`<br>`var(--home-spot-05)` | 4<br>6 |
+| **1F** | `room4` | 空间 04 | **暗房**<br>**影院** | `var(--home-spot-04)`<br>`var(--home-spot-16)` | 5<br>16 |
+| **2F** | `room5` | 空间 05 | **工厂** | `var(--home-spot-17)` | 17 |
+| **2F** | `room6` | 空间 06 | **田** | `var(--home-spot-07)` | 7 |
+| **2F** | `room7` | 空间 07 | **黄页** | `var(--home-spot-06)` | 8 |
+| **2F** | `room8` | 空间 08 | **晒场** | `var(--home-spot-08)` | 9 |
+| **2F** | `room9` | 空间 09 | **阳台** | `var(--home-spot-09)` | 10 |
+| **3F** | `room10` | 空间 10 | **宴席** | `var(--home-spot-10)` | 11 |
+| **3F** | `room11` | 空间 11 | **谷仓**<br>**楼梯间** | `var(--home-spot-11)`<br>`var(--home-spot-12)` | 12<br>13 |
+| **3F** | `room12` | 空间 12 | **监控室** | `var(--home-spot-13)` | 14 |
 
 ---
 
@@ -206,7 +256,7 @@ npm run build
 npm run simulate
 ```
 
-然后访问 `http://localhost:8788/manage/resources`，教师口令默认为 `REDACTED`，也可以通过 `ADMIN_PASSWORD` 环境变量覆盖。
+然后访问 `http://localhost:8788/manage/resources` 即可进入本地资源管理模拟界面。
 
 ### 4. Git 工作流与持续部署 (CI/CD)
 

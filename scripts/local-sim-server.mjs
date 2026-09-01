@@ -129,7 +129,7 @@ class LocalR2 {
 const env = {
   DB: null,
   RESOURCE_IMAGES: new LocalR2(),
-  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'REDACTED',
+  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || randomUUID().slice(0, 8),
   STUDENT_PASSWORD_PEPPER: process.env.STUDENT_PASSWORD_PEPPER || 'local-student-password-pepper',
   TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY || 'local-sim',
   SUBMISSION_RATE_LIMIT_SECRET: process.env.SUBMISSION_RATE_LIMIT_SECRET || 'local-resource-rate-limit-secret',

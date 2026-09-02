@@ -230,18 +230,21 @@ defineEmits(['filter'])
   align-items: flex-end;
   gap: 0.35rem;
   justify-self: start;
+  align-self: flex-start;
   margin-top: auto;
   min-height: 44px;
   padding: 0;
-  color: var(--resources-ink);
+  color: inherit;
   font-size: 0.78rem;
   font-weight: 700;
   text-decoration: none;
+  border-bottom: 1px solid transparent;
 }
 
 .resource-back-link:hover,
 .resource-back-link:focus-visible {
-  color: var(--accent-orange);
+  color: inherit;
+  border-bottom-color: currentColor;
 }
 
 @media (max-width: 1023px) {

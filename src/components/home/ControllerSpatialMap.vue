@@ -20,13 +20,14 @@
     <div class="controller-stage-viewport">
     <div ref="stageElement" class="controller-stage">
       <picture>
-          <source srcset="/assets/spatial/controller/controller2.0.webp" type="image/webp" />
+        <source srcset="/assets/spatial/controller/controller2.0.webp" type="image/webp" />
         <img
           class="controller-base"
           src="/assets/spatial/controller/controller2.0.png"
           alt=""
           aria-hidden="true"
-          loading="lazy"
+          loading="eager"
+          fetchpriority="high"
           decoding="async"
           draggable="false"
         />

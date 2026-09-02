@@ -78,7 +78,7 @@
           ],
           "content_modules": [
             {
-              "name": "Vibe Coding",
+              "name": "网站 AI 编程",
               "instructor": "顾文浩",
               "description": "以网站项目实践 AI 协作，任务转译、内容组织、检查修正与发布。以 AI 智能体搭建数据库原型，实操提示词建库、编目与标签化。",
               "url": "/resources/articles/vibe-coding-course-outline",

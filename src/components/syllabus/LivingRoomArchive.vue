@@ -18,7 +18,7 @@
           @click="isCollapsed = !isCollapsed"
         >
           <span aria-hidden="true">{{ isCollapsed ? '＋' : '－' }}</span>
-          {{ isCollapsed ? '展开详情' : '折叠详情' }}
+          {{ isCollapsed ? '展开' : '折叠' }}
         </button>
       </div>
       <p class="archive-intro">{{ archive.intro }}</p>
@@ -206,7 +206,7 @@ const isCollapsed = ref(false)
   display: grid;
   gap: 0.7rem;
   margin: 0.85rem 0 0;
-  padding: 0;
+  padding: 0.55rem 0 0;
   list-style: none;
 }
 

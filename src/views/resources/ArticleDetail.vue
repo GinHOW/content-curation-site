@@ -3,8 +3,8 @@
     <!-- 1. 顶部固定导航 Bar -->
     <header class="reader-header">
       <div class="reader-header-inner">
-        <router-link to="/resources/articles" class="reader-back-btn">
-          <span aria-hidden="true">←</span> 返回文章列表
+        <router-link :to="returnTarget" class="reader-back-btn" @click="goBack">
+          <span aria-hidden="true">←</span> {{ returnLabel }}
         </router-link>
 
         <div class="reader-header-actions">
@@ -85,7 +85,7 @@
 
       <div v-else-if="error" class="reader-error" role="alert">
         <p>{{ error }}</p>
-        <router-link to="/resources/articles">返回文章列表</router-link>
+        <router-link :to="returnTarget" @click="goBack">{{ returnLabel }}</router-link>
       </div>
 
       <div v-else class="reader-grid" :class="{ 'meta-is-collapsed': metaCollapsed }">
@@ -247,6 +247,7 @@
 
 <script setup>
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { resourceArticles, resources } from '../../data/resources/index.js'
 import { parseArticleOutline } from '../../utils/markdown/articleOutline.js'
 import { renderArticleMarkdown } from '../../utils/markdown/articleMarkdown.js'
@@ -258,6 +259,33 @@ const props = defineProps({
     required: true,
   },
 })
+
+const route = useRoute()
+const router = useRouter()
+const defaultReturnTarget = '/resources/articles'
+const validInternalPath = (value) => typeof value === 'string' && value.startsWith('/') && !value.startsWith('//')
+const historyReturnTarget = () => {
+  if (typeof window === 'undefined') return ''
+  const previous = window.history.state?.back
+  return validInternalPath(previous) ? previous : ''
+}
+const returnTarget = computed(() => {
+  const candidate = Array.isArray(route.query.returnTo) ? route.query.returnTo[0] : route.query.returnTo
+  if (validInternalPath(candidate)) return candidate
+  return historyReturnTarget() || defaultReturnTarget
+})
+const returnLabel = computed(() => {
+  if (returnTarget.value.startsWith('/syllabus')) return '返回课程详细'
+  if (returnTarget.value.startsWith('/resources/articles')) return '返回文章列表'
+  return '返回上一页'
+})
+const goBack = (event) => {
+  const previous = historyReturnTarget()
+  if (!previous || previous.split('#')[0] !== returnTarget.value.split('#')[0]) return
+
+  event.preventDefault()
+  router.back()
+}
 
 const currentLang = ref('zh')
 const loading = ref(true)
@@ -591,7 +619,7 @@ onUnmounted(() => {
 .mobile-toc-bar {
   display: none;
   position: sticky;
-  top: 2.8rem;
+  top: 3.7rem;
   z-index: 40;
   border-bottom: 1px solid var(--resources-rule, #d7d7d1);
   background: #ffffff;

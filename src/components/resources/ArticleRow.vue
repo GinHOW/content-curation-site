@@ -21,7 +21,7 @@
       <router-link
         v-if="article.readerPath"
         class="resource-action"
-        :to="article.readerPath"
+        :to="articleTarget(article.readerPath)"
       >阅读全文 <span aria-hidden="true">→</span></router-link>
       <a
         v-else-if="article.url"
@@ -36,6 +36,8 @@
 </template>
 
 <script setup>
+import { useRoute } from 'vue-router'
+
 defineProps({
   article: {
     type: Object,
@@ -46,6 +48,9 @@ defineProps({
     required: true,
   },
 })
+
+const route = useRoute()
+const articleTarget = (path) => ({ path, query: { returnTo: route.fullPath } })
 </script>
 
 <style scoped>

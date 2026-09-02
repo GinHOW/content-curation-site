@@ -143,7 +143,10 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  scrollBehavior() {
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) return savedPosition
+    // 课程页会在挂载后展开课次并按锚点定位，避免路由默认滚动抢先覆盖它。
+    if (to.hash) return false
     return { top: 0 }
   },
 })

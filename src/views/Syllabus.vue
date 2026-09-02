@@ -100,9 +100,10 @@
                 </thead>
                 <tbody>
                   <template v-for="session in week.sessions" :key="`${week.week}-${session.number}-${session.date}`">
-                    <tr :id="session.anchorId" :class="{ 'is-holiday': session.holiday, 'is-auxiliary': session.auxiliary }">
+                    <tr :id="session.anchorId" :class="{ 'is-holiday': session.holiday, 'is-auxiliary': session.auxiliary, 'has-content-modules': session.contentModules.length && !isSessionCollapsed(week.week, session) }">
                       <td
                         colspan="3"
+                        :rowspan="session.contentModules.length && !isSessionCollapsed(week.week, session) ? 2 : undefined"
                         class="session-overview"
                         role="button"
                         tabindex="0"
@@ -135,14 +136,6 @@
                           <ul v-if="session.contentPoints.length" class="content-points">
                             <li v-for="point in session.contentPoints" :key="point">{{ point }}</li>
                           </ul>
-                          <div v-if="session.contentModules.length" class="content-modules">
-                            <article v-for="module in session.contentModules" :key="`${module.name}-${module.instructor}`" class="content-module-card">
-                              <p class="module-label">内容模块</p>
-                              <h3>{{ module.name }}</h3>
-                              <p v-if="module.instructor" class="module-instructor">{{ module.instructor }}</p>
-                              <p class="module-description">{{ module.description }}</p>
-                            </article>
-                          </div>
                         </div>
                       </td>
                       <td
@@ -162,6 +155,23 @@
                         </div>
                       </td>
                       <td data-label="教学方式" class="session-method">{{ session.method }}</td>
+                    </tr>
+                    <tr v-if="session.contentModules.length && !isSessionCollapsed(week.week, session)" class="content-modules-row">
+                      <td colspan="2" class="content-modules-cell">
+                        <div class="content-modules">
+                          <article v-for="module in session.contentModules" :key="`${module.name}-${module.instructor}`" class="content-module-card">
+                            <p class="module-label">内容模块</p>
+                            <h3>
+                              <router-link v-if="module.url" :to="moduleArticleTarget(module, session)">{{ module.name }}</router-link>
+                              <template v-else>{{ module.name }}</template>
+                            </h3>
+                            <p v-if="module.instructor" class="module-instructor">{{ module.instructor }}</p>
+                            <p class="module-description">{{ module.description }}</p>
+                            <router-link v-if="module.url" class="module-outline-link" :to="moduleArticleTarget(module, session)">查看课程大纲 <span aria-hidden="true">→</span></router-link>
+                          </article>
+                        </div>
+                      </td>
+                      <td class="content-modules-method" aria-hidden="true"></td>
                     </tr>
                     <tr v-if="week.week === 'W1' && session.number === '01' && !isSessionCollapsed(week.week, session)" class="topic-matcher-row">
                       <td colspan="6" class="topic-matcher-cell">
@@ -239,16 +249,74 @@ const { ready: authReady, authenticated } = useAuthSession()
 const weekSectionId = (week) => `week-${week.toLowerCase()}`
 const milestoneLabel = (milestone) => ['①', '②', '③', '④', '⑤'][milestone - 1] || milestone
 const sessionKey = (week, session) => `${week}-${session.number}-${session.date}`
+const syllabusSessionStateKey = 'syllabus-ui:v1:expanded-sessions'
+const syllabusScrollPositionKey = 'syllabus-ui:v1:scroll-position'
+const allSessionKeys = syllabusWeeks.flatMap((week) => week.sessions.map((session) => sessionKey(week.week, session)))
+const readExpandedSessionKeys = () => {
+  if (typeof window === 'undefined') return null
+  try {
+    const stored = window.sessionStorage.getItem(syllabusSessionStateKey)
+    if (!stored) return null
+    const parsed = JSON.parse(stored)
+    if (!Array.isArray(parsed)) return null
+    return new Set(parsed.filter((key) => allSessionKeys.includes(key)))
+  } catch {
+    return null
+  }
+}
+const initialExpandedSessionKeys = readExpandedSessionKeys()
 const collapsedSessions = ref(new Set(
-  syllabusWeeks.flatMap((week) => week.sessions.map((session) => sessionKey(week.week, session))),
+  allSessionKeys.filter((key) => !initialExpandedSessionKeys?.has(key)),
 ))
 const activeHash = ref('')
 const sessionContentId = (week, session) => `session-content-${sessionKey(week, session)}`
 const sessionDeliverablesId = (week, session) => `session-deliverables-${sessionKey(week, session)}`
+const moduleArticleTarget = (module, session) => ({
+  path: module.url,
+  query: { returnTo: `/syllabus#${session.anchorId}` },
+})
 const isSessionCollapsed = (week, session) => {
   if (session.milestone && activeHash.value === `#milestone-${session.milestone}`) return false
   if (activeHash.value === `#${session.anchorId}`) return false
   return collapsedSessions.value.has(sessionKey(week, session))
+}
+const saveExpandedSessionKeys = (nextCollapsedSessions) => {
+  if (typeof window === 'undefined') return
+  try {
+    const expanded = allSessionKeys.filter((key) => !nextCollapsedSessions.has(key))
+    window.sessionStorage.setItem(syllabusSessionStateKey, JSON.stringify(expanded))
+  } catch {
+    // 会话存储不可用时仍保留当前页面内的展开状态。
+  }
+}
+const saveSyllabusScrollPosition = () => {
+  if (typeof window === 'undefined') return
+  try {
+    window.sessionStorage.setItem(syllabusScrollPositionKey, String(Math.max(0, Math.round(window.scrollY))))
+  } catch {
+    // 会话存储不可用时仍保留浏览器自身的滚动恢复能力。
+  }
+}
+const restoreSyllabusScrollPosition = () => {
+  if (typeof window === 'undefined' || window.location.hash) return
+  let savedPosition = 0
+  try {
+    savedPosition = Number.parseFloat(window.sessionStorage.getItem(syllabusScrollPositionKey) || '0')
+  } catch {
+    savedPosition = 0
+  }
+  if (!Number.isFinite(savedPosition) || savedPosition <= 0) return
+  const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
+  window.scrollTo({ top: Math.min(savedPosition, maxScroll), behavior: 'auto' })
+}
+let syllabusScrollSaveTimer = null
+let syllabusScrollRestoreTimer = null
+const scheduleSaveSyllabusScrollPosition = () => {
+  if (syllabusScrollSaveTimer) window.clearTimeout(syllabusScrollSaveTimer)
+  syllabusScrollSaveTimer = window.setTimeout(() => {
+    syllabusScrollSaveTimer = null
+    saveSyllabusScrollPosition()
+  }, 120)
 }
 const toggleSession = (week, session) => {
   if (session.milestone && activeHash.value === `#milestone-${session.milestone}`) activeHash.value = ''
@@ -257,6 +325,7 @@ const toggleSession = (week, session) => {
   if (next.has(key)) next.delete(key)
   else next.add(key)
   collapsedSessions.value = next
+  saveExpandedSessionKeys(next)
 }
 const syncHashTarget = async () => {
   activeHash.value = window.location.hash
@@ -282,10 +351,24 @@ const activateTarget = (target, event) => {
   syncHashTarget()
 }
 onMounted(() => {
+  window.addEventListener('scroll', scheduleSaveSyllabusScrollPosition, { passive: true })
+  window.addEventListener('pagehide', saveSyllabusScrollPosition)
   window.addEventListener('hashchange', syncHashTarget)
   syncHashTarget()
+  // 参考图和异步内容可能在路由滚动恢复后改变页面高度，稳定后再次校正位置。
+  syllabusScrollRestoreTimer = window.setTimeout(() => {
+    syllabusScrollRestoreTimer = null
+    restoreSyllabusScrollPosition()
+  }, 400)
 })
-onBeforeUnmount(() => window.removeEventListener('hashchange', syncHashTarget))
+onBeforeUnmount(() => {
+  saveSyllabusScrollPosition()
+  if (syllabusScrollSaveTimer) window.clearTimeout(syllabusScrollSaveTimer)
+  if (syllabusScrollRestoreTimer) window.clearTimeout(syllabusScrollRestoreTimer)
+  window.removeEventListener('scroll', scheduleSaveSyllabusScrollPosition)
+  window.removeEventListener('pagehide', saveSyllabusScrollPosition)
+  window.removeEventListener('hashchange', syncHashTarget)
+})
 const cleanDeliverableText = (value) => String(value)
   .replace(/[（(]阶段成果\s*[①②③④⑤1-5]+\s*[，,]?\s*计入考核[）)]/g, '')
   .replace(/[；;]\s*阶段成果\s*[①②③④⑤1-5]+\s*[。.]?/g, '')
@@ -485,7 +568,12 @@ const { rooms, topics, groups, loading, error } = useCourseState()
 }
 .content-points li { padding-left: 0.15rem; }
 .content-points li::marker { color: var(--week-color); }
-.content-modules { margin-top: 1.35rem; }
+.schedule-table tr.has-content-modules > td { border-bottom: 0; }
+.schedule-table tr.has-content-modules > .session-overview { border-bottom: 1px solid var(--syllabus-rule); }
+.content-modules-row td { border-bottom: 1px solid var(--syllabus-rule); }
+.content-modules-method { padding: 0 !important; }
+.content-modules-cell { padding-top: 0 !important; }
+.content-modules { margin: 0; }
 .module-label {
   margin: 0 0 0.55rem !important;
   color: var(--syllabus-muted);
@@ -505,8 +593,21 @@ const { rooms, topics, groups, loading, error } = useCourseState()
   font-size: 1rem;
   line-height: 1.35;
 }
+.content-module-card h3 a { color: inherit; text-decoration: none; }
+.content-module-card h3 a:hover { text-decoration: underline; text-decoration-color: var(--week-color); text-underline-offset: 0.18em; }
 .content-module-card .module-instructor { margin-top: 0.35rem !important; color: var(--week-color); font-size: 0.78rem; font-weight: 600; line-height: 1.35; }
 .content-module-card .module-description { margin-top: 0.6rem !important; color: var(--syllabus-muted); font-size: 0.82rem; line-height: 1.55; }
+.module-outline-link {
+  display: inline-flex;
+  gap: 0.45rem;
+  margin-top: 0.9rem;
+  color: var(--syllabus-ink);
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-decoration-color: var(--week-color);
+  text-underline-offset: 0.2em;
+}
 .session-deliverables { vertical-align: top; }
 .session-content.is-collapsed,
 .session-deliverables.is-collapsed { padding-top: 0.7rem; padding-bottom: 0.7rem; }
@@ -741,14 +842,21 @@ const { rooms, topics, groups, loading, error } = useCourseState()
   .session-content-body,
   .session-deliverables-body { min-width: 0; }
   .session-content .session-content-body { grid-column: 2; }
-  .session-content .content-modules { margin-top: 1.5rem; }
-  .session-content .content-module-card {
+  .content-modules-row { padding: 0 !important; border: 0 !important; }
+  .content-modules-row .content-modules-method { display: none; }
+  .content-modules-row .content-modules-cell {
+    display: block;
+    padding: 0.65rem 0 !important;
+    border: 0;
+  }
+  .content-modules-row .content-modules-cell::before { content: none; }
+  .content-modules-row .content-module-card {
     padding: 1.1rem;
     border-width: 1px;
   }
-  .session-content .content-module-card h3 { font-size: 1.12rem; }
-  .session-content .content-module-card .module-instructor { font-size: 0.88rem; }
-  .session-content .content-module-card .module-description { font-size: 0.92rem; line-height: 1.65; }
+  .content-modules-row .content-module-card h3 { font-size: 1.12rem; }
+  .content-modules-row .content-module-card .module-instructor { font-size: 0.88rem; }
+  .content-modules-row .content-module-card .module-description { font-size: 0.92rem; line-height: 1.65; }
   .schedule-table .session-content.is-collapsed,
   .schedule-table .session-deliverables.is-collapsed { display: none; }
   .schedule-table .topic-matcher-row { padding: 1.4rem 0 2rem; }

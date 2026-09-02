@@ -23,22 +23,20 @@
               type="button"
               class="lang-btn"
               :class="{ 'is-active': currentLang === 'en' }"
+              :disabled="!availableLanguages.includes('en')"
+              :aria-disabled="!availableLanguages.includes('en')"
               @click="switchLanguage('en')"
             >
               EN
             </button>
           </div>
 
-          <div class="reader-tag-label">
-            <span class="color-badge"></span>
-            <span class="badge-text">01 / Text · 经典文献</span>
-          </div>
         </div>
       </div>
     </header>
 
     <!-- 2. 移动端/窄屏吸顶目录栏 (可收缩/跳转) -->
-    <nav v-if="metadata.sections && metadata.sections.length" class="mobile-toc-bar" aria-label="移动端目录">
+    <nav v-if="tocSections.length" class="mobile-toc-bar" aria-label="移动端目录">
       <button type="button" class="mobile-toc-toggle" @click="mobileTocOpen = !mobileTocOpen">
         <span class="toggle-icon">☰</span>
         <span class="current-section-text">
@@ -47,16 +45,34 @@
         <span class="arrow-icon">{{ mobileTocOpen ? '▲' : '▼' }}</span>
       </button>
       <div v-show="mobileTocOpen" class="mobile-toc-dropdown">
-        <ul>
+        <ul class="mobile-toc-list">
           <li
-            v-for="sec in metadata.sections"
+            v-for="sec in tocSections"
             :key="sec.id"
-            :class="{ 'is-active': activeSectionId === sec.id }"
+            :class="{ 'is-active': isTocSectionActive(sec) }"
           >
-            <a :href="`#${sec.id}`" @click.prevent="onSectionClick(sec.id)">
-              <span class="sec-label">{{ currentLang === 'zh' ? sec.label : sec.title }}</span>
-              <span class="sec-en">{{ currentLang === 'zh' ? sec.title : sec.label }}</span>
-            </a>
+            <div class="toc-section-row">
+              <a :href="`#${sec.id}`" @click.prevent="onSectionClick(sec.id)">
+                <span class="sec-label">{{ sec.label }}</span>
+              </a>
+              <button
+                v-if="sec.children?.length"
+                type="button"
+                class="toc-expand-toggle"
+                :aria-expanded="isTocSectionExpanded(sec.id)"
+                :aria-label="isTocSectionExpanded(sec.id) ? '收起子目录' : '展开子目录'"
+                @click.stop="toggleTocSection(sec.id)"
+              >
+                {{ isTocSectionExpanded(sec.id) ? '−' : '+' }}
+              </button>
+            </div>
+            <ul v-if="sec.children?.length" v-show="isTocSectionExpanded(sec.id)" class="toc-sublist">
+              <li v-for="child in sec.children" :key="child.id" :class="{ 'is-active': activeSectionId === child.id }">
+                <a :href="`#${child.id}`" @click.prevent="onSectionClick(child.id)">
+                  <span class="sec-label">{{ child.label }}</span>
+                </a>
+              </li>
+            </ul>
           </li>
         </ul>
       </div>
@@ -72,22 +88,40 @@
         <router-link to="/resources/articles">返回文章列表</router-link>
       </div>
 
-      <div v-else class="reader-grid">
+      <div v-else class="reader-grid" :class="{ 'meta-is-collapsed': metaCollapsed }">
         <!-- 3. 桌面端左侧：随视图平滑吸顶跟随的目录大纲 -->
         <aside class="reader-toc-col" aria-label="章节大纲">
           <div class="toc-sticky-box">
             <span class="toc-title">目录大纲 / CONTENTS</span>
             <nav class="toc-nav">
-              <ul>
+              <ul class="toc-list">
                 <li
-                  v-for="sec in metadata.sections || []"
+                  v-for="sec in tocSections"
                   :key="sec.id"
-                  :class="{ 'is-active': activeSectionId === sec.id }"
+                  :class="{ 'is-active': isTocSectionActive(sec) }"
                 >
-                  <a :href="`#${sec.id}`" @click.prevent="onSectionClick(sec.id)">
-                    <span class="sec-label">{{ currentLang === 'zh' ? sec.label : sec.title }}</span>
-                    <span class="sec-en">{{ currentLang === 'zh' ? sec.title : sec.label }}</span>
-                  </a>
+                  <div class="toc-section-row">
+                    <a :href="`#${sec.id}`" @click.prevent="onSectionClick(sec.id)">
+                      <span class="sec-label">{{ sec.label }}</span>
+                    </a>
+                    <button
+                      v-if="sec.children?.length"
+                      type="button"
+                      class="toc-expand-toggle"
+                      :aria-expanded="isTocSectionExpanded(sec.id)"
+                      :aria-label="isTocSectionExpanded(sec.id) ? '收起子目录' : '展开子目录'"
+                      @click.stop="toggleTocSection(sec.id)"
+                    >
+                      {{ isTocSectionExpanded(sec.id) ? '−' : '+' }}
+                    </button>
+                  </div>
+                  <ul v-if="sec.children?.length" v-show="isTocSectionExpanded(sec.id)" class="toc-sublist">
+                    <li v-for="child in sec.children" :key="child.id" :class="{ 'is-active': activeSectionId === child.id }">
+                      <a :href="`#${child.id}`" @click.prevent="onSectionClick(child.id)">
+                        <span class="sec-label">{{ child.label }}</span>
+                      </a>
+                    </li>
+                  </ul>
                 </li>
               </ul>
             </nav>
@@ -107,15 +141,11 @@
             <h1 class="article-main-title">
               {{ currentLang === 'zh' ? metadata.title : (metadata.titleEn || metadata.title) }}
             </h1>
-            <p v-if="metadata.titleEn" class="article-sub-title">
-              {{ currentLang === 'zh' ? metadata.titleEn : metadata.title }}
-            </p>
-            <div class="article-byline">
+            <div v-if="metadata.author" class="article-byline">
               <span class="author-name">{{ metadata.author }}</span>
-              <span class="source-year">{{ metadata.source }} ({{ metadata.year }})</span>
             </div>
             <div v-if="metadata.summary" class="article-summary-box">
-              <strong>导读 / Summary：</strong>{{ metadata.summary }}
+              <strong>{{ currentLang === 'zh' ? '导读' : 'Summary' }}：</strong>{{ metadata.summary }}
             </div>
           </header>
 
@@ -123,70 +153,104 @@
         </article>
 
         <!-- 5. 右侧：元数据与档案资料 column -->
-        <aside class="reader-meta-col" aria-label="文献元数据与资源">
+        <aside v-if="!metaCollapsed" class="reader-meta-col" aria-label="文献元数据与资源">
           <div class="meta-sticky-box">
-            <div class="meta-block">
-              <span class="meta-label">文献出处</span>
-              <p class="meta-value">{{ metadata.source }}</p>
-              <p v-if="metadata.bookSource" class="meta-subvalue">{{ metadata.bookSource }}</p>
-            </div>
+            <button
+              type="button"
+              class="meta-collapse-toggle"
+              :aria-expanded="!metaCollapsed"
+              aria-controls="article-meta-content"
+              @click="metaCollapsed = !metaCollapsed"
+            >
+              <span>文献元信息</span>
+              <span class="meta-collapse-icon" aria-hidden="true">{{ metaCollapsed ? '+' : '−' }}</span>
+            </button>
 
-            <div class="meta-block">
-              <span class="meta-label">发表年份</span>
-              <p class="meta-value">{{ metadata.year }}</p>
-            </div>
-
-            <div class="meta-block">
-              <span class="meta-label">主题标签</span>
-              <div class="meta-tags">
-                <span v-for="tag in metadata.tags" :key="tag" class="meta-tag-item">{{ tag }}</span>
+            <div v-show="!metaCollapsed" id="article-meta-content" class="meta-content">
+              <div class="meta-block">
+                <span class="meta-label">文献出处</span>
+                <p class="meta-value">{{ metadata.source }}</p>
+                <p v-if="metadata.bookSource" class="meta-subvalue">{{ metadata.bookSource }}</p>
               </div>
-            </div>
 
-            <!-- 关联外部资源与代码库卡片 -->
-            <div v-if="metadata.links && metadata.links.length" class="meta-block">
-              <span class="meta-label">关联站点与代码仓库</span>
-              <div class="meta-links-list">
+              <div class="meta-block meta-inline-block">
+                <div class="meta-inline-row">
+                  <span class="meta-label">发表年份</span>
+                  <p class="meta-value">{{ metadata.year }}</p>
+                </div>
+              </div>
+
+              <div class="meta-block">
+                <span class="meta-label">主题标签</span>
+                <div class="meta-tags">
+                  <span v-for="tag in metadata.tags" :key="tag" class="meta-tag-item">{{ tag }}</span>
+                </div>
+              </div>
+
+              <!-- 关联外部资源与代码库卡片 -->
+              <div v-if="metadata.links && metadata.links.length" class="meta-block">
+                <span class="meta-label">关联站点与代码仓库</span>
+                <div class="meta-links-list">
+                  <a
+                    v-for="(link, idx) in metadata.links"
+                    :key="idx"
+                    :href="link.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="meta-link-item"
+                  >
+                    <span class="meta-link-badge">{{ link.type === 'github' ? 'CODE' : 'WEB' }}</span>
+                    <div class="meta-link-info">
+                      <span class="meta-link-name">{{ link.label }}</span>
+                      <span class="meta-link-desc">{{ link.desc || link.url }}</span>
+                    </div>
+                    <span class="meta-link-arrow" aria-hidden="true">↗</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- 仅当确实有原版 PDF 存档时才显示下载区块 -->
+              <div v-if="metadata.pdfUrl && (metadata.pdfUrl.endsWith('.pdf') || metadata.pdfUrl.includes('origin.pdf'))" class="meta-block meta-download">
+                <span class="meta-label">原版文献存档</span>
                 <a
-                  v-for="(link, idx) in metadata.links"
-                  :key="idx"
-                  :href="link.url"
+                  :href="metadata.pdfUrl"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="meta-link-item"
+                  class="pdf-download-btn"
                 >
-                  <span class="meta-link-badge">{{ link.type === 'github' ? 'CODE' : 'WEB' }}</span>
-                  <div class="meta-link-info">
-                    <span class="meta-link-name">{{ link.label }}</span>
-                    <span class="meta-link-desc">{{ link.desc || link.url }}</span>
-                  </div>
-                  <span class="meta-link-arrow" aria-hidden="true">↗</span>
+                  下载 / 查看原版 PDF <span aria-hidden="true">↗</span>
                 </a>
               </div>
             </div>
-
-            <!-- 仅当确实有原版 PDF 存档时才显示下载区块 -->
-            <div v-if="metadata.pdfUrl && (metadata.pdfUrl.endsWith('.pdf') || metadata.pdfUrl.includes('origin.pdf'))" class="meta-block meta-download">
-              <span class="meta-label">原版文献存档</span>
-              <a
-                :href="metadata.pdfUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="pdf-download-btn"
-              >
-                下载 / 查看原版 PDF <span aria-hidden="true">↗</span>
-              </a>
-            </div>
           </div>
         </aside>
+
+        <button
+          v-else
+          type="button"
+          class="meta-expand-toggle"
+          aria-expanded="false"
+          aria-controls="article-meta-content"
+          aria-label="展开文献元信息"
+          @click="metaCollapsed = false"
+        >
+          <span class="meta-expand-label" aria-hidden="true">
+            <span>·</span>
+            <span>·</span>
+            <span>·</span>
+          </span>
+        </button>
       </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { resourceArticles } from '../../data/resources/index.js'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
+import { resourceArticles, resources } from '../../data/resources/index.js'
+import { parseArticleOutline } from '../../utils/markdown/articleOutline.js'
+import { renderArticleMarkdown } from '../../utils/markdown/articleMarkdown.js'
+import '../../styles/article-markdown.css'
 
 const props = defineProps({
   id: {
@@ -201,291 +265,133 @@ const error = ref('')
 const metadata = ref({})
 const rawMarkdown = ref('')
 const renderedContent = ref('')
-const activeSectionId = ref('intro')
+const outline = ref({ sections: [], headings: [] })
+const activeSectionId = ref('')
 const mobileTocOpen = ref(false)
+const expandedSectionIds = ref(new Set())
+const metaCollapsed = ref(false)
 
 let observer = null
 let isProgrammaticScroll = false
+let savePositionTimer = null
+
+const getReadingPositionKey = (articleId = props.id, language = currentLang.value) => (
+  `article-reader-position:${articleId || 'unknown'}:${language}`
+)
+
+const saveReadingPosition = (articleId = props.id, language = currentLang.value) => {
+  if (!articleId || typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(getReadingPositionKey(articleId, language), String(Math.max(0, window.scrollY)))
+  } catch {
+    // 本地存储不可用时不影响正文阅读。
+  }
+}
+
+const scheduleSaveReadingPosition = () => {
+  if (savePositionTimer) window.clearTimeout(savePositionTimer)
+  savePositionTimer = window.setTimeout(() => {
+    savePositionTimer = null
+    saveReadingPosition()
+  }, 180)
+}
+
+const cancelScheduledSave = () => {
+  if (savePositionTimer) {
+    window.clearTimeout(savePositionTimer)
+    savePositionTimer = null
+  }
+}
+
+const restoreReadingPosition = (articleId = props.id, language = currentLang.value) => {
+  if (!articleId || typeof window === 'undefined') return
+  let savedPosition = 0
+  try {
+    savedPosition = Number.parseFloat(window.localStorage.getItem(getReadingPositionKey(articleId, language)) || '0')
+  } catch {
+    savedPosition = 0
+  }
+
+  const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
+  const nextPosition = Number.isFinite(savedPosition)
+    ? Math.min(Math.max(0, savedPosition), maxScroll)
+    : 0
+  window.scrollTo({ top: nextPosition, behavior: 'auto' })
+}
+
+const handleVisibilityChange = () => {
+  if (document.visibilityState === 'hidden') saveReadingPosition()
+}
+
+const handlePageHide = () => {
+  saveReadingPosition()
+}
+
+const tocSections = computed(() => outline.value.sections || [])
+
+const availableLanguages = computed(() => metadata.value.languages || ['zh'])
+
+const flattenTocSections = (sections = []) => sections.flatMap((section) => [
+  section,
+  ...flattenTocSections(section.children || []),
+])
 
 const currentSectionLabel = computed(() => {
-  const currentSec = metadata.value.sections?.find((s) => s.id === activeSectionId.value)
-  if (!currentSec) return currentLang.value === 'zh' ? '导言与背景' : 'Introduction'
-  return currentLang.value === 'zh' ? currentSec.label : currentSec.title
+  const currentSec = flattenTocSections(tocSections.value).find((section) => section.id === activeSectionId.value)
+  return currentSec?.label || metadata.value.title || ''
 })
 
-const linkPreviews = {
-  'pudding.cool': {
-    image: 'https://pudding.cool/common/assets/social/og-facebook.jpg',
-    alt: 'The Pudding 网站预览',
-  },
+const isTocSectionExpanded = (sectionId) => expandedSectionIds.value.has(sectionId)
+
+const toggleTocSection = (sectionId) => {
+  const next = new Set(expandedSectionIds.value)
+  if (next.has(sectionId)) next.delete(sectionId)
+  else next.add(sectionId)
+  expandedSectionIds.value = next
 }
 
-const getLinkPreview = (url) => {
-  try {
-    const hostname = new URL(url).hostname.replace(/^www\./, '')
-    return linkPreviews[hostname]
-  } catch {
-    return null
+const isTocSectionActive = (section) => section.id === activeSectionId.value
+  || (section.children || []).some((child) => child.id === activeSectionId.value)
+
+const setActiveSection = (sectionId) => {
+  activeSectionId.value = sectionId
+  const parent = tocSections.value.find((section) => (section.children || []).some((child) => child.id === sectionId))
+  if (parent && !expandedSectionIds.value.has(parent.id)) {
+    const next = new Set(expandedSectionIds.value)
+    next.add(parent.id)
+    expandedSectionIds.value = next
   }
-}
-
-const getVideoEmbed = (url) => {
-  try {
-    const parsed = new URL(url)
-    const hostname = parsed.hostname.replace(/^www\./, '')
-    let youtubeId = ''
-
-    if (hostname === 'youtu.be') youtubeId = parsed.pathname.slice(1)
-    if (hostname === 'youtube.com' || hostname === 'm.youtube.com') {
-      youtubeId = parsed.searchParams.get('v') || parsed.pathname.match(/^\/(?:shorts|embed)\/([^/?]+)/)?.[1] || ''
-    }
-    if (youtubeId) {
-      return {
-        platform: 'YouTube',
-        src: `https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=0`,
-      }
-    }
-
-    if (hostname === 'bilibili.com' || hostname === 'm.bilibili.com') {
-      const bvid = parsed.pathname.match(/\/video\/(BV[\w-]+)/i)?.[1]
-      if (bvid) {
-        return {
-          platform: 'Bilibili',
-          src: `https://player.bilibili.com/player.html?bvid=${bvid}&page=1&high_quality=1&danmaku=0&autoplay=0`,
-        }
-      }
-    }
-  } catch {
-    return null
-  }
-  return null
-}
-
-const renderVideoCard = (url, title) => {
-  const video = getVideoEmbed(url)
-  if (!video) return ''
-  return `<section class="article-video-card">
-    <div class="article-video-frame">
-      <iframe src="${video.src}" title="${title} · ${video.platform} 视频播放器" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-    </div>
-    <a href="${url}" target="_blank" rel="noopener noreferrer" class="article-video-link"><span>视频</span><strong>${title}</strong><span aria-hidden="true">↗</span></a>
-  </section>`
-}
-
-const getSectionSlug = (title) => {
-  const cleanTitle = title.trim()
-  const matched = metadata.value.sections?.find(
-    (section) => cleanTitle.includes(section.label) || section.label.includes(cleanTitle) || cleanTitle.toLowerCase().includes(section.title.toLowerCase())
-  )
-  if (matched) return matched.id
-  if (cleanTitle.includes('注释') || cleanTitle.includes('笔记') || cleanTitle.toUpperCase().includes('NOTES')) return 'notes'
-  return cleanTitle.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]+/g, '-')
-}
-
-// 解析 Markdown 并修正相对图片路径与注脚
-const renderMarkdown = (md, articleId) => {
-  if (!md) return ''
-
-  let text = md
-
-  // 隐藏尚未配置站内跳转地址的 Obsidian 双方括号引用，避免将占位文本显示给读者。
-  text = text.replace(/^\s*\[\[[^\]\n]+\]\]\s*$/gm, '')
-
-  // 0. 清理正文开头重复的章节号、一级大标题与作者行（这些已经在 article-head 中规范渲染）
-  text = text.replace(/^(?:CHAPTER\s+\d+|第[一二三四五六七八九十\d]+章)\s*\n+/i, '')
-  text = text.replace(/^#\s+[^\n]+\n+/, '')
-  text = text.replace(/^(?:\*\*[^\n]+\*\*|\*[^\n]+\*|[A-Z\s]{4,}|(?:作者|Author)[：:][^\n]*)\s*\n+/im, '')
-  text = text.replace(/^(?:\*\*[^\n]+\*\*|\*[^\n]+\*)\s*\n+/m, '')
-
-  // 1. 识别并转换外部资源与代码库链接为精致的链接卡片网格
-  text = text.replace(
-    /(?:(?:网站链接|官网链接|主站链接|GitHub\s*仓库链接|Github\s*链接|开源仓库|参考链接|在线链接|视频链接|YouTube|Bilibili|哔哩哔哩)[：:]\s*https?:\/\/[^\s\n]+\s*)+/gi,
-    (match) => {
-      const lines = match.trim().split('\n')
-      const cardsHtml = lines
-        .map((line) => {
-          const parts = line.split(/[：:]\s*(https?:\/\/[^\s\n]+)/)
-          if (parts.length < 2) return ''
-          const rawLabel = parts[0].trim()
-          const url = parts[1].trim()
-          const isGithub = url.includes('github.com') || rawLabel.toLowerCase().includes('github')
-          const badge = isGithub ? 'GITHUB' : 'WEBSITE'
-          const title = isGithub ? 'GitHub 源码仓库' : (rawLabel.includes('网站') || rawLabel.includes('官网') ? '官方主站' : rawLabel)
-          const video = getVideoEmbed(url)
-          if (video) {
-            return renderVideoCard(url, title)
-          }
-
-          const preview = getLinkPreview(url)
-          const previewHtml = preview
-            ? `<figure class="link-card-preview"><img src="${preview.image}" alt="${preview.alt}" loading="lazy" referrerpolicy="no-referrer" /></figure>`
-            : ''
-
-          return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="article-link-card-item${preview ? ' has-preview' : ''}">
-            ${previewHtml}
-            <div class="link-card-content">
-              <div class="link-card-top">
-                <span class="link-card-tag ${isGithub ? 'tag-github' : 'tag-web'}">${badge}</span>
-                <span class="link-card-arrow" aria-hidden="true">↗</span>
-              </div>
-              <div class="link-card-title">${title}</div>
-              <div class="link-card-url">${url.replace(/^https?:\/\//, '')}</div>
-            </div>
-          </a>`
-        })
-        .filter(Boolean)
-        .join('')
-
-      return `<div class="article-link-cards-grid">${cardsHtml}</div>\n\n`
-    }
-  )
-
-  // 1.5 识别单独一行的 YouTube / Bilibili 地址，无须额外添加“视频链接”标签
-  text = text.replace(/^https?:\/\/[^\s\n]+$/gm, (url) => {
-    const video = getVideoEmbed(url)
-    return video ? renderVideoCard(url, `${video.platform} 视频`) : url
-  })
-
-  // 1.6 识别 Markdown 格式的视频链接，例如：[课程视频](https://www.youtube.com/watch?v=...)
-  text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (match, label, url) => {
-    return getVideoEmbed(url) ? renderVideoCard(url, label) : match
-  })
-
-  // 2. 替换相对图片路径：images/xxx.jpg -> /articles/:id/images/xxx.jpg
-  let html = text.replace(
-    /!\[(.*?)\]\(images\/(.*?)\)/g,
-    `<figure class="article-figure">
-      <img src="/articles/${articleId}/images/$2" alt="$1" loading="lazy" />
-      <figcaption>$1</figcaption>
-    </figure>`
-  )
-
-  // 3. 转换二级标题为带有 ID 的 H2 锚点
-  html = html.replace(/^##\s+(.+)$/gm, (match, title) => {
-    const cleanTitle = title.trim()
-    return `<h2 id="${getSectionSlug(cleanTitle)}" class="section-heading">${cleanTitle}</h2>`
-  })
-
-  // 3. 处理脚标 (Footnotes): 提取尾注内容以支持悬停预览 (Popover)
-  const footnotesDict = {}
-  html.replace(/^\[\^(\d+)\]:\s+(.+)$/gm, (match, fnId, fnText) => {
-    // 过滤 Markdown 标记以便在 popover 中纯净展示
-    let cleanFn = fnText.trim()
-    cleanFn = cleanFn.replace(/\*\*([^*]+)\*\*/g, '$1')
-    cleanFn = cleanFn.replace(/\*([^*]+)\*/g, '$1')
-    cleanFn = cleanFn.replace(/"/g, '&quot;')
-    footnotesDict[fnId] = cleanFn
-    return match
-  })
-
-  // 尾注列表 DOM (支持富文本)
-  html = html.replace(
-    /^\[\^(\d+)\]:\s+(.+)$/gm,
-    (match, fnId, fnContent) => {
-      let formatted = fnContent.trim()
-      formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>')
-      return `<div class="footnote-item" id="fn-${fnId}">
-        <span class="fn-num">[${fnId}]</span>
-        <span class="fn-text">${formatted}</span>
-        <a href="#fnref-${fnId}" class="fn-backref" aria-label="跳回正文出处" title="跳回正文出处">↩</a>
-      </div>`
-    }
-  )
-
-  // 正文角标 DOM (带悬浮预览 popover)
-  html = html.replace(/\[\^(\d+)\](?!:)/g, (match, fnId) => {
-    const previewText = footnotesDict[fnId] || ''
-    return `<sup class="footnote-ref">
-      <a id="fnref-${fnId}" href="#fn-${fnId}" title="点击跳转至注脚 [${fnId}]">
-        [${fnId}]
-      </a>
-      <span class="footnote-popover" role="tooltip">
-        <span class="popover-num">[${fnId}]</span> ${previewText}
-      </span>
-    </sup>`
-  })
-
-  // 4. 转换多行代码块与 ASCII 架构图（``` ... ```）
-  html = html.replace(/```([a-z0-9_-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
-    const escaped = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    return `<pre class="article-code-block"><code>${escaped}</code></pre>`
-  })
-
-  // 5. 转换一级标题与三级标题
-  html = html.replace(/^#\s+(.+)$/gm, (match, title) => `<h1 id="${getSectionSlug(title)}" class="article-title-internal section-heading">${title}</h1>`)
-  html = html.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>')
-
-  // 6. 将 Obsidian 风格的提示块与常规列表转换为语义化内容块
-  html = html.replace(/^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING)\]\s*([^\n]*)\n((?:>[^\n]*(?:\n|$))*)/gm, (match, kind, title, body) => {
-    const lines = body
-      .trim()
-      .split('\n')
-      .map((line) => line.replace(/^>\s?/, '').trim())
-      .filter(Boolean)
-    const hasOrderedItems = lines.length > 0 && lines.every((line) => /^\d+[.)]\s+/.test(line))
-    const content = hasOrderedItems
-      ? `<ol>${lines.map((line) => `<li>${line.replace(/^\d+[.)]\s+/, '')}</li>`).join('')}</ol>`
-      : `<p>${lines.join(' ')}</p>`
-    return `<aside class="article-callout article-callout-${kind.toLowerCase()}"><div class="article-callout-label">${title || kind}</div>${content}</aside>`
-  })
-
-  html = html.replace(/(?:^\d+[.)]\s+.+(?:\n|$))+/gm, (match) => {
-    const items = match.trim().split('\n').map((line) => line.replace(/^\d+[.)]\s+/, ''))
-    return `<ol>${items.map((item) => `<li>${item}</li>`).join('')}</ol>`
-  })
-
-  html = html.replace(/(?:^[-*+]\s+.+(?:\n|$))+/gm, (match) => {
-    const items = match.trim().split('\n').map((line) => line.replace(/^[-*+]\s+/, ''))
-    return `<ul>${items.map((item) => `<li>${item}</li>`).join('')}</ul>`
-  })
-
-  // 7. 行内格式解析：粗体、斜体、链接、代码
-  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-  html = html.replace(/__([^_]+)__/g, '<strong>$1</strong>')
-  html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>')
-  html = html.replace(/_([^_]+)_/g, '<em>$1</em>')
-  html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
-
-  // 8. 处理段落与换行
-  const paragraphs = html.split(/\n\n+/)
-  html = paragraphs
-    .map((p) => {
-      const trimmed = p.trim()
-      if (!trimmed) return ''
-      if (
-        trimmed.startsWith('<h') ||
-        trimmed.startsWith('<figure') ||
-        trimmed.startsWith('<div') ||
-        trimmed.startsWith('<aside') ||
-        trimmed.startsWith('<section') ||
-        trimmed.startsWith('<pre') ||
-        trimmed.startsWith('<ul') ||
-        trimmed.startsWith('<ol')
-      ) {
-        return trimmed
-      }
-      return `<p>${trimmed.replace(/\n/g, ' ')}</p>`
-    })
-    .join('\n')
-
-  return html
 }
 
 const loadArticleContent = async () => {
   const articleId = props.id || 'art-museums-ritual-citizenship'
-  const fileName = currentLang.value === 'zh' ? 'zh.md' : 'index.md'
+  const fileName = currentLang.value === 'zh' ? 'index.md' : 'en.md'
   const mdRes = await fetch(`/articles/${articleId}/${fileName}`)
   if (!mdRes.ok) throw new Error('无法加载文献内容')
   rawMarkdown.value = await mdRes.text()
-  renderedContent.value = renderMarkdown(rawMarkdown.value, articleId)
+  outline.value = parseArticleOutline(rawMarkdown.value)
+  expandedSectionIds.value = new Set(
+    outline.value.sections.filter((section) => section.children?.length).slice(0, 1).map((section) => section.id)
+  )
+  activeSectionId.value = outline.value.sections[0]?.id || ''
+  renderedContent.value = renderArticleMarkdown(rawMarkdown.value, {
+    articleId,
+    outline: outline.value,
+    resources,
+    language: currentLang.value,
+  })
 }
 
 const switchLanguage = async (lang) => {
+  if (!availableLanguages.value.includes(lang)) return
   if (currentLang.value === lang) return
+  cancelScheduledSave()
+  saveReadingPosition()
   currentLang.value = lang
   try {
     await loadArticleContent()
+    await nextTick()
+    restoreReadingPosition(props.id, currentLang.value)
     setTimeout(() => {
       initIntersectionObserver()
     }, 100)
@@ -495,11 +401,11 @@ const switchLanguage = async (lang) => {
 }
 
 const onSectionClick = (secId) => {
-  activeSectionId.value = secId
+  setActiveSection(secId)
   mobileTocOpen.value = false
   isProgrammaticScroll = true
 
-  if (secId === 'intro') {
+  if (!secId) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   } else {
     const el = document.getElementById(secId)
@@ -515,7 +421,11 @@ const onSectionClick = (secId) => {
 }
 
 const scrollToTop = () => {
-  onSectionClick('intro')
+  isProgrammaticScroll = true
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  setTimeout(() => {
+    isProgrammaticScroll = false
+  }, 600)
 }
 
 const initIntersectionObserver = () => {
@@ -528,7 +438,7 @@ const initIntersectionObserver = () => {
       if (isProgrammaticScroll) return
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          activeSectionId.value = entry.target.id
+          setActiveSection(entry.target.id)
         }
       })
     },
@@ -539,35 +449,30 @@ const initIntersectionObserver = () => {
 }
 
 onMounted(async () => {
+  window.addEventListener('scroll', scheduleSaveReadingPosition, { passive: true })
+  window.addEventListener('pagehide', handlePageHide)
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+
   try {
     const articleId = props.id || 'art-museums-ritual-citizenship'
 
-    // 1. 获取全局单一事实源（Single Source of Truth）
+    // 文章级信息只来自全局资源注册表；章节目录由当前语言 Markdown 解析生成。
     const registryMeta = resourceArticles.find((a) => a.id === articleId) || {}
-
-    // 2. 异步获取包内专属章节大纲（sections）与补充信息
-    let bundleMeta = {}
-    try {
-      const metaRes = await fetch(`/articles/${articleId}/metadata.json`)
-      if (metaRes.ok) bundleMeta = await metaRes.json()
-    } catch (e) {
-      console.warn('Bundle metadata load skipped:', e)
-    }
-
-    // 3. 统一聚合：标题、作者、年份、摘要、标签、链接全部以 resources.js 为主
     metadata.value = {
-      ...bundleMeta,
       ...registryMeta,
-      tags: registryMeta.tags || bundleMeta.tags || [],
-      links: registryMeta.links || bundleMeta.links || [],
-      sections: bundleMeta.sections || registryMeta.sections || [],
+      languages: registryMeta.languages || ['zh'],
+      tags: registryMeta.tags || [],
+      links: registryMeta.links || [],
       pdfUrl: registryMeta.url && (registryMeta.url.endsWith('.pdf') || registryMeta.url.includes('origin.pdf'))
         ? registryMeta.url
-        : (bundleMeta.pdfUrl || ''),
+        : '',
     }
 
     await loadArticleContent()
     loading.value = false
+
+    await nextTick()
+    restoreReadingPosition(articleId, currentLang.value)
 
     setTimeout(() => {
       initIntersectionObserver()
@@ -579,6 +484,11 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  saveReadingPosition()
+  cancelScheduledSave()
+  window.removeEventListener('scroll', scheduleSaveReadingPosition)
+  window.removeEventListener('pagehide', handlePageHide)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
   if (observer) {
     observer.disconnect()
   }
@@ -622,7 +532,7 @@ onUnmounted(() => {
 }
 
 .reader-back-btn:hover {
-  color: var(--accent-orange, #e65100);
+  color: var(--home-blue, #1976d2);
 }
 
 .reader-header-actions {
@@ -638,6 +548,7 @@ onUnmounted(() => {
   gap: 0.4rem;
   padding: 0.2rem 0.5rem;
   border: 1px solid var(--resources-rule, #d7d7d1);
+  border-radius: 999px;
   background-color: #fafaf9;
 }
 
@@ -656,6 +567,16 @@ onUnmounted(() => {
   color: var(--home-ink, #111111);
 }
 
+.lang-btn:disabled {
+  color: var(--resources-rule, #d7d7d1);
+  cursor: not-allowed;
+  opacity: 0.9;
+}
+
+.lang-btn:disabled:hover {
+  color: var(--resources-rule, #d7d7d1);
+}
+
 .lang-btn.is-active {
   color: var(--home-blue, #1976d2);
   font-weight: 700;
@@ -664,24 +585,6 @@ onUnmounted(() => {
 .lang-divider {
   color: var(--resources-rule, #d7d7d1);
   font-size: 0.72rem;
-}
-
-.reader-tag-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.76rem;
-  letter-spacing: 0.05em;
-}
-
-.color-badge {
-  width: 8px;
-  height: 8px;
-  background-color: var(--home-blue, #1976d2);
-}
-
-.badge-text {
-  color: var(--resources-muted, #8c8c88);
 }
 
 /* 移动端吸顶大纲栏 */
@@ -723,6 +626,74 @@ onUnmounted(() => {
   margin-bottom: 0.6rem;
 }
 
+.mobile-toc-list .toc-section-row,
+.toc-list .toc-section-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.mobile-toc-list .toc-section-row > a,
+.toc-list .toc-section-row > a {
+  flex: 1;
+  min-width: 0;
+}
+
+.toc-expand-toggle {
+  flex: 0 0 1rem;
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.2rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--resources-muted, #8c8c88);
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.toc-expand-toggle:hover {
+  color: var(--home-blue, #1976d2);
+}
+
+.toc-nav .toc-sublist {
+  list-style: none;
+  margin: 0.75rem 0 0.2rem;
+  padding: 0 0 0 1rem;
+}
+
+.toc-nav .toc-sublist li {
+  margin-bottom: 0.7rem;
+}
+
+.toc-nav .toc-sublist a {
+  padding-left: 0.65rem;
+  border-left-width: 1px;
+}
+
+.toc-nav .toc-sublist .sec-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.toc-nav .toc-sublist .sec-en {
+  font-size: 0.62rem;
+}
+
+.mobile-toc-list .toc-sublist {
+  margin-top: 0.7rem;
+  padding-left: 0.9rem;
+}
+
+.mobile-toc-list .toc-sublist li {
+  margin-bottom: 0.6rem;
+}
+
+.mobile-toc-list .toc-sublist a {
+  padding-left: 0.55rem;
+}
+
 .mobile-toc-dropdown a {
   display: flex;
   flex-direction: column;
@@ -750,10 +721,15 @@ onUnmounted(() => {
 }
 
 .reader-grid {
+  position: relative;
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr) 240px;
   gap: 3.5rem;
   align-items: start;
+}
+
+.reader-grid.meta-is-collapsed {
+  grid-template-columns: 240px minmax(0, 1fr);
 }
 
 /* 1. 左侧：跟随视图吸顶固定目录大纲 */
@@ -803,7 +779,7 @@ onUnmounted(() => {
 }
 
 .toc-nav li.is-active a {
-  border-left-color: var(--home-blue, #1976d2);
+  border-left-color: transparent;
   color: var(--home-ink, #111111);
 }
 
@@ -847,6 +823,11 @@ onUnmounted(() => {
   overflow-wrap: anywhere;
 }
 
+.article-head {
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid var(--resources-rule, #d7d7d1);
+}
+
 .article-chapter {
   display: block;
   margin-bottom: 0.5rem;
@@ -863,18 +844,11 @@ onUnmounted(() => {
   letter-spacing: -0.01em;
 }
 
-.article-sub-title {
-  margin-top: 0.4rem;
-  color: var(--resources-muted, #8c8c88);
-  font-size: 1.1rem;
-}
-
 .article-byline {
   display: flex;
+  align-items: baseline;
   gap: 1.5rem;
   margin-top: 1.2rem;
-  padding-bottom: 1.2rem;
-  border-bottom: 1px solid var(--resources-rule, #d7d7d1);
   color: var(--resources-muted, #8c8c88);
   font-size: 0.85rem;
 }
@@ -885,9 +859,9 @@ onUnmounted(() => {
 }
 
 .article-summary-box {
-  margin: 1.8rem 0 2.5rem;
+  margin: 1.2rem 0 0;
   padding: 1.2rem 1.4rem;
-  border-left: 3px solid var(--home-blue, #1976d2);
+  border: 0;
   background-color: #f9f9f8;
   color: #333333;
   font-size: 0.92rem;
@@ -906,10 +880,8 @@ onUnmounted(() => {
   text-align: justify;
 }
 
-:deep(.article-markdown-body .article-title-internal) {
+:deep(.article-markdown-body h1.section-heading) {
   margin: 4rem 0 1.6rem;
-  padding-top: 1.4rem;
-  border-top: 2px solid var(--home-ink, #111111);
   color: var(--home-ink, #111111);
   font-size: clamp(1.55rem, 3vw, 2rem);
   line-height: 1.3;
@@ -918,11 +890,13 @@ onUnmounted(() => {
 :deep(.article-markdown-body h2.section-heading) {
   margin-top: 3.5rem;
   margin-bottom: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--resources-rule, #d7d7d1);
   font-size: 1.4rem;
   font-weight: 700;
   letter-spacing: 0.05em;
+  scroll-margin-top: 5.5rem;
+}
+
+:deep(.article-markdown-body h3) {
   scroll-margin-top: 5.5rem;
 }
 
@@ -944,25 +918,45 @@ onUnmounted(() => {
   margin-top: 0.45rem;
 }
 
-:deep(.article-callout) {
-  margin: 1.8rem 0 2.5rem;
-  padding: 1.15rem 1.3rem;
-  border: 1px solid #bfd9f5;
-  border-left: 4px solid var(--home-blue, #1976d2);
-  background: #f4f9ff;
+:deep(.article-callout),
+:deep(.article-quote) {
+  margin: 1.8rem 1.35rem 2.5rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--resources-muted, #6e6e68);
+  font-size: 0.9rem;
+  line-height: 1.65;
 }
 
 :deep(.article-callout-label) {
   margin-bottom: 0.6rem;
-  color: var(--home-ink, #111111);
+  color: inherit;
   font-size: 0.88rem;
   font-weight: 700;
+}
+
+:deep(.article-callout-note) {
+  margin-right: 0;
+  margin-left: 0;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--resources-rule, #d7d7d1);
+  background: #f7f7f5;
 }
 
 :deep(.article-callout ol),
 :deep(.article-callout ul),
 :deep(.article-callout p) {
   margin: 0;
+}
+
+:deep(.article-markdown-body p.article-video-description) {
+  margin: 0;
+  padding: 0 0.8rem 0.35rem;
+}
+
+:deep(.article-quote) {
+  font-style: italic;
 }
 
 :deep(.article-code-block) {
@@ -980,6 +974,26 @@ onUnmounted(() => {
 :deep(.article-code-block code) {
   font-family: inherit;
   white-space: pre;
+}
+
+:deep(.article-code-block-prompt) {
+  overflow-x: hidden;
+}
+
+:deep(.article-code-block-prompt code) {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+:deep(.article-code-block-label) {
+  display: block;
+  margin-bottom: 0.65rem;
+  color: var(--resources-muted, #6e6e68);
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 :deep(.article-figure) {
@@ -1112,161 +1126,6 @@ onUnmounted(() => {
   color: var(--home-blue, #1976d2);
 }
 
-/* 4.5 正文外链卡片网格样式 */
-:deep(.article-link-cards-grid) {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1rem;
-  margin: 1.8rem 0 2.5rem;
-}
-
-:deep(.article-link-card-item) {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--resources-rule, #d7d7d1);
-  background-color: #fafaf9;
-  text-decoration: none;
-  overflow: hidden;
-  transition: all 0.18s ease;
-}
-
-:deep(.article-link-card-item:hover) {
-  border-color: var(--home-blue, #1976d2);
-  background-color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-:deep(.link-card-top) {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-
-:deep(.link-card-content) {
-  padding: 0.75rem 1rem;
-}
-
-:deep(.link-card-preview) {
-  width: 100%;
-  height: 9rem;
-  margin: 0;
-  overflow: hidden;
-  border-bottom: 1px solid var(--resources-rule, #d7d7d1);
-  background: #eef2f5;
-}
-
-:deep(.link-card-preview img) {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.35s ease;
-}
-
-:deep(.article-link-card-item:hover .link-card-preview img) {
-  transform: scale(1.025);
-}
-
-:deep(.link-card-tag) {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  padding: 0.15rem 0.4rem;
-  border: 1px solid currentColor;
-}
-
-:deep(.tag-github) {
-  color: #111111;
-  background-color: #f0f0f0;
-}
-
-:deep(.tag-web) {
-  color: var(--home-blue, #1976d2);
-  background-color: #eef6ff;
-}
-
-:deep(.link-card-arrow) {
-  color: var(--resources-muted, #8c8c88);
-  font-size: 0.9rem;
-  transition: transform 0.15s ease, color 0.15s ease;
-}
-
-:deep(.article-link-card-item:hover .link-card-arrow) {
-  color: var(--home-blue, #1976d2);
-  transform: translate(2px, -2px);
-}
-
-:deep(.link-card-title) {
-  color: var(--home-ink, #111111);
-  font-size: 0.92rem;
-  font-weight: 700;
-  line-height: 1.35;
-  margin-bottom: 0.3rem;
-}
-
-:deep(.link-card-url) {
-  color: var(--resources-muted, #8c8c88);
-  font-size: 0.76rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-:deep(.article-video-card) {
-  grid-column: 1 / -1;
-  margin: 1.8rem 0 2.5rem;
-  border: 1px solid var(--resources-rule, #d7d7d1);
-  background: #fafaf9;
-  overflow: hidden;
-}
-
-:deep(.article-video-frame) {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: #111111;
-}
-
-:deep(.article-video-frame iframe) {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-:deep(.article-video-link) {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.55rem 0.8rem;
-  color: var(--home-ink, #111111);
-  text-decoration: none;
-}
-
-:deep(.article-video-link span:first-child) {
-  padding: 0.12rem 0.36rem;
-  border: 1px solid currentColor;
-  color: var(--home-blue, #1976d2);
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-:deep(.article-video-link strong) {
-  overflow: hidden;
-  font-size: 0.84rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-:deep(.article-video-link:hover) {
-  background: #ffffff;
-}
-
 /* 5. 右侧：元数据与档案下载 */
 .reader-meta-col {
   position: sticky;
@@ -1279,10 +1138,90 @@ onUnmounted(() => {
   overflow-y: auto;
 }
 
-.meta-block {
-  margin-bottom: 1.8rem;
-  padding-bottom: 1.2rem;
+.meta-collapse-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin: 0 0 1.2rem;
+  padding: 0 0 0.75rem;
+  border: 0;
   border-bottom: 1px solid var(--resources-rule, #d7d7d1);
+  background: transparent;
+  color: var(--resources-muted, #8c8c88);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.meta-collapse-toggle:hover {
+  color: var(--home-blue, #1976d2);
+}
+
+.meta-collapse-icon {
+  color: inherit;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.meta-expand-toggle {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 35;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 0.9rem;
+  min-height: 2.6rem;
+  padding: 0.45rem 0.1rem;
+  border: 1px solid var(--resources-rule, #d7d7d1);
+  border-right: 0;
+  border-radius: 0.3rem 0 0 0.3rem;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--resources-muted, #8c8c88);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+.meta-expand-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.08rem;
+  line-height: 0.45;
+}
+
+.meta-expand-toggle:hover {
+  border: 1px solid var(--home-ink, #111111);
+  border-right: 0;
+  color: var(--home-ink, #111111);
+}
+
+.meta-block {
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--resources-rule, #d7d7d1);
+}
+
+.meta-inline-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.meta-inline-row .meta-label,
+.meta-inline-row .meta-value {
+  margin: 0;
+}
+
+.meta-inline-row .meta-value {
+  text-align: right;
 }
 
 .meta-label {
@@ -1295,13 +1234,14 @@ onUnmounted(() => {
 }
 
 .meta-value {
+  margin: 0;
   color: var(--home-ink, #111111);
   font-size: 0.9rem;
   font-weight: 600;
 }
 
 .meta-subvalue {
-  margin-top: 0.2rem;
+  margin: 0.2rem 0 0;
   color: var(--resources-muted, #8c8c88);
   font-size: 0.78rem;
 }
@@ -1422,6 +1362,10 @@ onUnmounted(() => {
   .reader-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
+  }
+
+  .reader-grid.meta-is-collapsed {
+    grid-template-columns: 1fr;
   }
 
   .reader-toc-col {

@@ -1,0 +1,210 @@
+.article-markdown-body a:not(.article-link-card-item):not(.article-video-link) {
+  color: var(--home-blue, #1976d2);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.article-link-cards-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  margin: 1.8rem 0 2.5rem;
+}
+
+.article-link-card-item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--resources-rule, #d7d7d1);
+  background-color: #fafaf9;
+  text-decoration: none;
+  overflow: hidden;
+  transition: all 0.18s ease;
+}
+
+.article-link-card-item:hover {
+  border-color: var(--home-blue, #1976d2);
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.link-card-top {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.link-card-content {
+  position: relative;
+  padding: 0.75rem 1rem;
+}
+
+.link-card-preview {
+  width: 100%;
+  height: 9rem;
+  margin: 0;
+  overflow: hidden;
+  border-bottom: 1px solid var(--resources-rule, #d7d7d1);
+  background: #eef2f5;
+}
+
+.link-card-preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.article-link-card-item:hover .link-card-preview img {
+  transform: scale(1.025);
+}
+
+.link-card-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.08rem 0.34rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+}
+
+.tag-github {
+  color: #111111;
+  background-color: transparent;
+}
+
+.tag-web {
+  color: var(--home-blue, #1976d2);
+  background-color: transparent;
+}
+
+.tag-video {
+  color: var(--home-blue, #1976d2);
+  background-color: transparent;
+}
+
+.link-card-arrow {
+  color: var(--resources-muted, #8c8c88);
+  font-size: 0.9rem;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.article-link-card-item:hover .link-card-arrow {
+  color: var(--home-blue, #1976d2);
+  transform: translate(2px, -2px);
+}
+
+.link-card-title {
+  margin-bottom: 0.3rem;
+  padding-right: 6.8rem;
+  color: var(--home-ink, #111111);
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.link-card-description {
+  margin-bottom: 0.4rem;
+  color: var(--resources-muted, #8c8c88);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.link-card-url {
+  overflow: hidden;
+  color: var(--resources-muted, #8c8c88);
+  font-size: 0.76rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.article-video-card {
+  grid-column: 1 / -1;
+  margin: 1.8rem 0 2.5rem;
+  border: 1px solid var(--resources-rule, #d7d7d1);
+  background: #fafaf9;
+  overflow: hidden;
+}
+
+.article-video-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #111111;
+}
+
+.article-video-frame iframe,
+.article-video-placeholder img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.article-video-placeholder img {
+  object-fit: cover;
+  opacity: 0.72;
+}
+
+.article-video-placeholder span {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.8rem;
+  padding: 0.2rem 0.4rem;
+  color: var(--home-ink, #111111);
+  background: var(--home-yellow, #f2c94c);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.article-video-link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.8rem;
+  color: var(--home-ink, #111111);
+  text-decoration: none;
+}
+
+.article-video-link strong {
+  overflow: hidden;
+  font-size: 0.84rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.article-video-link:hover {
+  background: #ffffff;
+}
+
+.article-markdown-body .article-video-description {
+  margin: 0;
+  padding: 0 0.8rem 0.35rem;
+  color: var(--resources-muted, #8c8c88);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 520px) {
+  .link-card-top {
+    position: static;
+    justify-content: flex-end;
+    margin-bottom: 0.45rem;
+  }
+
+  .link-card-title {
+    padding-right: 0;
+  }
+}

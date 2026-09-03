@@ -15,7 +15,12 @@
   >
     <section class="resource-detail-section" aria-label="网页列表">
       <div v-if="filteredResources.length" class="web-resource-grid">
-        <WebResourceCard v-for="(resource, index) in filteredResources" :key="resource.id" :resource="resource" :index="index">
+        <WebResourceCard
+          v-for="(resource, index) in filteredResources"
+          :key="resource.id"
+          :resource="resource"
+          :index="index"
+        >
           <template #tags>
             <button
               v-for="tag in resource.tags"
@@ -23,26 +28,26 @@
               class="resource-tag resource-tag-button"
               type="button"
               :aria-label="`按标签筛选 ${tag}`"
-              @click="setFilter(tag)"
+              @click="handleCardTagClick(tag, resource)"
             >{{ tag }}</button>
           </template>
         </WebResourceCard>
       </div>
 
       <div v-else class="resource-empty-state" role="status">
-        <p>没有符合当前标签的网页。</p>
-        <button type="button" @click="setFilter('all')">清除筛选</button>
+        <p>没有符合当前筛选条件的网页。</p>
+        <button type="button" @click="resetFilters">清除筛选</button>
       </div>
     </section>
   </ResourceShell>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ResourceShell from '../../components/resources/ResourceShell.vue'
 import WebResourceCard from '../../components/resources/WebResourceCard.vue'
-import { useResourceFilter } from '../../composables/useResourceFilter.js'
+import { getResourceCategoryOptions } from '../../data/resources/categories.js'
 import { resourceNavigationItems, resourceWebsites } from '../../data/resources/index.js'
 import { usePublishedResources } from '../../composables/usePublishedResources.js'
 
@@ -51,39 +56,128 @@ const router = useRouter()
 const { initialize: initializePublishedResources, byType } = usePublishedResources()
 const mergedWebsites = byType('website', resourceWebsites)
 
-const {
-  activeFilter,
-  filterOptions,
-  filterGroups,
-  filteredItems: filteredResources,
-  setFilter,
-} = useResourceFilter({
-  route,
-  router,
-  routeName: 'ResourceWebsites',
-  items: mergedWebsites,
-  getValues: (resource) => resource.tags,
-  getFilterGroups: ({ filterValues }) => [
-    {
-      id: 'type',
-      label: '类型',
-      options: [
-        { value: 'all', label: '全部' },
-        { value: 'case', label: '案例网站' },
-        { value: 'exhibition', label: '展览网站' },
-        { value: 'news', label: '资讯网站' },
-      ],
-    },
-    {
-      id: 'tag',
-      label: '标签',
-      options: filterValues.map((value) => ({ value, label: value })),
-    },
-  ],
-  filterPredicate: (resource, filter) => ['case', 'exhibition', 'news'].includes(filter)
-    ? resource.websiteCategory === filter
-    : resource.tags.includes(filter),
+const typeOptions = computed(() => [
+  { value: 'all', label: '全部' },
+  ...getResourceCategoryOptions('website'),
+])
+
+const validTypes = computed(() => new Set(typeOptions.value.map((o) => o.value)))
+
+const currentType = computed(() => {
+  const rawType = route.query.type || route.query.category
+  if (typeof rawType === 'string' && validTypes.value.has(rawType)) {
+    return rawType
+  }
+  const rawFilter = route.query.filter
+  if (typeof rawFilter === 'string' && validTypes.value.has(rawFilter)) {
+    return rawFilter
+  }
+  return 'all'
 })
+
+const availableTags = computed(() => {
+  const targetWebsites = currentType.value === 'all'
+    ? mergedWebsites.value
+    : mergedWebsites.value.filter((item) => item.websiteCategory === currentType.value)
+
+  const tags = new Set()
+  for (const item of targetWebsites) {
+    if (Array.isArray(item.tags)) {
+      for (const tag of item.tags) {
+        if (tag) tags.add(tag)
+      }
+    }
+  }
+  return [...tags]
+})
+
+const validTags = computed(() => new Set(availableTags.value))
+
+const currentTag = computed(() => {
+  const rawTag = route.query.tag
+  if (typeof rawTag === 'string' && validTags.value.has(rawTag)) {
+    return rawTag
+  }
+  const rawFilter = route.query.filter
+  if (typeof rawFilter === 'string' && validTags.value.has(rawFilter)) {
+    return rawFilter
+  }
+  return 'all'
+})
+
+const filterGroups = computed(() => [
+  {
+    id: 'type',
+    label: '类型',
+    options: typeOptions.value,
+  },
+  {
+    id: 'tag',
+    label: '标签',
+    options: [
+      { value: 'all', label: '全部' },
+      ...availableTags.value.map((value) => ({ value, label: value })),
+    ],
+  },
+])
+
+const filterOptions = computed(() => filterGroups.value.flatMap((group) => group.options || []))
+
+const activeFilter = computed(() => ({
+  type: currentType.value,
+  tag: currentTag.value,
+}))
+
+const filteredResources = computed(() => {
+  return mergedWebsites.value.filter((item) => {
+    const matchType = currentType.value === 'all' || item.websiteCategory === currentType.value
+    const matchTag = currentTag.value === 'all' || (Array.isArray(item.tags) && item.tags.includes(currentTag.value))
+    return matchType && matchTag
+  })
+})
+
+const updateFilter = ({ type, tag }) => {
+  const query = { ...route.query }
+  delete query.filter
+
+  const nextType = type !== undefined ? type : currentType.value
+  const nextTag = tag !== undefined ? tag : currentTag.value
+
+  if (nextType && nextType !== 'all') {
+    query.type = nextType
+  } else {
+    delete query.type
+    delete query.category
+  }
+
+  if (nextTag && nextTag !== 'all') {
+    query.tag = nextTag
+  } else {
+    delete query.tag
+  }
+
+  router.push({ name: 'ResourceWebsites', query })
+}
+
+const setFilter = (value, group) => {
+  const isType = group?.id === 'type' || (validTypes.value.has(value) && !validTags.value.has(value))
+  if (isType) {
+    updateFilter({ type: value, tag: 'all' })
+  } else {
+    updateFilter({ type: currentType.value, tag: value })
+  }
+}
+
+const handleCardTagClick = (tag, resource) => {
+  const targetType = (currentType.value === 'all' || currentType.value === resource.websiteCategory)
+    ? resource.websiteCategory
+    : currentType.value
+  updateFilter({ type: targetType, tag })
+}
+
+const resetFilters = () => {
+  updateFilter({ type: 'all', tag: 'all' })
+}
 
 onMounted(() => initializePublishedResources())
 </script>

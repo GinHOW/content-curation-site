@@ -13,7 +13,7 @@
             :style="option.color ? { '--filter-accent': option.color } : undefined"
             type="button"
             :aria-pressed="isActive(option, group)"
-            @click="$emit('select', option.value)"
+            @click="$emit('select', option.value, group)"
           >
             {{ option.label }}
           </button>
@@ -47,7 +47,7 @@ const props = defineProps({
     required: true,
   },
   active: {
-    type: String,
+    type: [String, Object],
     default: 'all',
   },
   count: {
@@ -65,6 +65,10 @@ const { options, active, count, groups } = toRefs(props)
 defineEmits(['select'])
 
 const isActive = (option, group) => {
+  if (active.value && typeof active.value === 'object') {
+    const currentVal = active.value[group?.id] ?? 'all'
+    return currentVal === option.value
+  }
   if (option.value === 'all') {
     return active.value === 'all' || !group.options.some(({ value }) => value === active.value)
   }

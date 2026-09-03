@@ -1,4 +1,5 @@
 import { syllabusWebReferences } from '../course/syllabus.js'
+import { contemporaryArtWebsites } from './contemporary-art.js'
 
 const webResourceDetails = {
   'Euro-Vision': {
@@ -172,4 +173,5 @@ export const resourceWebsites = [
     tags: ['品牌沉浸体验', '空间探索', '物品互动', '数字时尚'],
     summary: '探索房屋并与物品互动，发现全新的 Miu Miu 包袋系列。',
   }),
+  ...contemporaryArtWebsites,
 ]

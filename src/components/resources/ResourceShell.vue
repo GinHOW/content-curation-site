@@ -39,7 +39,7 @@
           :groups="filterGroups"
           :active="activeFilter"
           :count="count"
-          @select="$emit('filter', $event)"
+          @select="(val, group) => $emit('filter', val, group)"
         />
 
         <slot />
@@ -90,7 +90,7 @@ const props = defineProps({
     default: () => [],
   },
   activeFilter: {
-    type: String,
+    type: [String, Object],
     default: 'all',
   },
   surfaceColor: {

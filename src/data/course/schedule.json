@@ -175,7 +175,7 @@
           "content_modules": [
             {
               "name": "Parti 空间系统",
-              "instructor": "炳莨",
+              "instructor": "冯炳莨",
               "description": "空间 Parti 系统（空间组织概念图）方法：从内容数据库到空间叙事结构的转译；空间类型学与展线原型。",
               "status": "已确认"
             }
@@ -219,9 +219,15 @@
           ],
           "content_modules": [
             {
+              "name": "以“物”为方法的出版与策展",
+              "instructor": "华宏梁",
+              "description": "分享以物为方法的出版、策展及实践案例，讨论物、图像与叙事如何形成展览视觉系统。",
+              "status": "已确认"
+            },
+            {
               "name": "展览视觉设计",
-              "instructor": "华宏梁 · 方钰杭",
-              "description": "展览视觉系统设计方法：主视觉生成、导视系统与图录语言的建立；视觉策略与策展主题的对应关系。",
+              "instructor": "方钰杭",
+              "description": "分享展览视觉设计方法，衔接主视觉、导视、图录及延展物料的建立。",
               "status": "已确认"
             }
           ]
@@ -260,6 +266,14 @@
               "content": "完成商业计划书初稿（预算表＋运营方案＋推广计划）",
               "form": "",
               "quantity": ""
+            }
+          ],
+          "content_modules": [
+            {
+              "name": "展览商业合作案例",
+              "instructor": "张楷雨",
+              "description": "分享展览商业合作案例，结合赞助、合作伙伴、资源置换与传播协同，支持商业计划书写作。",
+              "status": "已确认"
             }
           ]
         },
@@ -350,6 +364,20 @@
               "form": "",
               "quantity": ""
             }
+          ],
+          "content_modules": [
+            {
+              "name": "空间展具深化与放样案例",
+              "instructor": "沈延育",
+              "description": "分享空间展具深化、尺度推敲与放样案例；11 月 4 日加课继续实操辅导。",
+              "status": "已确认"
+            },
+            {
+              "name": "SU 白模 AI 生成展览效果图与旋转动态影像实操",
+              "instructor": "左佑",
+              "description": "演示从 SU 白模到 AI 展览效果图与旋转动态影像的工作流程；11 月 4 日加课继续实操辅导。",
+              "status": "已确认"
+            }
           ]
         },
         {
@@ -388,7 +416,21 @@
               "quantity": ""
             }
           ],
-          "milestone": 4
+          "milestone": 4,
+          "content_modules": [
+            {
+              "name": "展览视觉案例",
+              "instructor": "周黄宇",
+              "description": "分享展览视觉案例，推进视觉系统与空间展具的整合校对。",
+              "status": "已确认"
+            },
+            {
+              "name": "设计展策展结构案例",
+              "instructor": "王岚",
+              "description": "分享设计展的策展结构案例，帮助各组在视觉深化阶段校对策展结构。",
+              "status": "已确认"
+            }
+          ]
         }
       ]
     },
@@ -415,6 +457,14 @@
               "content": "确认制作清单、安装排期与小组分工。",
               "form": "",
               "quantity": ""
+            }
+          ],
+          "content_modules": [
+            {
+              "name": "展览意象叙事建构案例",
+              "instructor": "冯思艺 · 郑钰彤",
+              "description": "分享展览意象叙事建构案例，在实物制作前完成叙事线索与空间表达的校对。",
+              "status": "已确认"
             }
           ]
         },

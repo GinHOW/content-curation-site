@@ -158,7 +158,7 @@
                     </tr>
                     <tr v-if="session.contentModules.length && !isSessionCollapsed(week.week, session)" class="content-modules-row">
                       <td colspan="2" class="content-modules-cell">
-                        <div class="content-modules">
+                        <div class="content-modules" :class="{ 'is-single-module': session.contentModules.length === 1 }">
                           <article v-for="module in session.contentModules" :key="`${module.name}-${module.instructor}`" class="content-module-card">
                             <p class="module-label">内容模块</p>
                             <h3>
@@ -573,7 +573,13 @@ const { rooms, topics, groups, loading, error } = useCourseState()
 .content-modules-row td { border-bottom: 1px solid var(--syllabus-rule); }
 .content-modules-method { padding: 0 !important; }
 .content-modules-cell { padding-top: 0 !important; }
-.content-modules { margin: 0; }
+.content-modules {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin: 0;
+}
+.content-modules.is-single-module { grid-template-columns: minmax(0, 1fr); }
 .module-label {
   margin: 0 0 0.55rem !important;
   color: var(--syllabus-muted);
@@ -774,6 +780,7 @@ const { rooms, topics, groups, loading, error } = useCourseState()
   .syllabus-main > .site-nav { margin-inline: clamp(3.5rem, 4vw, 4.5rem); }
   .schedule-heading { padding-top: 3rem; }
   .schedule-table td { font-size: 0.78rem; }
+  .content-modules { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 1023px) and (min-width: 768px) {

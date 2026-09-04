@@ -17,7 +17,8 @@ export const resourceTools = [
   {
     id: 'mineru',
     type: 'tool',
-    featured: false,
+    featured: true,
+    featuredOrder: 2,
     tags: ['AI工具', '文档解析'],
     title: 'MinerU',
     platform: '在线工具 / 开源',

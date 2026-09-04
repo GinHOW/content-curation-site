@@ -14,9 +14,10 @@ export function categoryForMaterial(material) {
   return 'plaster'
 }
 
-export function createArchitecturalMaterial(THREE, sourceMaterial, cache) {
+export function createArchitecturalMaterial(THREE, sourceMaterial, cache, { doubleSided = false } = {}) {
   const category = categoryForMaterial(sourceMaterial)
-  const cachedMaterial = cache.get(category)
+  const cacheKey = `${category}:${doubleSided ? 'double' : 'front'}`
+  const cachedMaterial = cache.get(cacheKey)
   if (cachedMaterial) return cachedMaterial
 
   const colors = {
@@ -43,16 +44,18 @@ export function createArchitecturalMaterial(THREE, sourceMaterial, cache) {
       color: colors[category],
       roughness: category === 'graphite' ? 0.68 : category === 'wood' ? 0.72 : 0.86,
       metalness: category === 'graphite' ? 0.08 : 0,
+      side: doubleSided ? THREE.DoubleSide : THREE.FrontSide,
     })
 
   material.name = sourceMaterial?.name || category
-  cache.set(category, material)
+  cache.set(cacheKey, material)
   return material
 }
 
-export function createArcticMaterial(THREE, sourceMaterial, cache) {
+export function createArcticMaterial(THREE, sourceMaterial, cache, { doubleSided = false } = {}) {
   const category = categoryForMaterial(sourceMaterial)
-  const cachedMaterial = cache.get(category)
+  const cacheKey = `${category}:${doubleSided ? 'double' : 'front'}`
+  const cachedMaterial = cache.get(cacheKey)
   if (cachedMaterial) return cachedMaterial
 
   const colors = {
@@ -83,10 +86,11 @@ export function createArcticMaterial(THREE, sourceMaterial, cache) {
       transparent: false,
       opacity: 1,
       depthWrite: true,
+      side: doubleSided ? THREE.DoubleSide : THREE.FrontSide,
     })
 
   material.name = `Arctic ${category}`
-  cache.set(category, material)
+  cache.set(cacheKey, material)
   return material
 }
 
@@ -124,9 +128,13 @@ export function applyArchitecturalMaterials(THREE, root, cache) {
   if (!root) return
   root.traverse((child) => {
     if (!child.isMesh || isNavigationMesh(child) || child.userData?.isStaticBatch) return
+    const createMaterial = (material) => createArchitecturalMaterial(THREE, material, cache, {
+      doubleSided: root.userData?.spatialAssetKey === 'env'
+        && categoryForMaterial(material) === 'mineral',
+    })
     child.material = Array.isArray(child.material)
-      ? child.material.map((material) => createArchitecturalMaterial(THREE, material, cache))
-      : createArchitecturalMaterial(THREE, child.material, cache)
+      ? child.material.map(createMaterial)
+      : createMaterial(child.material)
   })
 }
 
@@ -142,7 +150,10 @@ export function applyDisplayStyleToRoot(THREE, root, arcticMode, arcticCache) {
     const sourceMaterials = Array.isArray(node.userData.spatialBaseMaterial)
       ? node.userData.spatialBaseMaterial
       : [node.userData.spatialBaseMaterial]
-    const arcticMaterial = sourceMaterials.map((material) => createArcticMaterial(THREE, material, arcticCache))
+    const arcticMaterial = sourceMaterials.map((material) => createArcticMaterial(THREE, material, arcticCache, {
+      doubleSided: root.userData?.spatialAssetKey === 'env'
+        && categoryForMaterial(material) === 'mineral',
+    }))
     node.material = Array.isArray(node.userData.spatialBaseMaterial)
       ? arcticMaterial
       : arcticMaterial[0]

@@ -55,7 +55,7 @@ function createBatchGeometry(mesh, rootInverse) {
   return geometry
 }
 
-function batchStaticRoot(THREE, mergeGeometries, root, archCache) {
+function batchStaticRoot(THREE, mergeGeometries, root, archCache, { doubleSided = false } = {}) {
   if (!root || !mergeGeometries) return 0
   const inverseRoot = root.matrixWorld.clone().invert()
   const buckets = new Map()
@@ -84,7 +84,9 @@ function batchStaticRoot(THREE, mergeGeometries, root, archCache) {
       if (!geometry) throw new Error(`Unable to merge ${root.name} (${category})`)
       geometry.computeBoundingBox()
       geometry.computeBoundingSphere()
-      const mesh = new THREE.Mesh(geometry, createArchitecturalMaterial(THREE, sourceMaterial, archCache))
+      const mesh = new THREE.Mesh(geometry, createArchitecturalMaterial(THREE, sourceMaterial, archCache, {
+        doubleSided: doubleSided && category === 'mineral',
+      }))
       mesh.name = `${root.name}-batch-${category}`
       mesh.userData.isStaticBatch = true
       batches.push(mesh)
@@ -107,7 +109,9 @@ export function optimiseStaticGeometry(THREE, mergeGeometries, root, archCache) 
     if (node.name && !localNamedNodes.has(node.name)) localNamedNodes.set(node.name, node)
   })
   const batchedMeshes = STATIC_BATCH_ROOTS.reduce((total, name) => (
-    total + batchStaticRoot(THREE, mergeGeometries, localNamedNodes.get(name), archCache)
+    total + batchStaticRoot(THREE, mergeGeometries, localNamedNodes.get(name), archCache, {
+      doubleSided: root.userData?.spatialAssetKey === 'env' && name === 'env',
+    })
   ), 0)
   if (batchedMeshes) console.info(`Spatial model: batched ${batchedMeshes} static meshes in ${root.name || 'asset'}.`)
 }

@@ -433,12 +433,13 @@ const { rooms, topics, groups, loading, error } = useCourseState()
 
 .syllabus-section {
   scroll-margin-top: var(--section-anchor-offset);
+  padding-top: 0;
 }
 
 .schedule-heading {
   grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
   gap: var(--home-column-gap);
-  padding-top: clamp(2.25rem, 4vw, 4rem);
+  padding-top: var(--page-nav-intro-gap);
 }
 .eyebrow,
 .panel-label,
@@ -778,7 +779,6 @@ const { rooms, topics, groups, loading, error } = useCourseState()
 }
 @media (max-width: 1023px) {
   .syllabus-main > .site-nav { margin-inline: clamp(3.5rem, 4vw, 4.5rem); }
-  .schedule-heading { padding-top: 3rem; }
   .schedule-table td { font-size: 0.78rem; }
   .content-modules { grid-template-columns: 1fr; }
 }
@@ -800,7 +800,7 @@ const { rooms, topics, groups, loading, error } = useCourseState()
 @media (max-width: 767px) {
   .syllabus-main > .site-nav { width: auto; margin-inline: 1rem; padding-top: 2.5rem; }
   .syllabus-section { scroll-margin-top: 0; }
-  .schedule-heading { grid-template-columns: 1fr; padding-top: 2.25rem; }
+  .schedule-heading { grid-template-columns: 1fr; }
   .schedule-heading h1 { font-size: clamp(4rem, 20vw, 6.5rem); }
   .course-facts { width: min(100%, 14rem); }
   .schedule-summary > p { font-size: 1.15rem; }

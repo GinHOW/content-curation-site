@@ -102,6 +102,10 @@ defineProps({
 </script>
 
 <style scoped>
+:global(.home-page .overview-grid) {
+  padding-top: var(--page-nav-intro-gap);
+}
+
 .overview-copy {
   display: flex;
   flex-direction: column;

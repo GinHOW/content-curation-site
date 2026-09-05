@@ -49,6 +49,9 @@ html.preview-is-open body {
   --font-body: "AlibabaPuHuiTi-3", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif;
   --space: clamp(1.5rem, 4vw, 3rem);
   --max-w: 1200px;
+  --page-title-size: clamp(4.2rem, 9vw, 9rem);
+  --page-nav-intro-gap: clamp(3.5rem, 8vw, 7rem);
+  --page-eyebrow-gap: 1.25rem;
 
   /* 供尚未迁移的页面使用的新版 token 别名。 */
   --paper: var(--color-surface); --paper-white: var(--color-surface); --white: var(--color-surface);
@@ -157,7 +160,7 @@ html.preview-is-open body {
   text-transform: uppercase;
 }
 
-.home-page .eyebrow { margin-bottom: 1.25rem; }
+.home-page .eyebrow { margin-bottom: var(--page-eyebrow-gap); }
 
 .home-page .micro-copy,
 .home-page .title-note {
@@ -175,7 +178,7 @@ html.preview-is-open body {
 }
 
 .home-page h1 {
-  font-size: clamp(4.2rem, 9vw, 9rem);
+  font-size: var(--page-title-size);
   line-height: 1.05;
   letter-spacing: 0.02em;
 }
@@ -230,7 +233,11 @@ html.preview-is-open body {
   .home-page .rules-header-grid,
   .home-page .calendar-header-grid,
   .home-page .rules-body-grid { padding-top: 2.25rem; }
-  .home-page h1 { font-size: clamp(3.8rem, 19vw, 6.5rem); }
+  :root {
+    --page-title-size: clamp(3.8rem, 19vw, 6.5rem);
+    --page-nav-intro-gap: 3.5rem;
+  }
+  .home-page h1 { font-size: var(--page-title-size); }
   .home-page h2 { font-size: clamp(3.2rem, 16vw, 5.5rem); }
 }
 

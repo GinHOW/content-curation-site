@@ -199,7 +199,7 @@ watch(
 }
 
 .works-main > .site-nav {
-  margin-bottom: clamp(3.5rem, 8vw, 7rem);
+  margin-bottom: var(--page-nav-intro-gap);
 }
 
 .works-intro {
@@ -234,7 +234,7 @@ watch(
 .works-intro h1 {
   max-width: 6em;
   color: var(--works-ink);
-  font-size: clamp(4.5rem, 11vw, 10.5rem);
+  font-size: var(--page-title-size);
   line-height: 1.02;
   letter-spacing: -0.07em;
   text-transform: none;
@@ -618,7 +618,7 @@ watch(
   }
 
   .works-intro h1 {
-    font-size: clamp(4.5rem, 14vw, 8rem);
+    font-size: var(--page-title-size);
   }
 
   .archive-strip {
@@ -686,11 +686,11 @@ watch(
   }
 
   .works-main > .site-nav {
-    margin-bottom: 3.5rem;
+    margin-bottom: var(--page-nav-intro-gap);
   }
 
   .works-intro h1 {
-    font-size: clamp(4.1rem, 20vw, 6.5rem);
+    font-size: var(--page-title-size);
   }
 
   .year-tab {

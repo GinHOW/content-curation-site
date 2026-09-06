@@ -19,7 +19,7 @@ export const works2025 = [
     ],
     authors: {
       image: "01-jiejie-authors.png",
-      students: ["曹丽蕴", "乔诗雨"]
+      students: ["孟沁培", "余芊慧"]
     },
     images: [
       { filename: "01-jiejie-01.gif" },
@@ -46,7 +46,7 @@ export const works2025 = [
     ],
     authors: {
       image: "02-headline-authors.png",
-      students: ["周袁伊", "彭冠宇"]
+      students: ["曹丽蕴", "乔诗雨"]
     },
     images: [
       { filename: "02-headline-01.gif" },

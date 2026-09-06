@@ -101,7 +101,7 @@ export const works2025 = [
     images: [
       { filename: "04-chess-box-01.gif" },
       { filename: "04-chess-box-02.gif" },
-      { filename: "04-chess-box-03.gif" }
+      { filename: "04-chess-box-03.webp" }
     ]
   },
   {
@@ -126,7 +126,7 @@ export const works2025 = [
       students: ["顾佳辉", "甘梓辰"]
     },
     images: [
-      { filename: "05-threshold-01.gif" },
+      { filename: "05-threshold-01.webp" },
       { filename: "05-threshold-02.gif" },
       { filename: "05-threshold-03.gif" }
     ]
@@ -149,7 +149,7 @@ export const works2025 = [
       students: ["孙平", "蔡咏烨"]
     },
     images: [
-      { filename: "06-four-hat-act-01.gif" },
+      { filename: "06-four-hat-act-01.webp" },
       { filename: "06-four-hat-act-02.gif" },
       { filename: "06-four-hat-act-03.gif" }
     ]
@@ -170,9 +170,9 @@ export const works2025 = [
       students: ["许达伟"]
     },
     images: [
-      { filename: "07-hand-held-drama-01.gif" },
+      { filename: "07-hand-held-drama-01.webp" },
       { filename: "07-hand-held-drama-02.gif" },
-      { filename: "07-hand-held-drama-03.gif" }
+      { filename: "07-hand-held-drama-03.webp" }
     ]
   },
   {
@@ -198,7 +198,7 @@ export const works2025 = [
     },
     images: [
       { filename: "08-why-we-look-01.gif" },
-      { filename: "08-why-we-look-02.gif" },
+      { filename: "08-why-we-look-02.webp" },
       { filename: "08-why-we-look-03.gif" }
     ]
   },
@@ -222,9 +222,9 @@ export const works2025 = [
       students: ["许佳仪", "陈姿言"]
     },
     images: [
-      { filename: "09-black-chamber-01.gif" },
+      { filename: "09-black-chamber-01.webp" },
       { filename: "09-black-chamber-02.gif" },
-      { filename: "09-black-chamber-03.gif" }
+      { filename: "09-black-chamber-03.webp" }
     ]
   }
 ]

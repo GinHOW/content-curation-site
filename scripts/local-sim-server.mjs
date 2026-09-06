@@ -11,8 +11,10 @@ import * as adminLogin from '../functions/api/admin/login.js'
 import * as adminLogout from '../functions/api/admin/logout.js'
 import * as adminMe from '../functions/api/admin/me.js'
 import * as adminGroups from '../functions/api/admin/groups.js'
+import * as adminGroupTopic from '../functions/api/admin/groups/[id]/topic.js'
 import * as adminStudents from '../functions/api/admin/students.js'
 import * as adminTopics from '../functions/api/admin/topics.js'
+import * as adminTopic from '../functions/api/admin/topics/[id].js'
 import * as adminResources from '../functions/api/admin/resource-submissions.js'
 import * as adminResource from '../functions/api/admin/resource-submissions/[id].js'
 import * as adminStaticResourceOverrides from '../functions/api/admin/resource-static-overrides.js'
@@ -173,12 +175,23 @@ const routeApi = async (request, url) => {
   if (pathname === '/api/admin/me' && request.method === 'GET') return adminMe.onRequestGet({ request, env })
   if (pathname === '/api/course-state' && request.method === 'GET') return courseState.onRequestGet({ request, env })
   if (pathname === '/api/admin/groups' && request.method === 'GET') return adminGroups.onRequestGet({ request, env })
+  const groupTopicMatch = pathname.match(/^\/api\/admin\/groups\/([^/]+)\/topic$/)
+  if (groupTopicMatch && request.method === 'PUT') {
+    return adminGroupTopic.onRequestPut({ request, env, params: { id: decodeURIComponent(groupTopicMatch[1]) } })
+  }
+  if (groupTopicMatch && request.method === 'DELETE') {
+    return adminGroupTopic.onRequestDelete({ request, env, params: { id: decodeURIComponent(groupTopicMatch[1]) } })
+  }
   if (pathname === '/api/admin/students' && (request.method === 'GET' || request.method === 'POST')) {
     return request.method === 'GET'
       ? adminStudents.onRequestGet({ request, env })
       : adminStudents.onRequestPost({ request, env })
   }
   if (pathname === '/api/admin/topics' && request.method === 'POST') return adminTopics.onRequestPost({ request, env })
+  const topicMatch = pathname.match(/^\/api\/admin\/topics\/(\d+)$/)
+  if (topicMatch && request.method === 'PATCH') {
+    return adminTopic.onRequestPatch({ request, env, params: { id: topicMatch[1] } })
+  }
   if (pathname === '/api/admin/resource-submissions') {
     if (request.method === 'GET') return adminResources.onRequestGet({ request, env })
     if (request.method === 'POST') return adminResources.onRequestPost({ request, env })

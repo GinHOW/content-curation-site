@@ -16,7 +16,7 @@ export const stickers = [
     anchors: makeAnchors(
       anchor(19, 17),
       anchor(28, 17),
-      anchor(25, 17),
+      anchor(19, 17),
     ),
     layoutRole: 'ruler',
     rotationRange: 3,
@@ -37,7 +37,7 @@ export const stickers = [
     anchors: makeAnchors(
       anchor(46, -4),
       anchor(41, -2),
-      anchor(50, -5),
+      anchor(50, 0),
     ),
     layoutRole: 'envelope',
     rotationRange: 6,
@@ -77,7 +77,7 @@ export const stickers = [
     anchors: makeAnchors(
       anchor(7, 82),
       anchor(83, 15),
-      anchor(13, 78),
+      anchor(12, 78),
     ),
     layoutRole: 'mass',
     rotationRange: 6,
@@ -175,7 +175,7 @@ export const stickers = [
     anchors: makeAnchors(
       anchor(80, 76),
       anchor(69, 84),
-      anchor(76, 76),
+      anchor(83, 76),
     ),
     layoutRole: 'wide',
     rotationRange: 3,

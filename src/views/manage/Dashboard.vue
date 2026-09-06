@@ -127,8 +127,64 @@
               <span v-for="item in credentials" :key="item.studentNumber">{{ item.studentNumber }}：{{ item.initialPassword }}</span>
             </div>
 
+            <div v-if="students.length" class="admin-student-controls" role="group" aria-label="学生名单筛选与排序">
+              <label class="admin-student-control admin-student-search">
+                <span>搜索</span>
+                <input
+                  v-model="studentQuery"
+                  type="search"
+                  placeholder="姓名或学号"
+                  autocomplete="off"
+                  aria-describedby="students-count"
+                />
+              </label>
+              <label class="admin-student-control">
+                <span>班级</span>
+                <select v-model="studentClassFilter">
+                  <option value="all">全部班级</option>
+                  <option value="1">1 班</option>
+                  <option value="2">2 班</option>
+                  <option value="unassigned">未填写</option>
+                </select>
+              </label>
+              <label class="admin-student-control">
+                <span>小组</span>
+                <select v-model="studentGroupFilter">
+                  <option value="all">全部小组</option>
+                  <option value="unassigned">未分组</option>
+                  <option v-for="group in rosterGroups" :key="group.id" :value="group.id">{{ group.code }}</option>
+                </select>
+              </label>
+              <label class="admin-student-control">
+                <span>账号状态</span>
+                <select v-model="studentStatusFilter">
+                  <option value="all">全部状态</option>
+                  <option value="active">正常</option>
+                  <option value="disabled">已停用</option>
+                </select>
+              </label>
+              <label class="admin-student-control">
+                <span>排序字段</span>
+                <select v-model="studentSortKey">
+                  <option value="studentNumber">学号</option>
+                  <option value="displayName">姓名</option>
+                  <option value="className">班级</option>
+                  <option value="groupCode">小组</option>
+                </select>
+              </label>
+              <label class="admin-student-control">
+                <span>排序方向</span>
+                <select v-model="studentSortDirection">
+                  <option value="asc">升序</option>
+                  <option value="desc">降序</option>
+                </select>
+              </label>
+              <button type="button" :disabled="!hasActiveStudentControls" @click="clearStudentControls">清除筛选</button>
+              <p id="students-count" class="admin-student-count" aria-live="polite">显示 {{ visibleStudents.length }} / {{ students.length }} 人</p>
+            </div>
+
             <div class="admin-student-list">
-              <div v-for="studentItem in students" :key="studentItem.id" class="admin-student-row">
+              <div v-for="studentItem in visibleStudents" :key="studentItem.id" class="admin-student-row">
                 <div class="admin-student-name">
                   <strong>{{ studentItem.displayName }}</strong>
                   <span>{{ studentItem.studentNumber }}{{ studentItem.className ? ` · ${studentItem.className} 班` : '' }} · {{ studentItem.status === 'active' ? '正常' : '已停用' }}{{ Number(studentItem.mustChangePassword) ? ' · 建议改密' : '' }}</span>
@@ -139,6 +195,10 @@
                 </select>
                 <button type="button" @click="resetPassword(studentItem)">重置密码</button>
                 <button type="button" @click="toggleStudent(studentItem)">{{ studentItem.status === 'active' ? '停用' : '启用' }}</button>
+              </div>
+              <div v-if="students.length && !visibleStudents.length" class="admin-student-empty">
+                <p>没有符合当前筛选条件的学生。</p>
+                <button type="button" @click="clearStudentControls">清除筛选</button>
               </div>
               <p v-if="!students.length" class="admin-message">尚未导入学生名单。</p>
             </div>
@@ -152,7 +212,7 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import HomeSiteNav from '../../components/navigation/HomeSiteNav.vue'
 import { useAuthSession } from '../../composables/useAuthSession.js'
 import { useCourseState } from '../../composables/useCourseState.js'
@@ -192,12 +252,80 @@ const busy = ref(false)
 const authError = ref('')
 const actionError = ref('')
 const actionMessage = ref('')
+const studentQuery = ref('')
+const studentClassFilter = ref('all')
+const studentGroupFilter = ref('all')
+const studentStatusFilter = ref('all')
+const studentSortKey = ref('studentNumber')
+const studentSortDirection = ref('asc')
+
+const rosterCollator = new Intl.Collator('zh-CN', { numeric: true, sensitivity: 'base' })
+const rosterGroups = computed(() => [...groups.value].sort((first, second) => (
+  Number(first.sortOrder) - Number(second.sortOrder)
+  || rosterCollator.compare(first.code, second.code)
+)))
+const hasActiveStudentControls = computed(() => (
+  studentQuery.value !== ''
+  || studentClassFilter.value !== 'all'
+  || studentGroupFilter.value !== 'all'
+  || studentStatusFilter.value !== 'all'
+  || studentSortKey.value !== 'studentNumber'
+  || studentSortDirection.value !== 'asc'
+))
+const visibleStudents = computed(() => {
+  const query = studentQuery.value.trim().toLocaleLowerCase()
+  const direction = studentSortDirection.value === 'desc' ? -1 : 1
+  const values = {
+    studentNumber: (studentItem) => studentItem.studentNumber,
+    displayName: (studentItem) => studentItem.displayName,
+    className: (studentItem) => studentItem.className,
+    groupCode: (studentItem) => studentItem.groupCode,
+  }
+  const valueForSort = values[studentSortKey.value] || values.studentNumber
+  const matches = students.value.filter((studentItem) => {
+    const matchesQuery = !query || [studentItem.displayName, studentItem.studentNumber].some((value) => (
+      String(value || '').toLocaleLowerCase().includes(query)
+    ))
+    const matchesClass = studentClassFilter.value === 'all'
+      || (studentClassFilter.value === 'unassigned' ? !studentItem.className : studentItem.className === studentClassFilter.value)
+    const matchesGroup = studentGroupFilter.value === 'all'
+      || (studentGroupFilter.value === 'unassigned'
+        ? !studentItem.groupId
+        : String(studentItem.groupId) === studentGroupFilter.value)
+    const matchesStatus = studentStatusFilter.value === 'all' || studentItem.status === studentStatusFilter.value
+    return matchesQuery && matchesClass && matchesGroup && matchesStatus
+  })
+
+  return matches.sort((first, second) => {
+    const firstValue = valueForSort(first)
+    const secondValue = valueForSort(second)
+    const firstIsEmpty = !firstValue
+    const secondIsEmpty = !secondValue
+    if (firstIsEmpty || secondIsEmpty) {
+      if (firstIsEmpty !== secondIsEmpty) return firstIsEmpty ? 1 : -1
+    } else {
+      const valueComparison = rosterCollator.compare(String(firstValue), String(secondValue))
+      if (valueComparison) return valueComparison * direction
+    }
+    return rosterCollator.compare(String(first.studentNumber), String(second.studentNumber))
+      || rosterCollator.compare(String(first.id), String(second.id))
+  })
+})
 
 const refreshState = async () => {
   await refresh()
   const [studentsPayload, groupsPayload] = await Promise.all([getAdminStudents(), getAdminGroups()])
   students.value = studentsPayload.students || []
   adminGroups.value = groupsPayload.groups || []
+}
+
+const clearStudentControls = () => {
+  studentQuery.value = ''
+  studentClassFilter.value = 'all'
+  studentGroupFilter.value = 'all'
+  studentStatusFilter.value = 'all'
+  studentSortKey.value = 'studentNumber'
+  studentSortDirection.value = 'asc'
 }
 
 const runAction = async (action, message) => {
@@ -437,14 +565,156 @@ onMounted(async () => {
 .admin-roster-actions button:disabled { opacity: 0.45; cursor: not-allowed; }
 .admin-preview, .admin-credentials { display: flex; flex-wrap: wrap; gap: 0.45rem 0.8rem; margin-top: 1rem; padding: 0.8rem; border: 1px solid var(--home-rule); font-size: 0.75rem; }
 .admin-credentials { color: var(--home-ink); border-color: var(--home-ink); }
-.admin-student-list { margin-top: 1rem; border-top: 1px solid var(--home-rule); }
-.admin-student-row { display: grid; grid-template-columns: minmax(12rem, 1.5fr) minmax(7rem, 0.8fr) auto auto; align-items: center; gap: 0.65rem; padding: 0.7rem 0; border-bottom: 1px solid var(--home-rule); }
-.admin-student-name { display: grid; gap: 0.2rem; min-width: 0; }
-.admin-student-name span { color: var(--home-muted); font-size: 0.68rem; }
-.admin-student-row select { min-width: 0; }
-.admin-student-row button { white-space: nowrap; }
+.admin-student-controls {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1.6fr) repeat(5, minmax(6.4rem, 1fr)) auto;
+  align-items: end;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--home-rule);
+  border-bottom: 1px solid var(--home-rule);
+}
+.admin-student-control {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+  color: var(--home-muted);
+  font-size: 0.7rem;
+}
+.admin-student-control input,
+.admin-student-control select,
+.admin-student-controls > button {
+  min-height: 2.75rem;
+  border: 1px solid var(--home-ink);
+  border-radius: 0;
+  background: var(--home-paper);
+  color: var(--home-ink);
+  padding: 0.45rem 0.6rem;
+  font: inherit;
+}
+.admin-student-control input,
+.admin-student-control select {
+  width: 100%;
+}
+.admin-student-controls > button,
+.admin-student-empty button {
+  cursor: pointer;
+}
+.admin-student-controls > button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.admin-student-control input:focus-visible,
+.admin-student-control select:focus-visible,
+.admin-student-controls > button:focus-visible,
+.admin-student-empty button:focus-visible {
+  outline: 2px solid var(--accent-orange);
+  outline-offset: 2px;
+}
+.admin-student-count {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--home-muted);
+  font-size: 0.72rem;
+}
+.admin-student-list {
+  margin-top: 1rem;
+  border-top: 1px solid var(--home-rule);
+}
+.admin-student-row {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1.5fr) minmax(7rem, 0.8fr) auto auto;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--home-rule);
+}
+.admin-student-name {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.admin-student-name span {
+  color: var(--home-muted);
+  font-size: 0.68rem;
+}
+.admin-student-row select {
+  min-width: 0;
+}
+.admin-student-row button {
+  white-space: nowrap;
+}
+.admin-student-empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--home-rule);
+  color: var(--home-muted);
+  font-size: 0.78rem;
+}
+.admin-student-empty p {
+  margin: 0;
+}
+.admin-student-empty button {
+  min-height: 2.45rem;
+  border: 1px solid var(--home-ink);
+  border-radius: 0;
+  background: transparent;
+  color: var(--home-ink);
+  padding: 0.4rem 0.65rem;
+  font: inherit;
+}
 .admin-message { margin-top: 1rem; color: var(--home-muted); font-size: 0.78rem; }
 .admin-message.is-error { color: var(--home-ink); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-@media (max-width: 767px) { .admin-page > .site-nav { width: auto; margin-inline: 1rem; padding-top: 2.5rem; } .admin-main { padding-inline: 1rem; } .admin-toolbar, .admin-block-heading { align-items: start; flex-direction: column; } .inline-form { width: 100%; } .inline-form input { flex: 1; min-width: 0; } .admin-group-grid, .admin-invite-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .admin-student-row { grid-template-columns: 1fr 1fr; } .admin-student-name { grid-column: 1 / -1; } }
+@media (max-width: 1023px) {
+  .admin-student-controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .admin-student-search {
+    grid-column: span 2;
+  }
+}
+@media (max-width: 767px) {
+  .admin-page > .site-nav {
+    width: auto;
+    margin-inline: 1rem;
+    padding-top: 2.5rem;
+  }
+  .admin-main {
+    padding-inline: 1rem;
+  }
+  .admin-toolbar,
+  .admin-block-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+  .inline-form {
+    width: 100%;
+  }
+  .inline-form input {
+    flex: 1;
+    min-width: 0;
+  }
+  .admin-group-grid,
+  .admin-invite-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .admin-student-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .admin-student-search,
+  .admin-student-controls > button {
+    grid-column: 1 / -1;
+  }
+  .admin-student-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .admin-student-name {
+    grid-column: 1 / -1;
+  }
+}
 </style>

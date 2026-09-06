@@ -66,8 +66,8 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 
-// 资源基础路径：本地开发为空（从 public/ 加载），生产环境指向 R2 CDN
-const assetsBase = import.meta.env.VITE_ASSETS_URL || ''
+// 资源基础路径：对于 public 里的内容，不再需要 R2 CDN 的前缀，直接使用空字符串加载根路径下的静态文件
+const assetsBase = ''
 
 const currentImage = ref(0)
 const lang = ref('zh')

@@ -2,11 +2,12 @@
 
 
 > [!NOTE] 课前预习
-> 1. 注册 GitHub，以及 Cloudflare 或 Vercel 账户。
-> 2. 安装 Chrome、Visual Studio Code（蓝色图标）和 Obsidian。
-> 3. 初步了解 HTML、CSS、JavaScript 分别是什么。
-> 4. 初步了解 React、Vue 等前端框架的用途，无需提前掌握具体语法。
-> 5. 以小组为单位，不限方法，使用 Vibe Coding 制作一个 About Me 页面。
+> 1. 下载并安装KIMI 等 AI 工具，注册账号。
+> 2. 注册 GitHub，以及 Cloudflare 或 Vercel 账户。
+> 3. 安装 Chrome、Visual Studio Code（蓝色图标）和 Obsidian。
+> 4. 初步了解 HTML、CSS、JavaScript 分别是什么。
+> 5. 初步了解 React、Vue 等前端框架的用途，无需提前掌握具体语法。
+> 6. 以小组为单位，不限方法，使用 Vibe Coding 制作一个 About Me 页面。
 
 # 零、课程概述：最终要完成什么
 

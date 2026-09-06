@@ -56,6 +56,7 @@
             @mouseenter="hoveredRoomId = room.id"
             @mouseleave="hoveredRoomId = null"
             @focus="focusedRoomId = room.id"
+            @blur="focusedRoomId = null"
             @click.stop="selectRoom(room.id)"
             @dblclick.stop="handleRoomDblClick(room.id)"
             @keydown.enter.prevent="selectRoom(room.id)"
@@ -115,19 +116,12 @@
       </p>
     </div>
 
-    <DemoArchive
-      v-if="!embedded && activeRoom?.keywords.includes('客厅')"
-      :archive="livingRoomArchive"
-    />
-
   </div>
 </template>
 
 <script setup>
 import { computed, ref, watch } from 'vue'
 import mapUrl from '../../assets/spatial-map/map.svg'
-import DemoArchive from './DemoArchive.vue'
-import { livingRoomArchive } from '../../data/topics/livingRoomArchive.js'
 import { topicColors } from '../../data/topics/catalog.js'
 import { spatialRoomGeometries } from '../../data/spatial/roomGeometry.js'
 

@@ -12,7 +12,7 @@
       <div id="main-content" class="home-main">
         <OverviewSection :team="teachingTeam" :meta="overviewMeta" />
         <RetrospectiveSection @open-work="openWork" />
-        <MainSection
+        <TopicSection
           :rooms="rooms"
           :topic-colors="topicColors"
           :loading="loading"
@@ -51,7 +51,7 @@ import { prefetchCoreRoutes } from '../utils/prefetch.js'
 import HomeEdgeNav from '../components/navigation/HomeEdgeNav.vue'
 import OverviewSection from '../components/home/OverviewSection.vue'
 import RetrospectiveSection from '../components/home/RetrospectiveSection.vue'
-import MainSection from '../components/home/MainSection.vue'
+import TopicSection from '../components/home/TopicSection.vue'
 import RulesSection from '../components/home/RulesSection.vue'
 import CalendarSection from '../components/home/CalendarSection.vue'
 import WorkDetailModal from '../components/works/WorkDetailModal.vue'

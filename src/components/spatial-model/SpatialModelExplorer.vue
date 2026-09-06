@@ -5,6 +5,7 @@
       'is-expanded': isExpandedState,
       'is-roaming': roamingActive,
       'is-pointer-locked': pointerLocked,
+      'is-embedded': embedded,
     }"
     tabindex="0"
     aria-label="3D 场地三维模型视口"
@@ -785,7 +786,7 @@ onBeforeUnmount(() => {
   outline: none;
 }
 
-.spatial-model-explorer.is-expanded {
+.spatial-model-explorer.is-expanded:not(.is-embedded) {
   position: fixed !important;
   inset: 0 !important;
   width: 100vw !important;

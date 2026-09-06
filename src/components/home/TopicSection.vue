@@ -28,13 +28,14 @@
       <button type="button" @click="$emit('retry')">重试</button>
     </div>
     <template v-else>
-      <ControllerSpatialMap
+      <TopicExplorer
         :rooms="rooms"
         :view-mode="viewMode"
         :active-room-id="activeRoomId"
         :active-keyword="activeKeyword"
         :topic-colors="topicColors"
         :image-library="topicImages"
+        :text-library="topicTexts"
         :mode-notice="modeNotice"
         @activate-space="activateSpace"
         @clear-space="clearSpace"
@@ -47,8 +48,9 @@
 
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import ControllerSpatialMap from './ControllerSpatialMap.vue'
+import TopicExplorer from '../topics/TopicExplorer.vue'
 import { topicImages } from '../../data/topics/images.js'
+import { topicTexts } from '../../data/topics/texts.js'
 
 const viewMode = ref('section')
 const activeRoomId = ref('')
@@ -135,6 +137,8 @@ defineEmits(['retry'])
 </script>
 
 <style scoped>
+.city-section { padding-bottom: clamp(1rem, 2vw, 2rem); }
+
 .city-copy {
   display: flex;
   flex-direction: column;

@@ -21,7 +21,7 @@ const works2025Index = works2025.map((work, index) => ({
   topic: work.topic,
   authors: work.authors.students,
   summary: work.descriptionZh[0],
-  preview: `/course-gifs/${work.images[0].filename.replace(/-01\.gif$/i, '-thumb.webp')}`,
+  preview: `/works/2025/${work.images[0].filename.replace(/-01\.(gif|webp)$/i, '-thumb.webp')}`,
   previewAlt: `${work.name}项目预览`,
   marker: workMarkers[work.id] || '作',
 }))

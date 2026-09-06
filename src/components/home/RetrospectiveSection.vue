@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import StickerShowcase from './StickerShowcase.vue'
+import StickerShowcase from '../works/StickerShowcase.vue'
 
 defineEmits(['open-work'])
 </script>
@@ -42,6 +42,10 @@ defineEmits(['open-work'])
   gap: var(--home-column-gap);
   user-select: none;
   pointer-events: none;
+}
+
+.retrospective-copy .micro-copy {
+  text-align: right;
 }
 
 .showcase-frame {

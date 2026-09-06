@@ -2,7 +2,7 @@
   <section class="gallery-panel">
     <img
       v-if="work"
-      :src="`${assetsBase}/course-gifs/${work.images[currentImage].filename}`"
+      :src="`${assetsBase}/works/2025/${work.images[currentImage].filename}`"
       :alt="work.name"
       class="gallery-img"
       decoding="async"

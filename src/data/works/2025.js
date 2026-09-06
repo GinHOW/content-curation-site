@@ -1,4 +1,4 @@
-// 2025 年作品详情，来源于 course-gifs/index.json + 微信文章
+// 2025 年作品详情，来源于 works/2025/ + 微信文章
 export const works2025 = [
   {
     id: "jiejie",

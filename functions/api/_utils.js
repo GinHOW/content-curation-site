@@ -138,7 +138,7 @@ export async function requireStudent(request, env, { allowPasswordChange = true 
   if (!token) return { response: error('需要学生登录', 401) }
   const tokenHash = await digestHex(token)
   const user = await env.DB.prepare(`
-    SELECT u.id, u.username, u.display_name AS displayName, u.role, u.status,
+    SELECT u.id, u.username, u.display_name AS displayName, u.class_name AS className, u.role, u.status,
            u.must_change_password AS mustChangePassword, s.id AS sessionId
     FROM sessions s
     JOIN users u ON u.id = s.user_id

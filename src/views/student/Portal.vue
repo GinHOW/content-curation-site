@@ -31,7 +31,7 @@
 
         <template v-else>
           <div class="student-toolbar">
-            <span>已登录：{{ student?.displayName }}（{{ student?.studentNumber }}）</span>
+            <span>已登录：{{ student?.displayName }}（{{ student?.studentNumber }}{{ student?.className ? ` · ${student.className} 班` : '' }}）</span>
             <div class="student-toolbar-actions">
               <button v-if="!showPasswordForm" type="button" @click="showPasswordForm = true">修改密码</button>
               <button type="button" @click="logout">退出</button>
@@ -94,7 +94,7 @@
                 </div>
               </div>
               <div class="student-members">
-                <span v-for="member in group.members" :key="member.id">{{ member.displayName }}</span>
+                <span v-for="member in group.members" :key="member.id">{{ member.displayName }}{{ member.className ? `（${member.className} 班）` : '' }}</span>
               </div>
 
               <div class="student-topic-block">

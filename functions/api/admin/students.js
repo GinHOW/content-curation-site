@@ -18,6 +18,7 @@ export async function onRequestGet(context) {
   try {
     const result = await env.DB.prepare(`
       SELECT u.id, u.username AS studentNumber, u.display_name AS displayName,
+             u.class_name AS className,
              u.status, u.must_change_password AS mustChangePassword,
              gm.group_id AS groupId, g.code AS groupCode,
              (SELECT COUNT(*) FROM group_members size_members WHERE size_members.group_id = gm.group_id) AS groupSize
@@ -51,12 +52,16 @@ export async function onRequestPost(context) {
   for (const item of body.students) {
     const studentNumber = normalizeStudentNumber(item?.studentNumber)
     const displayName = typeof item?.displayName === 'string' ? item.displayName.trim() : ''
+    const className = typeof item?.className === 'string' ? item.className.trim() : ''
     if (!isValidStudentNumber(studentNumber) || !displayName || displayName.length > 64) {
       return error('每行都需要有效的学号和姓名', 400)
     }
+    if (className && className !== '1' && className !== '2') {
+      return error(`班级只能是 1 或 2：${studentNumber}`, 400)
+    }
     if (seen.has(studentNumber)) return error(`名单中有重复学号：${studentNumber}`, 400)
     seen.add(studentNumber)
-    normalized.push({ studentNumber, displayName })
+    normalized.push({ studentNumber, displayName, className: className || null })
   }
 
   const placeholders = normalized.map(() => '?').join(', ')
@@ -70,8 +75,8 @@ export async function onRequestPost(context) {
     const current = existing.get(item.studentNumber)
     if (current) {
       statements.push(env.DB.prepare(
-        `UPDATE users SET display_name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND role = 'student'`,
-      ).bind(item.displayName, current.id))
+        `UPDATE users SET display_name = ?, class_name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND role = 'student'`,
+      ).bind(item.displayName, item.className, current.id))
       continue
     }
 
@@ -79,9 +84,9 @@ export async function onRequestPost(context) {
     const passwordHash = await hashStudentPassword(password, env.STUDENT_PASSWORD_PEPPER)
     const id = `student-${randomToken().slice(0, 24)}`
     statements.push(env.DB.prepare(`
-      INSERT INTO users (id, username, display_name, password_hash, role, status, must_change_password)
-      VALUES (?, ?, ?, ?, 'student', 'active', 1)
-    `).bind(id, item.studentNumber, item.displayName, passwordHash))
+      INSERT INTO users (id, username, display_name, class_name, password_hash, role, status, must_change_password)
+      VALUES (?, ?, ?, ?, ?, 'student', 'active', 1)
+    `).bind(id, item.studentNumber, item.displayName, item.className, passwordHash))
     credentials.push({ studentNumber: item.studentNumber, displayName: item.displayName, initialPassword: password })
   }
 

@@ -99,13 +99,13 @@
                 <p class="eyebrow">03 · Student Accounts</p>
                 <h2 id="students-title">学生名单与分组</h2>
               </div>
-              <span class="micro-copy">从 Excel 复制“学号、姓名”两列</span>
+              <span class="micro-copy">从 Excel 复制“学号、姓名、班级”三列（班级填 1 或 2，可留空）</span>
             </header>
             <div class="admin-roster-import">
               <textarea
                 v-model="rosterText"
                 rows="5"
-                placeholder="学号\t姓名\n20260001\t张三\n20260002\t李四"
+                placeholder="学号\t姓名\t班级\n20260001\t张三\t1\n20260002\t李四\t2"
                 aria-label="粘贴学生名单"
                 @keydown="handleRosterKeydown"
               ></textarea>
@@ -113,13 +113,13 @@
                 <button type="button" @click="parseRoster">预览名单</button>
                 <button type="button" :disabled="busy || !rosterPreview.length" @click="importRoster">确认导入</button>
               </div>
-              <p class="micro-copy">按 Tab 插入列间隔；已有账号只更新姓名，不会重置密码或改变分组。</p>
+              <p class="micro-copy">按 Tab 插入列间隔；已有账号只更新姓名和班级，不会重置密码或改变分组。</p>
               <p v-if="rosterError" class="admin-message is-error" role="alert">{{ rosterError }}</p>
             </div>
 
             <div v-if="rosterPreview.length" class="admin-preview">
               <strong>待导入 {{ rosterPreview.length }} 人</strong>
-              <span v-for="item in rosterPreview.slice(0, 8)" :key="item.studentNumber">{{ item.studentNumber }} · {{ item.displayName }}</span>
+              <span v-for="item in rosterPreview.slice(0, 8)" :key="item.studentNumber">{{ item.studentNumber }} · {{ item.displayName }}{{ item.className ? ` · ${item.className} 班` : '' }}</span>
               <span v-if="rosterPreview.length > 8" class="micro-copy">另有 {{ rosterPreview.length - 8 }} 人</span>
             </div>
             <div v-if="credentials.length" class="admin-credentials" role="status">
@@ -131,7 +131,7 @@
               <div v-for="studentItem in students" :key="studentItem.id" class="admin-student-row">
                 <div class="admin-student-name">
                   <strong>{{ studentItem.displayName }}</strong>
-                  <span>{{ studentItem.studentNumber }} · {{ studentItem.status === 'active' ? '正常' : '已停用' }}{{ Number(studentItem.mustChangePassword) ? ' · 建议改密' : '' }}</span>
+                  <span>{{ studentItem.studentNumber }}{{ studentItem.className ? ` · ${studentItem.className} 班` : '' }} · {{ studentItem.status === 'active' ? '正常' : '已停用' }}{{ Number(studentItem.mustChangePassword) ? ' · 建议改密' : '' }}</span>
                 </div>
                 <select :value="studentItem.groupId || ''" :aria-label="`${studentItem.displayName} 所属小组`" @change="setStudentGroup(studentItem, $event.target.value)">
                   <option value="">未分组</option>
@@ -275,7 +275,8 @@ const parseRoster = () => {
   for (const [index, line] of lines.entries()) {
     const columns = line.includes('\t') ? line.split('\t') : line.split(/[,，]/)
     const studentNumber = String(columns[0] || '').trim()
-    const displayName = String(columns.slice(1).join(' ') || '').trim()
+    const displayName = String(columns[1] || '').trim()
+    const className = String(columns.slice(2).join(' ') || '').trim()
     if (index === 0 && /学号|student/i.test(studentNumber)) continue
     if (!studentNumber || !displayName) {
       rosterPreview.value = []
@@ -288,8 +289,13 @@ const parseRoster = () => {
       rosterError.value = `名单中有重复学号：${studentNumber}`
       return
     }
+    if (className && className !== '1' && className !== '2') {
+      rosterPreview.value = []
+      rosterError.value = `第 ${index + 1} 行班级只能是 1 或 2`
+      return
+    }
     seen.add(key)
-    parsed.push({ studentNumber, displayName })
+    parsed.push({ studentNumber, displayName, className: className || null })
   }
   rosterPreview.value = parsed
   if (!parsed.length) rosterError.value = '没有可导入的学生记录'

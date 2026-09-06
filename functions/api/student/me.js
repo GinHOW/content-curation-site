@@ -13,7 +13,7 @@ async function getGroupState(env, userId) {
   if (!membership) return null
 
   const members = await env.DB.prepare(`
-    SELECT u.id, u.username AS studentNumber, u.display_name AS displayName
+    SELECT u.id, u.username AS studentNumber, u.display_name AS displayName, u.class_name AS className
     FROM group_members gm
     JOIN users u ON u.id = gm.user_id
     WHERE gm.group_id = ? AND u.status = 'active'
@@ -41,6 +41,7 @@ export async function onRequestGet(context) {
         id: auth.user.id,
         studentNumber: auth.user.username,
         displayName: auth.user.displayName,
+        className: auth.user.className || null,
         mustChangePassword: Number(auth.user.mustChangePassword) === 1,
       },
       group: await getGroupState(env, auth.user.id),

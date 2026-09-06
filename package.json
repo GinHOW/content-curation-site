@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test:markdown": "node --test tests/article-markdown.test.mjs",
+    "test:stickers": "node --test tests/sticker-layout.test.mjs",
     "simulate": "node scripts/local-sim-server.mjs",
     "generate:screen-zones": "node scripts/generate-controller-screen-zones.mjs",
     "d1:migrate:local": "npx wrangler d1 migrations apply content-curation-site --local",

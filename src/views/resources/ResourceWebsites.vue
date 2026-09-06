@@ -1,7 +1,7 @@
 <template>
   <ResourceShell
     title="网页"
-    eyebrow="03 / Web"
+    eyebrow="02 / Web"
     intro="从视觉文化与数字媒介案例，到展览工作室和空间项目档案，这里收录课程研究中持续访问的网页与在线项目。"
     :count="filteredResources.length"
     active-section="website"

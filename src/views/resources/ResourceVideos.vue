@@ -1,7 +1,7 @@
 <template>
   <ResourceShell
     title="视频"
-    eyebrow="02 / Moving Image"
+    eyebrow="03 / Moving Image"
     intro="从内容采集、数据库关联、AI 编程工具到展览路径与观看节奏，这里收录课程演示与精选案例的视频材料。"
     :count="filteredVideos.length"
     active-section="video"

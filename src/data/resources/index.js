@@ -16,17 +16,17 @@ export {
 // 资源页侧边导航同时服务总览页和四个独立类别页。
 // 总览使用页内锚点，类别项使用真实路由；HomeEdgeNav 会根据 `to` 自动选择交互方式。
 export const resourceNavigationItems = [
-  { id: 'overview', label: '总览', to: '/resources' },
-  { id: 'article', label: '文章', to: '/resources/articles' },
-  { id: 'video', label: '视频', to: '/resources/videos' },
-  { id: 'website', label: '网页', to: '/resources/websites' },
-  { id: 'tool', label: '工具', to: '/resources/tools' },
+  { id: 'overview', label: '总览', to: '/resources', color: 'var(--home-yellow)' },
+  { id: 'article', label: '文章', to: '/resources/articles', color: 'var(--home-blue)' },
+  { id: 'website', label: '网页', to: '/resources/websites', color: 'var(--home-green)' },
+  { id: 'video', label: '视频', to: '/resources/videos', color: 'var(--home-orange)' },
+  { id: 'tool', label: '工具', to: '/resources/tools', color: 'var(--home-magenta)' },
 ]
 
 export const resources = [
   ...resourceArticles,
-  ...resourceVideos,
   ...resourceWebsites,
+  ...resourceVideos,
   ...resourceTools,
 ]
 

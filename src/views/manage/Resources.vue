@@ -78,7 +78,7 @@ import { useAuthSession } from '../../composables/useAuthSession.js'
 import { adminLogin, adminLogout, createAdminResource, getAdminResources, getAdminStaticResourceOverrides, updateAdminResource, updateAdminStaticResourceOverride } from '../../services/courseState.js'
 import { compressResourceImage, formatImageBytes, RESOURCE_IMAGE_MAX_RAW_BYTES } from '../../utils/compressResourceImage.js'
 
-const typeOptions = [{ value: 'article', label: '文章' }, { value: 'video', label: '视频' }, { value: 'website', label: '网页' }, { value: 'tool', label: '工具' }]
+const typeOptions = [{ value: 'article', label: '文章' }, { value: 'website', label: '网页' }, { value: 'video', label: '视频' }, { value: 'tool', label: '工具' }]
 const categoryOptionsFor = (type) => getResourceCategoryOptions(type)
 const statusOptions = [{ value: 'all', label: '全部' }, { value: 'pending', label: '待审核' }, { value: 'approved', label: '已发布' }, { value: 'hidden', label: '已隐藏' }, { value: 'rejected', label: '已拒绝' }]
 const { isTeacher: authenticated, initialize: initializeAuth, refresh: refreshAuth, clearTeacher } = useAuthSession()

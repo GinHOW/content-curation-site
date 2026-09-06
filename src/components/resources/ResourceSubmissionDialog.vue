@@ -111,8 +111,8 @@ const emit = defineEmits(['close', 'submitted'])
 
 const typeOptions = [
   { value: 'article', label: '文章' },
-  { value: 'video', label: '视频' },
   { value: 'website', label: '网页' },
+  { value: 'video', label: '视频' },
   { value: 'tool', label: '工具' },
 ]
 const emptyForm = () => ({ type: props.defaultType || '', title: '', url: '', contentOverview: '', tagsText: '', submitterName: '', imageFile: null, imagePreview: '' })

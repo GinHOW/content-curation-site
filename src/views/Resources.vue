@@ -49,10 +49,30 @@
             </div>
           </section>
 
+          <section id="website" class="resource-section resource-anchor" aria-labelledby="website-title">
+            <header class="resource-section-heading">
+              <div>
+                <p class="resource-section-index">02 / Web</p>
+                <h2 id="website-title">网页</h2>
+              </div>
+              <div class="resource-section-heading-actions">
+                <router-link class="resource-detail-link" to="/resources/websites">进入详细 <span aria-hidden="true">→</span></router-link>
+              </div>
+            </header>
+
+            <div class="web-resource-grid">
+              <WebResourceCard v-for="(resource, index) in featuredWebsites" :key="resource.id" :resource="resource" :index="index">
+                <template #tags>
+                  <span v-for="tag in resource.tags" :key="tag" class="resource-tag">{{ tag }}</span>
+                </template>
+              </WebResourceCard>
+            </div>
+          </section>
+
           <section id="video" class="resource-section resource-anchor" aria-labelledby="video-title">
             <header class="resource-section-heading">
               <div>
-                <p class="resource-section-index">02 / Moving Image</p>
+                <p class="resource-section-index">03 / Moving Image</p>
                 <h2 id="video-title">视频</h2>
               </div>
               <div class="resource-section-heading-actions">
@@ -67,26 +87,6 @@
                 :video="video"
                 :source-type-labels="sourceTypeLabels"
               />
-            </div>
-          </section>
-
-          <section id="website" class="resource-section resource-anchor" aria-labelledby="website-title">
-            <header class="resource-section-heading">
-              <div>
-                <p class="resource-section-index">03 / Web</p>
-                <h2 id="website-title">网页</h2>
-              </div>
-              <div class="resource-section-heading-actions">
-                <router-link class="resource-detail-link" to="/resources/websites">进入详细 <span aria-hidden="true">→</span></router-link>
-              </div>
-            </header>
-
-            <div class="web-resource-grid">
-              <WebResourceCard v-for="(resource, index) in featuredWebsites" :key="resource.id" :resource="resource" :index="index">
-                <template #tags>
-                  <span v-for="tag in resource.tags" :key="tag" class="resource-tag">{{ tag }}</span>
-                </template>
-              </WebResourceCard>
             </div>
           </section>
 
@@ -135,11 +135,11 @@ import {
 } from '../data/resources/index.js'
 
 const landingNavItems = [
-  { id: 'resources-overview', label: '总览' },
-  { id: 'article', label: '文章' },
-  { id: 'video', label: '视频' },
-  { id: 'website', label: '网页' },
-  { id: 'tool', label: '工具' },
+  { id: 'resources-overview', label: '总览', color: 'var(--home-yellow)' },
+  { id: 'article', label: '文章', color: 'var(--home-blue)' },
+  { id: 'website', label: '网页', color: 'var(--home-green)' },
+  { id: 'video', label: '视频', color: 'var(--home-orange)' },
+  { id: 'tool', label: '工具', color: 'var(--home-magenta)' },
 ]
 
 const sourceTypeLabels = {
@@ -152,12 +152,12 @@ let sectionObserver
 
 const { initialize: initializePublishedResources, byType } = usePublishedResources()
 const mergedArticles = byType('article', resourceArticles)
-const mergedVideos = byType('video', resourceVideos)
 const mergedWebsites = byType('website', resourceWebsites)
+const mergedVideos = byType('video', resourceVideos)
 const mergedTools = byType('tool', resourceTools)
 const featuredArticles = computed(() => getFeaturedResources(mergedArticles.value))
-const featuredVideos = computed(() => getFeaturedResources(mergedVideos.value))
 const featuredWebsites = computed(() => getFeaturedResources(mergedWebsites.value))
+const featuredVideos = computed(() => getFeaturedResources(mergedVideos.value))
 const featuredTools = computed(() => getFeaturedResources(mergedTools.value))
 
 const navigateToSection = async (sectionId) => {

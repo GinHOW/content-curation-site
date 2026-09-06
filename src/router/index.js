@@ -79,12 +79,6 @@ const routes = [
     meta: { title: '文献阅读 · 内容与策展 2026' },
   },
   {
-    path: '/resources/videos',
-    name: 'ResourceVideos',
-    component: () => import('../views/resources/ResourceVideos.vue'),
-    meta: { title: '视频资源 · 内容与策展 2026' },
-  },
-  {
     path: '/resources/websites',
     name: 'ResourceWebsites',
     component: () => import('../views/resources/ResourceWebsites.vue'),
@@ -97,6 +91,12 @@ const routes = [
   {
     path: '/resources/website',
     redirect: redirectLegacyWebsitePath,
+  },
+  {
+    path: '/resources/videos',
+    name: 'ResourceVideos',
+    component: () => import('../views/resources/ResourceVideos.vue'),
+    meta: { title: '视频资源 · 内容与策展 2026' },
   },
   {
     path: '/resources/tools',

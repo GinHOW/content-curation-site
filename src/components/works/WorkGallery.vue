@@ -84,22 +84,23 @@ defineEmits(['prev', 'next'])
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: var(--paper-white, #fff);
-  border: 1px solid var(--ink, #111);
+  background: transparent;
+  border: 0;
   width: 48px;
   height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: color 180ms ease, background-color 180ms ease, transform 180ms ease;
+  transition: color 180ms ease, opacity 180ms ease, transform 180ms ease;
   color: var(--ink, #111);
+  opacity: 0.72;
   z-index: 10;
 }
 
 .nav-arrow:hover {
-  background: var(--ink, #111);
-  color: var(--paper-white, #fff);
+  color: var(--ink, #111);
+  opacity: 1;
 }
 
 .nav-arrow:focus-visible {

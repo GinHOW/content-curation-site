@@ -1,82 +1,27 @@
 <template>
   <div class="article-detail-page">
     <!-- 1. 顶部固定导航 Bar -->
-    <header class="reader-header">
-      <div class="reader-header-inner">
-        <router-link :to="returnTarget" class="reader-back-btn" @click="goBack">
-          <span aria-hidden="true">←</span> {{ returnLabel }}
-        </router-link>
+    <ArticleReaderHeader
+      :return-target="returnTarget"
+      :return-label="returnLabel"
+      :current-lang="currentLang"
+      :available-languages="availableLanguages"
+      @go-back="goBack"
+      @switch-language="switchLanguage"
+    />
 
-        <div class="reader-header-actions">
-          <!-- 语言切换开关 -->
-          <div class="lang-switch-group" role="group" aria-label="文献语言切换">
-            <button
-              type="button"
-              class="lang-btn"
-              :class="{ 'is-active': currentLang === 'zh' }"
-              @click="switchLanguage('zh')"
-            >
-              中文
-            </button>
-            <span class="lang-divider">/</span>
-            <button
-              type="button"
-              class="lang-btn"
-              :class="{ 'is-active': currentLang === 'en' }"
-              :disabled="!availableLanguages.includes('en')"
-              :aria-disabled="!availableLanguages.includes('en')"
-              @click="switchLanguage('en')"
-            >
-              EN
-            </button>
-          </div>
-
-        </div>
-      </div>
-    </header>
-
-    <!-- 2. 移动端/窄屏吸顶目录栏 (可收缩/跳转) -->
-    <nav v-if="tocSections.length" class="mobile-toc-bar" aria-label="移动端目录">
-      <button type="button" class="mobile-toc-toggle" @click="mobileTocOpen = !mobileTocOpen">
-        <span class="toggle-icon">☰</span>
-        <span class="current-section-text">
-          大纲：{{ currentSectionLabel }}
-        </span>
-        <span class="arrow-icon">{{ mobileTocOpen ? '▲' : '▼' }}</span>
-      </button>
-      <div v-show="mobileTocOpen" class="mobile-toc-dropdown">
-        <ul class="mobile-toc-list">
-          <li
-            v-for="sec in tocSections"
-            :key="sec.id"
-            :class="{ 'is-active': isTocSectionActive(sec) }"
-          >
-            <div class="toc-section-row">
-              <a :href="`#${sec.id}`" @click.prevent="onSectionClick(sec.id)">
-                <span class="sec-label">{{ sec.label }}</span>
-              </a>
-              <button
-                v-if="sec.children?.length"
-                type="button"
-                class="toc-expand-toggle"
-                :aria-expanded="isTocSectionExpanded(sec.id)"
-                :aria-label="isTocSectionExpanded(sec.id) ? '收起子目录' : '展开子目录'"
-                @click.stop="toggleTocSection(sec.id)"
-              >
-                {{ isTocSectionExpanded(sec.id) ? '−' : '+' }}
-              </button>
-            </div>
-            <ul v-if="sec.children?.length" v-show="isTocSectionExpanded(sec.id)" class="toc-sublist">
-              <li v-for="child in sec.children" :key="child.id" :class="{ 'is-active': activeSectionId === child.id }">
-                <a :href="`#${child.id}`" @click.prevent="onSectionClick(child.id)">
-                  <span class="sec-label">{{ child.label }}</span>
-                </a>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    </nav>
+    <!-- 2. 移动端/窄屏吸顶目录栏 -->
+    <ArticleReaderMobileToc
+      v-if="tocSections.length"
+      :toc-sections="tocSections"
+      :mobile-toc-open="mobileTocOpen"
+      :current-section-label="currentSectionLabel"
+      :active-section-id="activeSectionId"
+      :expanded-section-ids="expandedSectionIds"
+      @update:mobile-toc-open="mobileTocOpen = $event"
+      @section-click="onSectionClick"
+      @toggle-section="toggleTocSection"
+    />
 
     <main class="reader-container">
       <div v-if="loading" class="reader-loading" role="status">
@@ -90,49 +35,14 @@
 
       <div v-else class="reader-grid" :class="{ 'meta-is-collapsed': metaCollapsed }">
         <!-- 3. 桌面端左侧：随视图平滑吸顶跟随的目录大纲 -->
-        <aside class="reader-toc-col" aria-label="章节大纲">
-          <div class="toc-sticky-box">
-            <span class="toc-title">目录大纲 / CONTENTS</span>
-            <nav class="toc-nav">
-              <ul class="toc-list">
-                <li
-                  v-for="sec in tocSections"
-                  :key="sec.id"
-                  :class="{ 'is-active': isTocSectionActive(sec) }"
-                >
-                  <div class="toc-section-row">
-                    <a :href="`#${sec.id}`" @click.prevent="onSectionClick(sec.id)">
-                      <span class="sec-label">{{ sec.label }}</span>
-                    </a>
-                    <button
-                      v-if="sec.children?.length"
-                      type="button"
-                      class="toc-expand-toggle"
-                      :aria-expanded="isTocSectionExpanded(sec.id)"
-                      :aria-label="isTocSectionExpanded(sec.id) ? '收起子目录' : '展开子目录'"
-                      @click.stop="toggleTocSection(sec.id)"
-                    >
-                      {{ isTocSectionExpanded(sec.id) ? '−' : '+' }}
-                    </button>
-                  </div>
-                  <ul v-if="sec.children?.length" v-show="isTocSectionExpanded(sec.id)" class="toc-sublist">
-                    <li v-for="child in sec.children" :key="child.id" :class="{ 'is-active': activeSectionId === child.id }">
-                      <a :href="`#${child.id}`" @click.prevent="onSectionClick(child.id)">
-                        <span class="sec-label">{{ child.label }}</span>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </nav>
-
-            <div class="toc-foot">
-              <button type="button" class="back-top-btn" @click="scrollToTop">
-                ↑ 回到顶部
-              </button>
-            </div>
-          </div>
-        </aside>
+        <ArticleReaderToc
+          :toc-sections="tocSections"
+          :active-section-id="activeSectionId"
+          :expanded-section-ids="expandedSectionIds"
+          @section-click="onSectionClick"
+          @toggle-section="toggleTocSection"
+          @scroll-to-top="scrollToTop"
+        />
 
         <!-- 4. 中间：正文主列 -->
         <article class="reader-content-col">
@@ -153,93 +63,11 @@
         </article>
 
         <!-- 5. 右侧：元数据与档案资料 column -->
-        <aside v-if="!metaCollapsed" class="reader-meta-col" aria-label="文献元数据与资源">
-          <div class="meta-sticky-box">
-            <button
-              type="button"
-              class="meta-collapse-toggle"
-              :aria-expanded="!metaCollapsed"
-              aria-controls="article-meta-content"
-              @click="metaCollapsed = !metaCollapsed"
-            >
-              <span>文献元信息</span>
-              <span class="meta-collapse-icon" aria-hidden="true">{{ metaCollapsed ? '+' : '−' }}</span>
-            </button>
-
-            <div v-show="!metaCollapsed" id="article-meta-content" class="meta-content">
-              <div class="meta-block">
-                <span class="meta-label">文献出处</span>
-                <p class="meta-value">{{ metadata.source }}</p>
-                <p v-if="metadata.bookSource" class="meta-subvalue">{{ metadata.bookSource }}</p>
-              </div>
-
-              <div class="meta-block meta-inline-block">
-                <div class="meta-inline-row">
-                  <span class="meta-label">发表年份</span>
-                  <p class="meta-value">{{ metadata.year }}</p>
-                </div>
-              </div>
-
-              <div class="meta-block">
-                <span class="meta-label">主题标签</span>
-                <div class="meta-tags">
-                  <span v-for="tag in metadata.tags" :key="tag" class="meta-tag-item">{{ tag }}</span>
-                </div>
-              </div>
-
-              <!-- 关联外部资源与代码库卡片 -->
-              <div v-if="metadata.links && metadata.links.length" class="meta-block">
-                <span class="meta-label">关联站点与代码仓库</span>
-                <div class="meta-links-list">
-                  <a
-                    v-for="(link, idx) in metadata.links"
-                    :key="idx"
-                    :href="link.url"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="meta-link-item"
-                  >
-                    <span class="meta-link-badge">{{ link.type === 'github' ? 'CODE' : 'WEB' }}</span>
-                    <div class="meta-link-info">
-                      <span class="meta-link-name">{{ link.label }}</span>
-                      <span class="meta-link-desc">{{ link.desc || link.url }}</span>
-                    </div>
-                    <span class="meta-link-arrow" aria-hidden="true">↗</span>
-                  </a>
-                </div>
-              </div>
-
-              <!-- 仅当确实有原版 PDF 存档时才显示下载区块 -->
-              <div v-if="metadata.pdfUrl && (metadata.pdfUrl.endsWith('.pdf') || metadata.pdfUrl.includes('origin.pdf'))" class="meta-block meta-download">
-                <span class="meta-label">原版文献存档</span>
-                <a
-                  :href="metadata.pdfUrl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="pdf-download-btn"
-                >
-                  下载 / 查看原版 PDF <span aria-hidden="true">↗</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        <button
-          v-else
-          type="button"
-          class="meta-expand-toggle"
-          aria-expanded="false"
-          aria-controls="article-meta-content"
-          aria-label="展开文献元信息"
-          @click="metaCollapsed = false"
-        >
-          <span class="meta-expand-label" aria-hidden="true">
-            <span>·</span>
-            <span>·</span>
-            <span>·</span>
-          </span>
-        </button>
+        <ArticleReaderMeta
+          :metadata="metadata"
+          :meta-collapsed="metaCollapsed"
+          @update:meta-collapsed="metaCollapsed = $event"
+        />
       </div>
     </main>
   </div>
@@ -252,6 +80,10 @@ import { resourceArticles, resources } from '../../data/resources/index.js'
 import { parseArticleOutline } from '../../utils/markdown/articleOutline.js'
 import { renderArticleMarkdown } from '../../utils/markdown/articleMarkdown.js'
 import '../../styles/article-markdown.css'
+import ArticleReaderHeader from '../../components/resources/reader/ArticleReaderHeader.vue'
+import ArticleReaderMobileToc from '../../components/resources/reader/ArticleReaderMobileToc.vue'
+import ArticleReaderToc from '../../components/resources/reader/ArticleReaderToc.vue'
+import ArticleReaderMeta from '../../components/resources/reader/ArticleReaderMeta.vue'
 
 const props = defineProps({
   id: {
@@ -530,209 +362,6 @@ onUnmounted(() => {
   color: var(--home-ink, #111111);
 }
 
-/* 顶部粘性 Header */
-.reader-header {
-  position: sticky;
-  top: 0;
-  z-index: 45;
-  border-bottom: 1px solid var(--resources-rule, #d7d7d1);
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(8px);
-}
-
-.reader-header-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0.85rem 2rem;
-}
-
-.reader-back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: var(--resources-ink, #111111);
-  font-size: 0.82rem;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.reader-back-btn:hover {
-  color: var(--home-blue, #1976d2);
-}
-
-.reader-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-/* 语言切换器 */
-.lang-switch-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.2rem 0.5rem;
-  border: 1px solid var(--resources-rule, #d7d7d1);
-  border-radius: 999px;
-  background-color: #fafaf9;
-}
-
-.lang-btn {
-  border: none;
-  background: transparent;
-  color: var(--resources-muted, #8c8c88);
-  font-size: 0.76rem;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 0.1rem 0.3rem;
-  transition: all 0.15s ease;
-}
-
-.lang-btn:hover {
-  color: var(--home-ink, #111111);
-}
-
-.lang-btn:disabled {
-  color: var(--resources-rule, #d7d7d1);
-  cursor: not-allowed;
-  opacity: 0.9;
-}
-
-.lang-btn:disabled:hover {
-  color: var(--resources-rule, #d7d7d1);
-}
-
-.lang-btn.is-active {
-  color: var(--home-blue, #1976d2);
-  font-weight: 700;
-}
-
-.lang-divider {
-  color: var(--resources-rule, #d7d7d1);
-  font-size: 0.72rem;
-}
-
-/* 移动端吸顶大纲栏 */
-.mobile-toc-bar {
-  display: none;
-  position: sticky;
-  top: 3.7rem;
-  z-index: 40;
-  border-bottom: 1px solid var(--resources-rule, #d7d7d1);
-  background: #ffffff;
-}
-
-.mobile-toc-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0.65rem 1.2rem;
-  border: none;
-  background: transparent;
-  color: var(--home-ink, #111111);
-  font-size: 0.82rem;
-  cursor: pointer;
-}
-
-.mobile-toc-dropdown {
-  padding: 0.6rem 1.2rem 1rem;
-  border-top: 1px solid var(--resources-rule, #d7d7d1);
-  background: #fafaf9;
-}
-
-.mobile-toc-dropdown ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.mobile-toc-dropdown li {
-  margin-bottom: 0.6rem;
-}
-
-.mobile-toc-list .toc-section-row,
-.toc-list .toc-section-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.25rem;
-}
-
-.mobile-toc-list .toc-section-row > a,
-.toc-list .toc-section-row > a {
-  flex: 1;
-  min-width: 0;
-}
-
-.toc-expand-toggle {
-  flex: 0 0 1rem;
-  width: 1rem;
-  height: 1rem;
-  margin-top: 0.2rem;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--resources-muted, #8c8c88);
-  font-size: 0.95rem;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.toc-expand-toggle:hover {
-  color: var(--home-blue, #1976d2);
-}
-
-.toc-nav .toc-sublist {
-  list-style: none;
-  margin: 0.75rem 0 0.2rem;
-  padding: 0 0 0 1rem;
-}
-
-.toc-nav .toc-sublist li {
-  margin-bottom: 0.7rem;
-}
-
-.toc-nav .toc-sublist a {
-  padding-left: 0.65rem;
-  border-left-width: 1px;
-}
-
-.toc-nav .toc-sublist .sec-label {
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.toc-nav .toc-sublist .sec-en {
-  font-size: 0.62rem;
-}
-
-.mobile-toc-list .toc-sublist {
-  margin-top: 0.7rem;
-  padding-left: 0.9rem;
-}
-
-.mobile-toc-list .toc-sublist li {
-  margin-bottom: 0.6rem;
-}
-
-.mobile-toc-list .toc-sublist a {
-  padding-left: 0.55rem;
-}
-
-.mobile-toc-dropdown a {
-  display: flex;
-  flex-direction: column;
-  color: var(--resources-muted, #8c8c88);
-  text-decoration: none;
-}
-
-.mobile-toc-dropdown li.is-active a {
-  color: var(--home-blue, #1976d2);
-  font-weight: 600;
-}
 
 /* 布局主容器 */
 .reader-container {
@@ -760,87 +389,6 @@ onUnmounted(() => {
   grid-template-columns: 240px minmax(0, 1fr);
 }
 
-/* 1. 左侧：跟随视图吸顶固定目录大纲 */
-.reader-toc-col {
-  position: sticky;
-  top: 4.5rem;
-  align-self: start;
-}
-
-.toc-sticky-box {
-  max-height: calc(100vh - 6rem);
-  overflow-y: auto;
-  padding-right: 0.5rem;
-}
-
-.toc-title {
-  display: block;
-  margin-bottom: 1.2rem;
-  color: var(--resources-muted, #8c8c88);
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.toc-nav ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.toc-nav li {
-  margin-bottom: 1.1rem;
-}
-
-.toc-nav a {
-  display: flex;
-  flex-direction: column;
-  padding-left: 0.75rem;
-  border-left: 2px solid transparent;
-  color: var(--resources-muted, #8c8c88);
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.toc-nav a:hover {
-  color: var(--home-ink, #111111);
-}
-
-.toc-nav li.is-active a {
-  border-left-color: transparent;
-  color: var(--home-ink, #111111);
-}
-
-.sec-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  line-height: 1.35;
-}
-
-.sec-en {
-  margin-top: 0.15rem;
-  font-size: 0.68rem;
-  opacity: 0.75;
-}
-
-.toc-foot {
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--resources-rule, #d7d7d1);
-}
-
-.back-top-btn {
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--resources-muted, #8c8c88);
-  font-size: 0.75rem;
-  cursor: pointer;
-}
-
-.back-top-btn:hover {
-  color: var(--home-blue, #1976d2);
-}
 
 /* 2. 中间：正文主列 */
 .reader-content-col {
@@ -1154,239 +702,9 @@ onUnmounted(() => {
   color: var(--home-blue, #1976d2);
 }
 
-/* 5. 右侧：元数据与档案下载 */
-.reader-meta-col {
-  position: sticky;
-  top: 4.5rem;
-  align-self: start;
-}
-
-.meta-sticky-box {
-  max-height: calc(100vh - 6rem);
-  overflow-y: auto;
-}
-
-.meta-collapse-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin: 0 0 1.2rem;
-  padding: 0 0 0.75rem;
-  border: 0;
-  border-bottom: 1px solid var(--resources-rule, #d7d7d1);
-  background: transparent;
-  color: var(--resources-muted, #8c8c88);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-align: left;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.meta-collapse-toggle:hover {
-  color: var(--home-blue, #1976d2);
-}
-
-.meta-collapse-icon {
-  color: inherit;
-  font-size: 1rem;
-  line-height: 1;
-}
-
-.meta-expand-toggle {
-  position: fixed;
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
-  z-index: 35;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 0.9rem;
-  min-height: 2.6rem;
-  padding: 0.45rem 0.1rem;
-  border: 1px solid var(--resources-rule, #d7d7d1);
-  border-right: 0;
-  border-radius: 0.3rem 0 0 0.3rem;
-  background: rgba(255, 255, 255, 0.96);
-  color: var(--resources-muted, #8c8c88);
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  cursor: pointer;
-}
-
-.meta-expand-label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.08rem;
-  line-height: 0.45;
-}
-
-.meta-expand-toggle:hover {
-  border: 1px solid var(--home-ink, #111111);
-  border-right: 0;
-  color: var(--home-ink, #111111);
-}
-
-.meta-block {
-  margin-bottom: 0.8rem;
-  padding-bottom: 0.65rem;
-  border-bottom: 1px solid var(--resources-rule, #d7d7d1);
-}
-
-.meta-inline-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.meta-inline-row .meta-label,
-.meta-inline-row .meta-value {
-  margin: 0;
-}
-
-.meta-inline-row .meta-value {
-  text-align: right;
-}
-
-.meta-label {
-  display: block;
-  margin-bottom: 0.4rem;
-  color: var(--resources-muted, #8c8c88);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.meta-value {
-  margin: 0;
-  color: var(--home-ink, #111111);
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.meta-subvalue {
-  margin: 0.2rem 0 0;
-  color: var(--resources-muted, #8c8c88);
-  font-size: 0.78rem;
-}
-
-.meta-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-top: 0.5rem;
-}
-
-.meta-tag-item {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.2rem 0.55rem;
-  border: 1px solid var(--resources-rule, #d7d7d1);
-  background-color: #fafaf9;
-  color: var(--home-ink, #111111);
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  line-height: 1.25;
-  transition: all 0.15s ease;
-}
-
-.meta-tag-item:hover {
-  border-color: var(--home-blue, #1976d2);
-  color: var(--home-blue, #1976d2);
-  background-color: #f0f7ff;
-}
-
-/* 侧边栏外链卡片 */
-.meta-links-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  margin-top: 0.5rem;
-}
-
-.meta-link-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  padding: 0.55rem 0.7rem;
-  border: 1px solid var(--resources-rule, #d7d7d1);
-  background-color: #fafaf9;
-  text-decoration: none;
-  transition: all 0.15s ease;
-}
-
-.meta-link-item:hover {
-  border-color: var(--home-blue, #1976d2);
-  background-color: #ffffff;
-}
-
-.meta-link-badge {
-  font-size: 0.64rem;
-  font-weight: 700;
-  padding: 0.1rem 0.3rem;
-  border: 1px solid var(--resources-rule, #d7d7d1);
-  background-color: #ffffff;
-  color: var(--home-ink, #111111);
-}
-
-.meta-link-info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.meta-link-name {
-  color: var(--home-ink, #111111);
-  font-size: 0.8rem;
-  font-weight: 600;
-  line-height: 1.3;
-}
-
-.meta-link-desc {
-  margin-top: 0.15rem;
-  color: var(--resources-muted, #8c8c88);
-  font-size: 0.7rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.meta-link-arrow {
-  color: var(--resources-muted, #8c8c88);
-  font-size: 0.78rem;
-}
-
-.meta-link-item:hover .meta-link-arrow {
-  color: var(--home-blue, #1976d2);
-}
-
-.pdf-download-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin-top: 0.4rem;
-  color: var(--home-blue, #1976d2);
-  font-size: 0.82rem;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.pdf-download-btn:hover {
-  color: var(--accent-orange, #e65100);
-}
 
 /* 响应式断点控制 */
 @media (max-width: 1024px) {
-  .mobile-toc-bar {
-    display: block;
-  }
-
   .reader-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
@@ -1394,14 +712,6 @@ onUnmounted(() => {
 
   .reader-grid.meta-is-collapsed {
     grid-template-columns: 1fr;
-  }
-
-  .reader-toc-col {
-    display: none;
-  }
-
-  .reader-meta-col {
-    position: static;
   }
 }
 </style>

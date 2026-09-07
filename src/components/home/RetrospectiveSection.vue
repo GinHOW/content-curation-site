@@ -22,12 +22,14 @@
 
     <div class="full-span showcase-frame">
       <StickerShowcase @open-work="$emit('open-work', $event)" />
+      <!-- <ShelfShowcase @open-work="$emit('open-work', $event)"/> -->
     </div>
   </section>
 </template>
 
 <script setup>
 import StickerShowcase from '../works/StickerShowcase.vue'
+// import ShelfShowcase from '../_unused/ShelfShowcase.vue';
 
 defineEmits(['open-work'])
 </script>

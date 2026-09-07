@@ -21,10 +21,18 @@ import * as adminStaticResourceOverrides from '../functions/api/admin/resource-s
 import * as adminStaticResourceOverride from '../functions/api/admin/resource-static-overrides/[id].js'
 import * as adminResourceMedia from '../functions/api/admin/resource-media.js'
 import * as courseState from '../functions/api/course-state.js'
+import * as studentChangePassword from '../functions/api/student/change-password.js'
+import * as studentGroup from '../functions/api/student/group.js'
+import * as studentGroupTopic from '../functions/api/student/group/topic.js'
+import * as studentJoinGroup from '../functions/api/student/join-group.js'
+import * as studentLogin from '../functions/api/student/login.js'
+import * as studentLogout from '../functions/api/student/logout.js'
+import * as studentMe from '../functions/api/student/me.js'
 import * as publicResources from '../functions/api/resources.js'
 import * as publicResourceSubmissions from '../functions/api/resource-submissions.js'
 import * as staticResourceOverrides from '../functions/api/resource-static-overrides.js'
 import * as resourceImages from '../functions/api/resource-images/[key].js'
+import { hashStudentPassword } from '../functions/api/_utils.js'
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const distRoot = path.join(projectRoot, 'dist')
@@ -147,6 +155,24 @@ const createDatabase = async () => {
   }
   env.DB = new LocalD1(db)
 
+  const testStudentNumber = '20260001'
+  const testStudentPassword = '260001'
+  const testStudentPasswordHash = await hashStudentPassword(testStudentPassword, env.STUDENT_PASSWORD_PEPPER)
+  db.prepare(`
+    INSERT OR IGNORE INTO users (
+      id, username, display_name, class_name, password_hash, role, status, must_change_password
+    ) VALUES (?, ?, ?, ?, ?, 'student', 'active', 0)
+  `).run(
+    'student-local-test',
+    testStudentNumber,
+    '测试学生',
+    '1',
+    testStudentPasswordHash,
+  )
+  db.prepare(
+    'INSERT OR IGNORE INTO group_members (group_id, user_id) VALUES (?, ?)',
+  ).run('group-a1', 'student-local-test')
+
   // 放入一条仅供本地预览的待审核样例，方便直接查看审核列表。
   db.prepare(`
     INSERT INTO resource_submissions (
@@ -173,6 +199,14 @@ const routeApi = async (request, url) => {
   if (pathname === '/api/admin/login' && request.method === 'POST') return adminLogin.onRequestPost({ request, env })
   if (pathname === '/api/admin/logout' && request.method === 'POST') return adminLogout.onRequestPost({ request, env })
   if (pathname === '/api/admin/me' && request.method === 'GET') return adminMe.onRequestGet({ request, env })
+  if (pathname === '/api/student/login' && request.method === 'POST') return studentLogin.onRequestPost({ request, env })
+  if (pathname === '/api/student/logout' && request.method === 'POST') return studentLogout.onRequestPost({ request, env })
+  if (pathname === '/api/student/me' && request.method === 'GET') return studentMe.onRequestGet({ request, env })
+  if (pathname === '/api/student/change-password' && request.method === 'POST') return studentChangePassword.onRequestPost({ request, env })
+  if (pathname === '/api/student/join-group' && request.method === 'POST') return studentJoinGroup.onRequestPost({ request, env })
+  if (pathname === '/api/student/group' && request.method === 'DELETE') return studentGroup.onRequestDelete({ request, env })
+  if (pathname === '/api/student/group/topic' && request.method === 'PUT') return studentGroupTopic.onRequestPut({ request, env })
+  if (pathname === '/api/student/group/topic' && request.method === 'DELETE') return studentGroupTopic.onRequestDelete({ request, env })
   if (pathname === '/api/course-state' && request.method === 'GET') return courseState.onRequestGet({ request, env })
   if (pathname === '/api/admin/groups' && request.method === 'GET') return adminGroups.onRequestGet({ request, env })
   const groupTopicMatch = pathname.match(/^\/api\/admin\/groups\/([^/]+)\/topic$/)
@@ -314,6 +348,7 @@ const server = http.createServer(async (incoming, serverResponse) => {
 server.listen(port, '127.0.0.1', () => {
   console.log(`LOCAL_SIM_READY http://localhost:${port}/manage/resources`)
   console.log(`LOCAL_SIM_ADMIN_PASSWORD ${env.ADMIN_PASSWORD}`)
+  console.log('LOCAL_SIM_STUDENT_ACCOUNT 20260001 / 260001（测试学生，A1）')
   console.log('本地模拟使用内存 D1/R2，重启进程后数据会清空。')
 })
 

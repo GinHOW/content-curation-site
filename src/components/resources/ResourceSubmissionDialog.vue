@@ -71,7 +71,14 @@
               <small v-if="imageError" class="resource-submit-error">{{ imageError }}</small>
             </label>
 
-            <label>
+            <template v-if="form.type === 'website'">
+              <label v-for="group in websiteTagGroups" :key="group.id">
+                <span>{{ group.label }} <small>可选，用逗号分隔</small></span>
+                <input v-model.trim="form.tagGroupsText[group.id]" type="text" maxlength="120" :placeholder="group.placeholder" />
+              </label>
+              <small v-if="fieldErrors.tags" class="resource-submit-error">{{ fieldErrors.tags }}</small>
+            </template>
+            <label v-else>
               <span>标签 <small>可选，用逗号分隔</small></span>
               <input v-model.trim="form.tagsText" type="text" maxlength="120" placeholder="例如：展览，数字媒介" />
               <small v-if="fieldErrors.tags" class="resource-submit-error">{{ fieldErrors.tags }}</small>
@@ -115,7 +122,13 @@ const typeOptions = [
   { value: 'video', label: '视频' },
   { value: 'tool', label: '工具' },
 ]
-const emptyForm = () => ({ type: props.defaultType || '', title: '', url: '', contentOverview: '', tagsText: '', submitterName: '', imageFile: null, imagePreview: '' })
+const websiteTagGroups = [
+  { id: 'content', label: '内容主题', placeholder: '例如：展览，数字媒介' },
+  { id: 'format', label: '网站形态', placeholder: '例如：个人网站，媒体门户' },
+  { id: 'experience', label: '视觉交互', placeholder: '例如：WebGL，互动排版' },
+  { id: 'context', label: '主体身份', placeholder: '例如：设计机构，博物馆' },
+]
+const emptyForm = () => ({ type: props.defaultType || '', title: '', url: '', contentOverview: '', tagsText: '', tagGroupsText: { content: '', format: '', experience: '', context: '' }, submitterName: '', imageFile: null, imagePreview: '' })
 const form = ref(emptyForm())
 const fieldErrors = ref({})
 const submitError = ref('')
@@ -274,10 +287,12 @@ const validate = () => {
   if (!form.value.title) errors.title = '请填写标题'
   if (!form.value.url || !/^https?:\/\//i.test(form.value.url)) errors.url = '请输入 HTTP 或 HTTPS 链接'
   if (!form.value.contentOverview) errors.contentOverview = '请填写内容概述'
-  const tags = form.value.tagsText.split(/[,，\n]/).map((item) => item.trim()).filter(Boolean)
+  const tagGroups = Object.fromEntries(websiteTagGroups.map(({ id }) => [id, form.value.tagGroupsText[id].split(/[,，\n]/).map((item) => item.trim()).filter(Boolean)]))
+  const tags = form.value.type === 'website' ? Object.values(tagGroups).flat() : form.value.tagsText.split(/[,，\n]/).map((item) => item.trim()).filter(Boolean)
   if (tags.length > 5 || tags.some((tag) => tag.length > 20)) errors.tags = '标签最多 5 个，每个不能超过 20 个字符'
+  if (new Set(tags).size !== tags.length) errors.tags = '同一标签只能归入一个类别'
   fieldErrors.value = errors
-  return { valid: !Object.keys(errors).length, tags }
+  return { valid: !Object.keys(errors).length, tags, tagGroups }
 }
 
 const submit = async () => {
@@ -296,6 +311,7 @@ const submit = async () => {
       url: form.value.url,
       contentOverview: form.value.contentOverview,
       tags: result.tags,
+      ...(form.value.type === 'website' ? { tagGroups: result.tagGroups } : {}),
       submitterName: isStudent.value ? undefined : form.value.submitterName,
       imageFile: form.value.imageFile,
       imageWidth: imageMeta.value.width,

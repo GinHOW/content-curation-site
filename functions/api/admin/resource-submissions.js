@@ -8,7 +8,7 @@ import {
 } from '../_resourceUtils.js'
 
 const rowSelect = `
-  SELECT id, type, resource_category, title, url, normalized_url, content_overview, tags_json,
+  SELECT id, type, resource_category, title, url, normalized_url, content_overview, tags_json, tag_groups_json,
          image_key, image_content_type,
          submitter_name, submission_source, status, is_featured, source_ip_hash,
          created_at, updated_at, reviewed_at
@@ -52,9 +52,9 @@ export async function onRequestPost(context) {
   try {
     await env.DB.prepare(`
       INSERT INTO resource_submissions (
-        id, type, resource_category, title, url, normalized_url, content_overview, tags_json,
+        id, type, resource_category, title, url, normalized_url, content_overview, tags_json, tag_groups_json,
         image_key, image_content_type, submitter_name, submission_source, status, is_featured, reviewed_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'teacher', ?, ?, CURRENT_TIMESTAMP)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'teacher', ?, ?, CURRENT_TIMESTAMP)
     `).bind(
       id,
       value.type,
@@ -64,6 +64,7 @@ export async function onRequestPost(context) {
       value.normalizedUrl,
       value.contentOverview,
       JSON.stringify(value.tags),
+      value.tagGroups ? JSON.stringify(value.tagGroups) : null,
       image.value?.key || null,
       image.value?.contentType || null,
       value.submitterName,

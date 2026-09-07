@@ -7,7 +7,7 @@ import {
 } from '../../_resourceUtils.js'
 
 const rowSelect = `
-  SELECT id, type, resource_category, title, url, normalized_url, content_overview, tags_json,
+  SELECT id, type, resource_category, title, url, normalized_url, content_overview, tags_json, tag_groups_json,
          image_key, image_content_type,
          submitter_name, submission_source, status, is_featured, source_ip_hash,
          created_at, updated_at, reviewed_at
@@ -34,6 +34,7 @@ export async function onRequestPatch(context) {
     url: body?.url ?? current.url,
     contentOverview: body?.contentOverview ?? current.content_overview,
     tags: body?.tags ?? currentTags,
+    tagGroups: body?.tagGroups ?? undefined,
     submitterName: body?.submitterName ?? current.submitter_name ?? '',
     status: body?.status ?? current.status,
     isFeatured: body?.isFeatured ?? Boolean(current.is_featured),
@@ -60,7 +61,7 @@ export async function onRequestPatch(context) {
     result = await env.DB.prepare(`
       UPDATE resource_submissions
       SET type = ?, resource_category = ?, title = ?, url = ?, normalized_url = ?, content_overview = ?,
-          tags_json = ?, image_key = ?, image_content_type = ?, submitter_name = ?,
+          tags_json = ?, tag_groups_json = ?, image_key = ?, image_content_type = ?, submitter_name = ?,
           status = ?, is_featured = ?, updated_at = CURRENT_TIMESTAMP, reviewed_at = ?
       WHERE id = ?
     `).bind(
@@ -71,6 +72,7 @@ export async function onRequestPatch(context) {
       value.normalizedUrl,
       value.contentOverview,
       JSON.stringify(value.tags),
+      value.tagGroups ? JSON.stringify(value.tagGroups) : current.tag_groups_json,
       imageKey,
       imageContentType,
       value.submitterName,

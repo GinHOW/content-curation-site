@@ -10,6 +10,7 @@ export const RESOURCE_CATEGORY_VALUES = {
 }
 export const MAX_RESOURCE_URL_LENGTH = 2048
 export const MAX_RESOURCE_IMAGE_BYTES = 1024 * 1024
+export const WEBSITE_TAG_GROUP_KEYS = ['content', 'format', 'experience', 'context']
 export const RESOURCE_IMAGE_TYPES = new Map([
   ['image/webp', 'webp'],
 ])
@@ -59,6 +60,29 @@ function cleanTags(value) {
   return tags
 }
 
+function cleanWebsiteTagGroups(value) {
+  let raw = value
+  if (typeof raw === 'string') {
+    try { raw = JSON.parse(raw) } catch { return null }
+  }
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
+  const groups = Object.fromEntries(WEBSITE_TAG_GROUP_KEYS.map((key) => [key, []]))
+  const used = new Set()
+  for (const key of WEBSITE_TAG_GROUP_KEYS) {
+    const values = Array.isArray(raw[key]) ? raw[key] : []
+    for (const item of values) {
+      const tag = typeof item === 'string' ? item.trim() : ''
+      if (!tag || used.has(tag)) continue
+      if (tag.length > 20 || used.size >= 5) return null
+      groups[key].push(tag)
+      used.add(tag)
+    }
+  }
+  return groups
+}
+
+const flattenTagGroups = (groups) => WEBSITE_TAG_GROUP_KEYS.flatMap((key) => groups[key] || [])
+
 export function validateResourcePayload(body, { allowStatus = false } = {}) {
   const type = cleanResourceType(body?.type)
   const category = cleanResourceCategory(type, body?.category)
@@ -71,7 +95,10 @@ export function validateResourcePayload(body, { allowStatus = false } = {}) {
       ? body.overview.trim()
       : ''
   const submitterName = typeof body?.submitterName === 'string' ? body.submitterName.trim() : ''
-  const tags = cleanTags(body?.tags)
+  const tagGroups = type === 'website' && body?.tagGroups !== undefined
+    ? cleanWebsiteTagGroups(body.tagGroups)
+    : null
+  const tags = tagGroups ? flattenTagGroups(tagGroups) : cleanTags(body?.tags)
   const normalizedUrl = normalizeResourceUrl(url)
 
   if (!type) return { error: error('请选择资源类型', 400) }
@@ -82,6 +109,7 @@ export function validateResourcePayload(body, { allowStatus = false } = {}) {
   if (!overview || overview.length > 600) return { error: error('内容概述需要为 1–600 个字符', 400) }
   if (submitterName.length > 40) return { error: error('姓名不能超过 40 个字符', 400) }
   if (!tags) return { error: error('标签最多 5 个，每个不能超过 20 个字符', 400) }
+  if (type === 'website' && body?.tagGroups !== undefined && !tagGroups) return { error: error('网页标签分组无效', 400) }
 
   let status = 'pending'
   if (allowStatus && typeof body?.status === 'string' && RESOURCE_STATUSES.has(body.status)) status = body.status
@@ -96,6 +124,7 @@ export function validateResourcePayload(body, { allowStatus = false } = {}) {
       normalizedUrl,
       contentOverview: overview,
       tags,
+      tagGroups,
       submitterName: submitterName || null,
       status,
       isFeatured,
@@ -112,7 +141,7 @@ export async function parseResourceRequest(request) {
   try {
     const form = await request.formData()
     const body = {}
-    for (const field of ['type', 'category', 'title', 'url', 'contentOverview', 'tags', 'submitterName', 'status', 'isFeatured', 'turnstileToken', 'imageWidth', 'imageHeight', 'imageOriginalBytes', 'imageOriginalName']) {
+    for (const field of ['type', 'category', 'title', 'url', 'contentOverview', 'tags', 'tagGroups', 'submitterName', 'status', 'isFeatured', 'turnstileToken', 'imageWidth', 'imageHeight', 'imageOriginalBytes', 'imageOriginalName']) {
       const value = form.get(field)
       if (typeof value === 'string') body[field] = value
     }
@@ -184,7 +213,18 @@ export function parseTags(value) {
   }
 }
 
+export function parseTagGroups(value) {
+  if (!value) return null
+  try {
+    const parsed = JSON.parse(value)
+    return cleanWebsiteTagGroups(parsed)
+  } catch {
+    return null
+  }
+}
+
 export function publicResource(row) {
+  const tagGroups = row.type === 'website' ? parseTagGroups(row.tag_groups_json) : null
   return {
     id: row.id,
     type: row.type,
@@ -192,7 +232,8 @@ export function publicResource(row) {
     title: row.title,
     url: row.url,
     summary: row.content_overview,
-    tags: parseTags(row.tags_json),
+    tags: tagGroups ? flattenTagGroups(tagGroups) : parseTags(row.tags_json),
+    ...(tagGroups ? { tagGroups } : {}),
     imageUrl: resourceImageUrl(row.image_key),
     isFeatured: Boolean(row.is_featured),
     createdAt: row.created_at,
@@ -211,6 +252,7 @@ export function adminResource(row) {
     sourceIpHash: row.source_ip_hash,
     updatedAt: row.updated_at,
     reviewedAt: row.reviewed_at,
+    needsTagReview: row.type === 'website' && Boolean(parseTags(row.tags_json).length) && !parseTagGroups(row.tag_groups_json),
   }
 }
 

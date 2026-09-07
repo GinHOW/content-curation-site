@@ -1,4 +1,6 @@
-const website = (data) => ({ type: 'website', embed: false, ...data })
+import { websiteTagGroupsFor } from './websiteTagGroups.js'
+
+const website = (data) => ({ type: 'website', embed: false, ...data, ...websiteTagGroupsFor(data) })
 
 export const contemporaryArtWebsites = [
   website({
@@ -64,7 +66,7 @@ export const contemporaryArtWebsites = [
     url: 'https://www.marlenedumas.nl/',
     previewImage: '/assets/resources/contemporary-art/marlene-dumas.webp',
     previewAlt: '马琳·杜马斯 Marlene Dumas 官方网站快照',
-    tags: ['绘画', '身体与剧场', '观念艺术'],
+    tags: ['绘画', '行为与表演', '观念艺术'],
     summary: '南非出生的荷兰艺术家，从新闻照片、色情杂志与私人宝丽来出发，以极具表现力与流动感的水墨/油彩捕捉生死、种族与欲望。',
   }),
   website({
@@ -75,7 +77,7 @@ export const contemporaryArtWebsites = [
     url: 'https://cecilybrown.com/',
     previewImage: '/assets/resources/contemporary-art/cecily-brown.webp',
     previewAlt: '塞西莉·布朗 Cecily Brown 官方网站快照',
-    tags: ['绘画', '表现主义', '身体与剧场'],
+    tags: ['绘画', '表现主义', '行为与表演'],
     summary: '英国当代著名画家，在抽象表现主义与具象肉体之间编织繁复而狂暴的笔触，重新激活经典大师杰作中的狂欢、欲望与暴力。',
   }),
   website({
@@ -119,7 +121,7 @@ export const contemporaryArtWebsites = [
     url: 'https://www.tillmans.co.uk/',
     previewImage: '/assets/resources/contemporary-art/wolfgang-tillmans.webp',
     previewAlt: '沃夫冈·提尔门斯 Wolfgang Tillmans 官方网站快照',
-    tags: ['摄影', '观念艺术', '展览陈列'],
+    tags: ['摄影', '观念艺术', '展览设计'],
     summary: '首位获得特纳奖的非英籍摄影师，突破暗房界限与展览墙面陈列逻辑，将青年亚文化、静物、星空与抽象曝光并置为去中心化的视觉网络。',
   }),
   website({
@@ -141,7 +143,7 @@ export const contemporaryArtWebsites = [
     url: 'http://www.thomas-schuette.de/',
     previewImage: '/assets/resources/contemporary-art/thomas-schuette.webp',
     previewAlt: '托马斯·舒特 Thomas Schütte 官方网站快照',
-    tags: ['雕塑与装置', '建筑与空间', '身体与剧场'],
+    tags: ['雕塑与装置', '建筑与空间', '行为与表演'],
     summary: '德国当代雕塑大师，在纪念碑性与脆弱模型之间游走，创作出扭曲的庞大身躯、小人偶建筑与纪念碑反思装置。',
   }),
   website({
@@ -185,7 +187,7 @@ export const contemporaryArtWebsites = [
     url: 'https://www.tony-cragg.com/',
     previewImage: '/assets/resources/contemporary-art/tony-cragg.webp',
     previewAlt: '托尼·克拉格 Tony Cragg 官方网站快照',
-    tags: ['雕塑与装置', '物质实验'],
+    tags: ['雕塑与装置', '材料研究'],
     summary: '英国著名雕塑家，特纳奖得主，从早期拾得塑料拼贴到后期青铜、木材与石料的流线型旋转雕塑，持续探求物质内部的涌现形态与动量。',
   }),
   website({
@@ -196,7 +198,7 @@ export const contemporaryArtWebsites = [
     url: 'https://www.jeffkoons.com/',
     previewImage: '/assets/resources/contemporary-art/jeff-koons.webp',
     previewAlt: '杰夫·昆斯 Jeff Koons 官方网站快照',
-    tags: ['雕塑与装置', '波普与街头', '物质实验'],
+    tags: ['雕塑与装置', '波普与街头', '材料研究'],
     summary: '新波普代表人物，以不锈钢充气气球狗、花卉小狗、陶瓷小饰物与真空吸尘器系列，极致展现大众文化中的拜物教与消费欲望。',
   }),
   website({
@@ -240,7 +242,7 @@ export const contemporaryArtWebsites = [
     url: 'https://www.nitsch.org/',
     previewImage: '/assets/resources/contemporary-art/hermann-nitsch.webp',
     previewAlt: '赫尔曼·尼奇 Hermann Nitsch 官方网站快照',
-    tags: ['行为与剧场', '绘画', '身体与剧场'],
+    tags: ['行为与表演', '绘画'],
     summary: '维也纳行动派创始人，以“大狂欢与秘密剧场”（Orgien Mysterien Theater）仪式著称，运用鲜血、内脏与泼洒涂抹触及人类古老图腾体验。',
   }),
   website({
@@ -262,7 +264,7 @@ export const contemporaryArtWebsites = [
     url: 'https://www.erwinwurm.com/',
     previewImage: '/assets/resources/contemporary-art/erwin-wurm.webp',
     previewAlt: '欧文·沃姆 Erwin Wurm 官方网站快照',
-    tags: ['雕塑与装置', '行为与剧场', '观念艺术'],
+    tags: ['雕塑与装置', '行为与表演', '观念艺术'],
     summary: '奥地利雕塑家，以《一分钟雕塑》（One Minute Sculptures）与膨胀肥胖的汽车/房子著称，将观众互动与幽默作为重新界定雕塑形态的工具。',
   }),
   website({
@@ -284,7 +286,7 @@ export const contemporaryArtWebsites = [
     url: 'http://pipilottirist.net/',
     previewImage: '/assets/resources/contemporary-art/pipilotti-rist.webp',
     previewAlt: '皮皮洛蒂·瑞斯特 Pipilotti Rist 官方网站快照',
-    tags: ['影像与新媒体', '雕塑与装置', '身体与剧场'],
+    tags: ['影像与新媒体', '雕塑与装置', '行为与表演'],
     summary: '瑞士沉浸式多频影像先驱，运用鲜亮色彩、微距镜头与松软坐垫，将观者包裹进关于身体、自然欣快感与女性欲望的感官河流。',
   }),
   website({
@@ -306,7 +308,7 @@ export const contemporaryArtWebsites = [
     url: 'http://www.maria-anwander.net/',
     previewImage: '/assets/resources/contemporary-art/maria-anwander.webp',
     previewAlt: '玛丽亚·安万德 Maria Anwander 官方网站快照',
-    tags: ['观念艺术', '行为与剧场', '档案与社会参与'],
+    tags: ['观念艺术', '行为与表演', '档案与社会参与'],
     summary: '奥地利观念艺术家，以偷吻现代艺术博物馆墙面并自制说明牌等游击行为，挑衅艺术体制、署名权与美术馆收藏规则。',
   }),
   website({
@@ -317,7 +319,7 @@ export const contemporaryArtWebsites = [
     url: 'https://www.taniabruguera.com/',
     previewImage: '/assets/resources/contemporary-art/tania-bruguera.webp',
     previewAlt: '塔尼亚·布鲁格拉 Tania Bruguera 官方网站快照',
-    tags: ['行为与剧场', '档案与社会参与', '观念艺术'],
+    tags: ['行为与表演', '档案与社会参与', '观念艺术'],
     summary: '古巴著名政治与行为艺术家，提出“有用艺术”（Arte Útil），利用移民政策、公众集会与审查机制将艺术直接转化为社会制度变革实验。',
   }),
   website({
@@ -361,7 +363,7 @@ export const contemporaryArtWebsites = [
     url: 'http://www.doragarcia.net/',
     previewImage: '/assets/resources/contemporary-art/dora-garcia.webp',
     previewAlt: '多拉·加西亚 Dora García 官方网站快照',
-    tags: ['行为与剧场', '观念艺术', '档案与社会参与'],
+    tags: ['行为与表演', '观念艺术', '档案与社会参与'],
     summary: '西班牙艺术家，探讨反精神病学、拉康精神分析与政治乌托邦，作品常化身漫长对话、剧场化情境演练与互动性文献。',
   }),
   website({
@@ -460,7 +462,7 @@ export const contemporaryArtWebsites = [
     url: 'https://www.kabakov.net/',
     previewImage: '/assets/resources/contemporary-art/ilya-emilia-kabakov.webp',
     previewAlt: '卡巴科夫夫妇 Ilya & Emilia Kabakov 官方网站快照',
-    tags: ['雕塑与装置', '观念艺术', '叙事与空间'],
+    tags: ['雕塑与装置', '观念艺术', '空间叙事'],
     summary: '莫斯科观念主义奠基人与“全景装置”（Total Installation）发明者，构建出《从自己房间飞入太空的人》等苏联集体公寓梦境与乌托邦寓言。',
   }),
   website({
@@ -493,7 +495,7 @@ export const contemporaryArtWebsites = [
     url: 'https://arakinobuyoshi.com/',
     previewImage: '/assets/resources/contemporary-art/nobuyoshi-araki.webp',
     previewAlt: '荒木经惟 Nobuyoshi Araki 官方网站快照',
-    tags: ['摄影', '身体与剧场'],
+    tags: ['摄影', '行为与表演'],
     summary: '日本最具代表性的摄影大师，以私写真概念《感伤之旅》、东京街头日常与绳缚欲望视觉，交织出“生与死”（Eros & Thanatos）的激荡篇章。',
   }),
   website({
@@ -515,7 +517,7 @@ export const contemporaryArtWebsites = [
     url: 'https://www.chiharu-shiota.com/',
     previewImage: '/assets/resources/contemporary-art/chiharu-shiota.webp',
     previewAlt: '盐田千春 Chiharu Shiota 官方网站快照',
-    tags: ['雕塑与装置', '身体与剧场', '线与空间'],
+    tags: ['雕塑与装置', '行为与表演', '线与空间'],
     summary: '威尼斯双年展日本馆代表，用成千上万密密麻麻的红线或黑线织就充满整座空间的巨网，悬吊老旧钥匙与烧焦钢琴，编织关于存在与记忆的震颤体验。',
   }),
   website({
@@ -548,7 +550,7 @@ export const contemporaryArtWebsites = [
     url: 'https://caiguoqiang.com/',
     previewImage: '/assets/resources/contemporary-art/cai-guo-qiang.webp',
     previewAlt: '蔡国强 Cai Guo-Qiang 官方网站快照',
-    tags: ['雕塑与装置', '行为与剧场', '大地与场域'],
+    tags: ['雕塑与装置', '行为与表演', '大地与场域'],
     summary: '国际著名当代艺术家，以火药爆破绘画与室外爆破计划（如《天梯》）闻名，连通宇宙、风水哲学与狂暴能量的瞬间转换。',
   }),
   website({
@@ -570,7 +572,7 @@ export const contemporaryArtWebsites = [
     url: 'http://www.zhanghuan.com/',
     previewImage: '/assets/resources/contemporary-art/zhang-huan.webp',
     previewAlt: '张洹 Zhang Huan 官方网站快照',
-    tags: ['行为与剧场', '雕塑与装置', '身体与剧场'],
+    tags: ['行为与表演', '雕塑与装置'],
     summary: '北京东村核心行为艺术家，从早期极限肉身承受（如《12平方米》、《为无名山增高一米》）发展至后期的香灰画与巨型佛手雕塑。',
   }),
   website({
@@ -603,7 +605,7 @@ export const contemporaryArtWebsites = [
     url: 'http://www.antonygormley.com/',
     previewImage: '/assets/resources/contemporary-art/antony-gormley.webp',
     previewAlt: '安东尼·葛姆雷 Antony Gormley 官方网站快照',
-    tags: ['雕塑与装置', '身体与剧场', '大地与场域'],
+    tags: ['雕塑与装置', '行为与表演', '大地与场域'],
     summary: '以《北方天使》与《别处》（Another Place）海滩铸铁人体雕塑著称，探寻人体在空间中的定位以及“身体作为意识居所”的哲学反思。',
   }),
   website({
@@ -614,7 +616,7 @@ export const contemporaryArtWebsites = [
     url: 'http://www.romansigner.ch/',
     previewImage: '/assets/resources/contemporary-art/roman-signer.webp',
     previewAlt: '罗曼·西格纳 Roman Signer 官方网站快照',
-    tags: ['行为与剧场', '雕塑与装置', '观念艺术'],
+    tags: ['行为与表演', '雕塑与装置', '观念艺术'],
     summary: '瑞士“时间雕塑”大师，以炸药、橡皮艇、靴子、水桶与直升机模型等极具童心与物理幽默的微型爆破实验，将雕塑转变为过程与能量事件。',
   }),
   website({
@@ -625,7 +627,7 @@ export const contemporaryArtWebsites = [
     url: 'https://www.kimsooja.com/',
     previewImage: '/assets/resources/contemporary-art/kimsooja.webp',
     previewAlt: '金守子 Kimsooja 官方网站快照',
-    tags: ['行为与剧场', '雕塑与装置', '影像与新媒体'],
+    tags: ['行为与表演', '雕塑与装置', '影像与新媒体'],
     summary: '韩国观念艺术家，以传统韩式包裹布（Bottari）和背对镜头站在世界喧嚣十字路口的《针织女》行为影像，探寻呼吸、缝合与流散的存在哲学。',
   }),
   website({
@@ -636,7 +638,7 @@ export const contemporaryArtWebsites = [
     url: 'http://kerencytter.com/',
     previewImage: '/assets/resources/contemporary-art/keren-cytter.webp',
     previewAlt: '凯伦·塞特 Keren Cytter 官方网站快照',
-    tags: ['影像与新媒体', '剧场与表演', '叙事解构'],
+    tags: ['影像与新媒体', '行为与表演', '叙事解构'],
     summary: '以色列录像与剧场艺术家，以非线性循环叙事、错位对白、业余演员与肥皂剧式的戏仿风格，解构亲密关系中的荒谬与沟通困境。',
   }),
   website({

@@ -78,9 +78,9 @@ export async function onRequestPost(context) {
   try {
     await env.DB.prepare(`
       INSERT INTO resource_submissions (
-        id, type, resource_category, title, url, normalized_url, content_overview, tags_json,
+        id, type, resource_category, title, url, normalized_url, content_overview, tags_json, tag_groups_json,
         image_key, image_content_type, submitter_name, submission_source, status, source_ip_hash
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
     `).bind(
       id,
       value.type,
@@ -90,6 +90,7 @@ export async function onRequestPost(context) {
       value.normalizedUrl,
       value.contentOverview,
       JSON.stringify(value.tags),
+      value.tagGroups ? JSON.stringify(value.tagGroups) : null,
       image.value?.key || null,
       image.value?.contentType || null,
       submitterName || null,

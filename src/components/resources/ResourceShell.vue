@@ -39,7 +39,11 @@
           :groups="filterGroups"
           :active="activeFilter"
           :count="count"
+          :filter-label="filterLabel"
+          :selected="selectedFilters"
           @select="(val, group) => $emit('filter', val, group)"
+          @deselect="(item) => $emit('deselect-filter', item)"
+          @clear="$emit('clear-filters')"
         />
 
         <slot />
@@ -105,6 +109,14 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  filterLabel: {
+    type: String,
+    default: '筛选',
+  },
+  selectedFilters: {
+    type: Array,
+    default: () => [],
+  },
 })
 
 const sectionAccent = computed(() => ({
@@ -126,7 +138,7 @@ const resourceStyle = computed(() => ({
   '--resource-filter-accent': props.filterAccent || sectionAccent.value,
 }))
 
-defineEmits(['filter'])
+defineEmits(['filter', 'deselect-filter', 'clear-filters'])
 </script>
 
 <style scoped>

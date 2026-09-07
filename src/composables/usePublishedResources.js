@@ -11,6 +11,7 @@ const normalize = (item) => {
   const base = {
     ...item,
     tags: Array.isArray(item.tags) ? item.tags : [],
+    tagGroups: item.tagGroups && typeof item.tagGroups === 'object' ? item.tagGroups : null,
     featured: Boolean(item.isFeatured),
     featuredOrder: 1000,
     summary: item.summary || '社区提交资源，等待更多课程使用与补充。',

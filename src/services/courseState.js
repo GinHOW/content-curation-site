@@ -28,13 +28,17 @@ const resourceFormData = (payload = {}) => {
   if (typeof FormData === 'undefined') return JSON.stringify(payload)
   const form = new FormData()
   for (const [key, value] of Object.entries(payload)) {
-    if (value === undefined || value === null || key === 'tagsText' || key === 'imagePreview' || key === 'imageMeta' || key === 'imageProcessing') continue
+    if (value === undefined || value === null || key === 'tagsText' || key === 'tagGroupsText' || key === 'imagePreview' || key === 'imageMeta' || key === 'imageProcessing') continue
     if (key === 'imageFile') {
       if (typeof Blob !== 'undefined' && value instanceof Blob) form.append('image', value, value.name || 'resource-image')
       continue
     }
     if (key === 'tags' && Array.isArray(value)) {
       form.append(key, value.join('，'))
+      continue
+    }
+    if (key === 'tagGroups' && typeof value === 'object') {
+      form.append(key, JSON.stringify(value))
       continue
     }
     if (key === 'isFeatured' || key === 'removeImage') {

@@ -75,6 +75,7 @@ const {
         { value: 'all', label: '全部' },
         { value: 'ai-coding', label: 'AI Coding' },
         { value: 'course', label: '课程讲座' },
+        { value: 'ui-design', label: 'UI 设计' },
       ],
     },
     {
@@ -83,7 +84,7 @@ const {
       options: filterValues.map((value) => ({ value, label: value })),
     },
   ],
-  filterPredicate: (video, filter) => ['ai-coding', 'course'].includes(filter)
+  filterPredicate: (video, filter) => ['ai-coding', 'course', 'ui-design'].includes(filter)
     ? video.videoCategory === filter
     : (video.tags && video.tags.includes(filter)),
 })

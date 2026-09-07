@@ -6,6 +6,7 @@ export const resourceCategoryOptions = {
   video: [
     { value: 'ai-coding', label: 'AI Coding' },
     { value: 'course', label: '课程讲座' },
+    { value: 'ui-design', label: 'UI 设计' },
   ],
   website: [
     { value: 'case', label: '网站案例' },

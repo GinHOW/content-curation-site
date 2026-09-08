@@ -7,7 +7,7 @@ test('网页静态资源具有可展开的四维标签与无重复扁平标签',
   const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
   try {
     const { resourceWebsites } = await server.ssrLoadModule('/src/data/resources/websites.js')
-    assert.equal(resourceWebsites.length, 141)
+    assert.equal(resourceWebsites.length, 142)
     for (const item of resourceWebsites) {
       const grouped = Object.values(item.tagGroups).flat()
       assert.deepEqual(item.tags, grouped)

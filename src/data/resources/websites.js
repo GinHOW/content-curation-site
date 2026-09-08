@@ -941,5 +941,18 @@ export const resourceWebsites = [
     tags: ['法式优雅', '艺术指导', '文化品牌', '排版设计'],
     summary: "常驻巴黎的跨学科创意事务所，服务于全球顶级奢侈品牌、艺术画廊与文化机构，兼具古典风骨与现代气息。",
   }),
+  website({
+    id: 'web-arena-archives',
+    websiteCategory: 'news',
+    featured: false,
+    featuredOrder: 77,
+    title: "Are.na · Archives",
+    source: "Are.na · Yue Zhou 公开频道",
+    url: "https://www.are.na/share/vfqyWdU",
+    previewImage: '/assets/resources/news/arena-archives.webp',
+    previewAlt: "Are.na Archives 频道网页快照预览",
+    tags: ['档案', '视觉研究', '档案网站', '数据可视化'],
+    summary: "Are.na 上持续更新的公开研究频道，收集数据驱动的数字档案与可视化案例，探索这些材料如何以复数形式被出版与传播。",
+  }),
   ...contemporaryArtWebsites,
 ]

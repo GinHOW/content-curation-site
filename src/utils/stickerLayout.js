@@ -340,7 +340,7 @@ export const createFixedStickerLayouts = (items, random = Math.random) => Object
   ]),
 )
 
-const createFallbackLayout = (items, presetName, seed) => {
+export const createFallbackLayout = (items, presetName, seed) => {
   const sortedItems = [...items].sort((first, second) => {
     const firstArea = first.widths[presetName] ** 2 / first.aspectRatio
     const secondArea = second.widths[presetName] ** 2 / second.aspectRatio

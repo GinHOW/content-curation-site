@@ -7,9 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test:markdown": "node --test tests/article-markdown.test.mjs",
-    "test:stickers": "node --test tests/sticker-layout.test.mjs",
-    "test:screen-universe": "node --test tests/screen-universe-sphere.test.mjs",
+    "test": "vitest run",
+    "test:markdown": "vitest run tests/article-markdown.test.mjs",
+    "test:stickers": "vitest run tests/sticker-layout.test.mjs tests/sticker-interaction.test.mjs",
+    "test:screen-universe": "vitest run tests/screen-universe-sphere.test.mjs tests/screen-universe-scene.test.mjs",
+    "test:composables": "vitest run tests/sticker-interaction.test.mjs tests/screen-universe-scene.test.mjs",
+    "test:crap": "node scripts/run-crap-check.mjs",
     "simulate": "node scripts/local-sim-server.mjs",
     "generate:screen-zones": "node scripts/generate-controller-screen-zones.mjs",
     "d1:migrate:local": "npx wrangler d1 migrations apply content-curation-site --local",
@@ -21,7 +24,12 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@babel/parser": "^7.29.8",
     "@vitejs/plugin-vue": "^6.0.7",
-    "vite": "^8.1.1"
+    "@vitest/coverage-v8": "^5.0.0",
+    "@vue/test-utils": "^2.5.0",
+    "jsdom": "^29.1.1",
+    "vite": "^8.1.1",
+    "vitest": "^5.0.0"
   }
 }

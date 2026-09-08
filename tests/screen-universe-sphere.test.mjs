@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import test from 'node:test'
+import { test } from 'vitest'
 import {
   SCREEN_UNIVERSE_ARC_DEGREES,
   SCREEN_UNIVERSE_MAX_VISIBLE,
@@ -7,10 +7,13 @@ import {
   avoidProtectedRect,
   createScreenItems,
   createScreenLayout,
+  projectPoint,
+  projectScreenHalfSize,
   projectedRect,
   rectsOverlap,
   resolveProjectedScreens,
   selectVisibleScreens,
+  unprojectToSphere,
 } from '../src/utils/screenUniverseSphere.js'
 
 function imageItems(count) {
@@ -111,4 +114,27 @@ test('可见屏幕池严格遵守节点预算', () => {
     frontness: 1 - index / 100,
   }))
   assert.equal(selectVisibleScreens(screens).length, SCREEN_UNIVERSE_MAX_VISIBLE)
+})
+
+test('三维投影与球体反投影计算符合透视几何', () => {
+  // 位于相机后方或正前平面的点应被剔除
+  assert.equal(projectPoint(null), null)
+  assert.equal(projectPoint({ x: 0, y: 0, z: 0 }), null)
+  assert.equal(projectPoint({ x: 0, y: 0, z: 1 }), null)
+
+  // 正常前方点投影
+  const projected = projectPoint({ x: 0, y: 0, z: -10 }, { fov: 60, aspect: 1 })
+  assert.ok(projected)
+  assert.equal(Math.round(projected.x), 0)
+  assert.equal(Math.round(projected.y), 0)
+
+  // 尺寸半高宽投影
+  const halfSize = projectScreenHalfSize({ width: 2, height: 1 }, { x: 0, y: 0, z: -10 })
+  assert.ok(halfSize.x > 0)
+  assert.ok(halfSize.y > 0)
+
+  // 反投影到球体表面，其半径应等于指定 radius
+  const spherePoint = unprojectToSphere({ x: 0, y: 0 }, 100)
+  const radius = Math.hypot(spherePoint.x, spherePoint.y, spherePoint.z)
+  assert.ok(Math.abs(radius - 100) < 1e-4)
 })

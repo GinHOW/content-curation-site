@@ -123,6 +123,15 @@ const isTocSectionActive = (section) =>
   min-width: 0;
 }
 
+/* 给父级章节与展开的子级章节留出明确的层级呼吸空间。 */
+.toc-list > li > .toc-sublist {
+  margin-top: 0.85rem;
+}
+
+.toc-list > li > .toc-sublist a {
+  padding-left: 1.75rem;
+}
+
 .toc-expand-toggle {
   flex: 0 0 1rem;
   width: 1rem;

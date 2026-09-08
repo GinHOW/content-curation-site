@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import test from 'node:test'
+import { test } from 'vitest'
 import { parseArticleOutline } from '../src/utils/markdown/articleOutline.js'
 import { renderArticleMarkdown } from '../src/utils/markdown/articleMarkdown.js'
 import { renderResourceBlock } from '../src/utils/markdown/resourceBlocks.js'
@@ -131,4 +131,86 @@ test('malformed resource URLs do not throw during rendering', () => {
   const html = renderArticleMarkdown('```resource\ntype: website\nurl: https://\n```')
 
   assert.match(html, /article-code-block-resource/)
+})
+
+test('renderer handles fallback headings, fenced code, notes, lists, footnotes, images, and inline syntax', () => {
+  const markdown = [
+    '[[内部标记]]',
+    '',
+    '# Same Title',
+    '',
+    '# Same Title',
+    '',
+    '![图像](images/sample.jpg)',
+    '',
+    '> [!NOTE] 注意事项',
+    '> 第一行说明',
+    '> 第二行说明',
+    '',
+    '> 普通引用',
+    '',
+    '1. 第一项',
+    '2. 第二项',
+    '',
+    '- 甲',
+    '- 乙',
+    '',
+    '正文 **粗体** *斜体* `a < b` [链接](https://example.com/path?a=1) [^1]',
+    '',
+    '[^1]: 带有 *强调* 的注释',
+    '',
+    '~~~prompt',
+    '# 这不是标题',
+    '<script>alert(1)</script>',
+    '~~~~',
+  ].join('\n')
+  const html = renderArticleMarkdown(markdown, { articleId: 'demo' })
+
+  assert.match(html, /id="same-title"/)
+  assert.match(html, /id="same-title-2"/)
+  assert.match(html, /\/articles\/demo\/images\/sample\.jpg/)
+  assert.match(html, /article-callout-note/)
+  assert.match(html, /article-quote/)
+  assert.match(html, /<ol><li>第一项<\/li><li>第二项<\/li><\/ol>/)
+  assert.match(html, /<ul><li>甲<\/li><li>乙<\/li><\/ul>/)
+  assert.match(html, /footnote-popover/)
+  assert.match(html, /<strong>粗体<\/strong>/)
+  assert.match(html, /<em>斜体<\/em>/)
+  assert.match(html, /a &lt; b/)
+  assert.match(html, /target="_blank"/)
+  assert.match(html, /article-code-block-prompt/)
+  assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/)
+})
+
+test('resource blocks cover aliases, linked fallbacks, and external video previews', () => {
+  const repository = renderResourceBlock(`
+type: github
+url: https://example.com/repository/
+`, { language: 'en' })
+  assert.match(repository, /tag-github/)
+  assert.match(repository, />GITHUB</)
+
+  const linked = renderResourceBlock(`
+type: site
+url: https://example.com/secondary/
+`, {
+    articleId: 'demo',
+    resources: [{
+      title: 'Resource collection',
+      links: [{ url: 'https://example.com/secondary/', label: 'Secondary', desc: 'Nested description' }],
+    }],
+  })
+  assert.match(linked, /Secondary/)
+  assert.match(linked, /Nested description/)
+
+  const externalVideo = renderResourceBlock(`
+type: youtube
+url: https://videos.example.com/watch/1
+preview: ./images/poster.jpg
+alt: Poster
+description: External source
+`, { articleId: 'demo', language: 'en' })
+  assert.match(externalVideo, /article-video-card-external/)
+  assert.match(externalVideo, /VIDEO LINK/)
+  assert.match(externalVideo, /\/articles\/demo\/images\/poster\.jpg/)
 })

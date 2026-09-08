@@ -63,6 +63,8 @@ const normalizedType = (type = '') => {
   return value
 }
 
+const firstValue = (...values) => values.find(Boolean) || ''
+
 export const getVideoEmbed = (url) => {
   try {
     const parsed = new URL(url)
@@ -162,30 +164,57 @@ const renderWebsiteCard = ({ type, url, title, preview, alt, description }, lang
   </a>`
 }
 
-export const renderResourceBlock = (body, { articleId = '', resources = [], language = 'zh' } = {}) => {
+const parseValidResourceBlock = (body) => {
   const fields = parseResourceFields(body)
   const type = normalizedType(fields.type)
   const url = fields.url || ''
 
   if (!RESOURCE_TYPES.has(type) || !isSafeResourceUrl(url)) {
     warnInvalidResource(fields)
-    return ''
+    return null
   }
 
+  return { fields, type, url }
+}
+
+const resolveResourceCardData = ({ fields, type, url }, { articleId = '', resources = [] } = {}) => {
   const matched = findMatchedResource(url, resources) || {}
-  const title = fields.title || matched.title || matched.label || new URL(url).hostname.replace(/^www\./, '')
-  const preview = resolvePreview(fields.preview || matched.previewImage || matched.poster || matched.image || '', articleId)
-  const description = fields.description || matched.summary || matched.desc || ''
-  const alt = fields.alt || matched.previewAlt || `${title} 预览`
+  const title = firstValue(
+    fields.title,
+    matched.title,
+    matched.label,
+    new URL(url).hostname.replace(/^www\./, ''),
+  )
+  const preview = resolvePreview(firstValue(
+    fields.preview,
+    matched.previewImage,
+    matched.poster,
+    matched.image,
+  ), articleId)
+  const description = firstValue(fields.description, matched.summary, matched.desc)
+  const alt = firstValue(fields.alt, matched.previewAlt, `${title} 预览`)
 
-  if (type === 'video') {
-    const video = getVideoEmbed(url)
-    return video
-      ? renderEmbeddedVideoCard({ url, title, description }, video, language)
-      : renderExternalVideoCard({ url, title, preview, alt, description }, language)
-  }
+  return { type, url, title, preview, description, alt }
+}
 
-  return `<div class="article-link-cards-grid">${renderWebsiteCard({ type, url, title, preview, alt, description }, language)}</div>`
+const renderVideoResource = ({ url, title, preview, alt, description }, language) => {
+  const video = getVideoEmbed(url)
+  return video
+    ? renderEmbeddedVideoCard({ url, title, description }, video, language)
+    : renderExternalVideoCard({ url, title, preview, alt, description }, language)
+}
+
+const renderResolvedResource = (resource, language) => {
+  if (resource.type === 'video') return renderVideoResource(resource, language)
+  return `<div class="article-link-cards-grid">${renderWebsiteCard(resource, language)}</div>`
+}
+
+export const renderResourceBlock = (body, context = {}) => {
+  const candidate = parseValidResourceBlock(body)
+  if (!candidate) return ''
+
+  const resource = resolveResourceCardData(candidate, context)
+  return renderResolvedResource(resource, context.language || 'zh')
 }
 
 export const transformResourceBlocks = (text, context = {}) => text.replace(

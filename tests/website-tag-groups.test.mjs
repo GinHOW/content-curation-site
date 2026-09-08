@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import test from 'node:test'
+import { test } from 'vitest'
 import { createServer } from 'vite'
 import { publicResource, validateResourcePayload } from '../functions/api/_resourceUtils.js'
 

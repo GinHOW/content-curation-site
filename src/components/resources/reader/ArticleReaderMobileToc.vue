@@ -65,7 +65,7 @@ const isTocSectionActive = (section) =>
 .mobile-toc-bar {
   display: none;
   position: sticky;
-  top: 3.7rem;
+  top: 3.5rem;
   z-index: 40;
   border-bottom: 1px solid var(--resources-rule, #d7d7d1);
   background: #ffffff;

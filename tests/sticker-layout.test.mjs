@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict'
-import test from 'node:test'
+import { test } from 'vitest'
 import {
   canPlaceSticker,
   constrainStickerPosition,
+  createFallbackLayout,
   createFixedStickerLayouts,
   createStickerLayouts,
   getStickerBounds,
@@ -128,4 +129,49 @@ test('fixed layouts keep anchor positions and vary only rotation per load', () =
       assert.equal(extreme[presetName][item.id].rotation, -item.rotationRange)
     }
   }
+})
+
+test('fallback layout handles anchorless items, unmatched templates and impossible placements', () => {
+  // 场景 1: 自定义角色条目，模板匹配失败时自动降级走 fallback 兜底布局
+  const customItems = [
+    {
+      id: 'custom-1',
+      layoutRole: 'unmatched-role-1',
+      widths: { desktop: 14, tablet: 14, mobile: 20 },
+      aspectRatio: 1,
+      anchors: { desktop: { x: 25, y: 35, jitterX: 2, jitterY: 2 } },
+    },
+    {
+      id: 'custom-2',
+      layoutRole: 'unmatched-role-2',
+      widths: { desktop: 14, tablet: 14, mobile: 20 },
+      aspectRatio: 1,
+      anchors: { desktop: { x: 75, y: 65, jitterX: 2, jitterY: 2 } },
+    },
+  ]
+
+  const fallbackResult = createFallbackLayout(customItems, 'desktop', 42)
+  assert.ok(fallbackResult['custom-1'] && fallbackResult['custom-2'])
+
+  // 验证诊断接口中 templateId 标记为 fallback
+  const diagnostics = getStickerLayoutDiagnostics(customItems, 888)
+  assert.equal(diagnostics.desktop.templateId, 'fallback')
+
+  // 场景 2: 未配置预设锚点的条目在 fallback 中平稳回退至默认居中扰动
+  const anchorlessItems = [
+    { id: 'free-1', layoutRole: 'unmatched', widths: { desktop: 12, tablet: 12, mobile: 16 }, aspectRatio: 1.2 },
+    { id: 'free-2', layoutRole: 'unmatched', widths: { desktop: 12, tablet: 12, mobile: 16 }, aspectRatio: 1.2 },
+  ]
+  const anchorlessResult = createFallbackLayout(anchorlessItems, 'desktop', 101)
+  assert.ok(anchorlessResult['free-1'] && anchorlessResult['free-2'])
+
+  // 场景 3: 尺寸极端溢出的不可排版情况应抛出 Unable to place 明确异常
+  const impossibleItems = [
+    { id: 'huge-1', layoutRole: 'unmatched', widths: { desktop: 98, tablet: 98, mobile: 98 }, aspectRatio: 1 },
+    { id: 'huge-2', layoutRole: 'unmatched', widths: { desktop: 98, tablet: 98, mobile: 98 }, aspectRatio: 1 },
+  ]
+  assert.throws(
+    () => createFallbackLayout(impossibleItems, 'desktop', 1),
+    /Unable to place stickers/,
+  )
 })

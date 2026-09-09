@@ -52,6 +52,57 @@ const protectFencedCodeBlocks = (text, codeBlocks) => {
   return output.join('\n')
 }
 
+const splitTableCells = (line) => String(line)
+  .trim()
+  .replace(/^\|/, '')
+  .replace(/\|$/, '')
+  .split('|')
+  .map((cell) => cell.trim())
+
+const isTableDivider = (line) => {
+  const cells = splitTableCells(line)
+  return cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(cell))
+}
+
+const renderMarkdownTables = (text) => {
+  const lines = String(text).split('\n')
+  const output = []
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const header = lines[index]
+    const divider = lines[index + 1]
+    const headerCells = splitTableCells(header)
+
+    if (!header.includes('|') || !divider || !isTableDivider(divider) || headerCells.length !== splitTableCells(divider).length) {
+      output.push(header)
+      continue
+    }
+
+    const rows = []
+    let rowIndex = index + 2
+    while (rowIndex < lines.length && lines[rowIndex].includes('|')) {
+      const cells = splitTableCells(lines[rowIndex])
+      if (cells.length !== headerCells.length) break
+      rows.push(cells)
+      rowIndex += 1
+    }
+
+    if (rows.length === 0) {
+      output.push(header)
+      continue
+    }
+
+    const renderCells = (cells, tag) => cells
+      .map((cell) => `<${tag}>${escapeHtml(cell)}</${tag}>`)
+      .join('')
+
+    output.push(`<div class="article-table-scroll"><table class="article-table"><thead><tr>${renderCells(headerCells, 'th')}</tr></thead><tbody>${rows.map((cells) => `<tr>${renderCells(cells, 'td')}</tr>`).join('')}</tbody></table></div>`)
+    index = rowIndex - 1
+  }
+
+  return output.join('\n')
+}
+
 export const renderArticleMarkdown = (md, {
   articleId = '',
   outline = { sections: [], headings: [] },
@@ -158,6 +209,8 @@ export const renderArticleMarkdown = (md, {
     return `<ul>${items.map((item) => `<li>${item}</li>`).join('')}</ul>`
   })
 
+  html = renderMarkdownTables(html)
+
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
   html = html.replace(/__([^_]+)__/g, '<strong>$1</strong>')
   html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>')
@@ -182,6 +235,7 @@ export const renderArticleMarkdown = (md, {
         trimmed.startsWith('<pre') ||
         trimmed.startsWith('<ul') ||
         trimmed.startsWith('<ol') ||
+        trimmed.startsWith('<div class="article-table-scroll">') ||
         trimmed.startsWith('\u0000RESOURCE_BLOCK_') ||
         trimmed.startsWith('\u0000CODE_BLOCK_') ||
         trimmed.startsWith('<a class="article-link-card-item')

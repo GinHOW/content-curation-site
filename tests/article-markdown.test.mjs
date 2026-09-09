@@ -119,6 +119,21 @@ test('ordinary markdown links remain links and are not promoted to cards', () =>
   assert.doesNotMatch(html, /article-link-card-item/)
 })
 
+test('GFM tables render as accessible HTML tables instead of paragraphs', () => {
+  const markdown = [
+    '| 前缀 | 用途 |',
+    '| --- | --- |',
+    '| `feat` | 新功能开发 |',
+    '| `fix` | 修复 Bug |',
+  ].join('\n')
+  const html = renderArticleMarkdown(markdown)
+
+  assert.match(html, /<div class="article-table-scroll"><table class="article-table">/)
+  assert.match(html, /<thead><tr><th>前缀<\/th><th>用途<\/th><\/tr><\/thead>/)
+  assert.match(html, /<tbody><tr><td><code>feat<\/code><\/td><td>新功能开发<\/td><\/tr>/)
+  assert.doesNotMatch(html, /<p>\| 前缀 \| 用途 \|/)
+})
+
 test('invalid resource blocks remain readable code blocks', () => {
   const html = renderArticleMarkdown('```resource\ntype: website\nurl: javascript:alert(1)\n```')
 

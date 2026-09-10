@@ -33,6 +33,15 @@ AI Coding 意味着设计者的工作从直接执行视觉细节，进一步扩�
 
 ## 1.2 HTML、CSS、JavaScript 与素材
 
+```resource
+type: website
+title: W3school HTML手册
+url: https://www.w3school.com.cn/tags/index.asp
+preview: images/W3school-html.png
+description: HTML字典
+```
+
+
 HTML （**HyperText Markup Language**，中文常译为“超文本标记语言”）决定页面中有什么，相当于展品清单与空间结构；
 CSS （**Cascading Style Sheets**，中文常译为“层叠样式表”）决定这些内容怎样呈现，相当于视觉系统与陈列规则；
 JavaScript 负责点击、切换、筛选和数据更新等行为，相当于展览中的互动机制；

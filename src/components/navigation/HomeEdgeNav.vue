@@ -95,7 +95,7 @@ const handleClick = (event, id) => {
   flex-direction: row;
   gap: 0.35rem;
   align-items: center;
-  width: 12px;
+  width: clamp(7px, 0.68vw, 9px);
   min-height: 0;
   margin: 0;
   padding: 0.45rem 0.3rem;
@@ -121,7 +121,7 @@ const handleClick = (event, id) => {
 :global(.home-page .index-link:hover),
 :global(.home-page .index-link:focus-visible),
 :global(.home-page .index-link.is-active) {
-  width: 12px;
+  width: clamp(7px, 0.68vw, 9px);
   border: 0;
   background: var(--tab-color);
   filter: saturate(1.05) brightness(0.98);
@@ -152,7 +152,7 @@ const handleClick = (event, id) => {
   display: inline-block;
   color: inherit;
   font-family: var(--font-body);
-  font-size: 0.64rem;
+  font-size: clamp(0.44rem, 0.7vw, 0.56rem);
   line-height: 1.15;
   letter-spacing: 0.03em;
   white-space: nowrap;
